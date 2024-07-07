@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 from ctrls.ctrl_darkroom import (
     DarkroomOptPolicy,
@@ -33,7 +34,7 @@ def deploy_online_vec(vec_env, controller, Heps, H, horizon):
         (num_envs, ctx_rollouts, horizon, 1)).float().to(device)
 
     cum_means = []
-    for i in range(ctx_rollouts):
+    for i in tqdm(range(ctx_rollouts), desc="Deploying context rollouts"):
         batch = {
             'context_states': context_states[:, :i, :, :].reshape(num_envs, -1, vec_env.state_dim),
             'context_actions': context_actions[:, :i, :].reshape(num_envs, -1, vec_env.action_dim),
@@ -90,7 +91,7 @@ def online(eval_trajs, model, Heps, H, n_eval, dim, horizon, permuted=False):
     all_means_lnr = []
 
     envs = []
-    for i_eval in range(n_eval):
+    for i_eval in tqdm(range(n_eval), desc="Online evaluation"):
         print(f"Eval traj: {i_eval}")
         traj = eval_trajs[i_eval]
         if permuted:
@@ -129,7 +130,7 @@ def offline(eval_trajs, model, n_eval, H, dim, permuted=False):
     envs = []
     trajs = []
 
-    for i_eval in range(n_eval):
+    for i_eval in tqdm(range(n_eval), desc="Offline evaluation"):
         print(f"Eval traj: {i_eval}")
 
         traj = eval_trajs[i_eval]

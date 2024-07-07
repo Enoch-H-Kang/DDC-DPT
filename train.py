@@ -5,6 +5,7 @@ if mp.get_start_method(allow_none=True) is None:
 import argparse
 import os
 import time
+from tqdm import tqdm
 from IPython import embed
 
 import matplotlib.pyplot as plt
@@ -257,8 +258,8 @@ if __name__ == '__main__':
 
     printw("Num train batches: " + str(len(train_loader)))
     printw("Num test batches: " + str(len(test_loader)))
-
-    for epoch in range(num_epochs):
+ 
+    for epoch in tqdm(range(num_epochs), desc="Training Progress"):
         # EVALUATION
         printw(f"Epoch: {epoch + 1}")
         start_time = time.time()

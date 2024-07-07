@@ -2,7 +2,7 @@ import argparse
 import os
 import pickle
 import random
-
+from tqdm import tqdm
 import gym
 import numpy as np
 from skimage.transform import resize
@@ -157,7 +157,7 @@ def rollin_mdp_miniworld(env, horizon, rollin_type, target_shape=(25, 25, 3)):
 
 def generate_bandit_histories_from_envs(envs, n_hists, n_samples, cov, type):
     trajs = []
-    for env in envs:
+    for env in tqdm(envs):
         for j in range(n_hists):
             (
                 context_states,
@@ -188,7 +188,7 @@ def generate_bandit_histories_from_envs(envs, n_hists, n_samples, cov, type):
 
 def generate_mdp_histories_from_envs(envs, n_hists, n_samples, rollin_type):
     trajs = []
-    for env in envs:
+    for env in tqdm(envs):
         for j in range(n_hists):
             (
                 context_states,
