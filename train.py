@@ -18,14 +18,8 @@ import random
 from dataset import Dataset, ImageDataset
 from net import Transformer, ImageTransformer
 from utils import (
-    build_bandit_data_filename,
-    build_bandit_model_filename,
-    build_linear_bandit_data_filename,
-    build_linear_bandit_model_filename,
-    build_darkroom_data_filename,
-    build_darkroom_model_filename,
-    build_miniworld_data_filename,
-    build_miniworld_model_filename,
+    build_Zurcher_data_filename,
+    build_Zurcher_model_filename,
     worker_init_fn,
 )
 
@@ -82,9 +76,7 @@ if __name__ == '__main__':
     np.random.seed(tmp_seed)
     random.seed(tmp_seed)
 
-    if shuffle and env == 'linear_bandit':
-        raise Exception("Are you sure you want to shuffle on the linear bandit? Data collected from an adaptive algorithm in a stochastic setting can bias the learner if shuffled.")
-
+   
     dataset_config = {
         'n_hists': n_hists,
         'n_samples': n_samples,
@@ -105,78 +97,17 @@ if __name__ == '__main__':
         'dim': dim,
         'seed': seed,
     }
-    if env == 'bandit':
-        state_dim = 1
-
-        dataset_config.update({'var': var, 'cov': cov, 'type': 'uniform'})
-        path_train = build_bandit_data_filename(
-            env, n_envs, dataset_config, mode=0)
-        path_test = build_bandit_data_filename(
-            env, n_envs, dataset_config, mode=1)
-
-        model_config.update({'var': var, 'cov': cov})
-        filename = build_bandit_model_filename(env, model_config)
-
-    elif env == 'bandit_thompson':
-        state_dim = 1
-
-        dataset_config.update({'var': var, 'cov': cov, 'type': 'bernoulli'})
-        path_train = build_bandit_data_filename(
-            env, n_envs, dataset_config, mode=0)
-        path_test = build_bandit_data_filename(
-            env, n_envs, dataset_config, mode=1)
-
-        model_config.update({'var': var, 'cov': cov})
-        filename = build_bandit_model_filename(env, model_config)
-
-    elif env == 'linear_bandit':
-        state_dim = 1
-
-        dataset_config.update({'lin_d': lin_d, 'var': var, 'cov': cov})
-        path_train = build_linear_bandit_data_filename(
-            env, n_envs, dataset_config, mode=0)
-        path_test = build_linear_bandit_data_filename(
-            env, n_envs, dataset_config, mode=1)
-
-        model_config.update({'lin_d': lin_d, 'var': var, 'cov': cov})
-        filename = build_linear_bandit_model_filename(env, model_config)
-
-    elif env.startswith('darkroom'):
+    if env.startswith('Zurcher'):
         state_dim = 2
         action_dim = 5
 
         dataset_config.update({'rollin_type': 'uniform'})
-        path_train = build_darkroom_data_filename(
+        path_train = build_Zurcher_data_filename(
             env, n_envs, dataset_config, mode=0)
-        path_test = build_darkroom_data_filename(
+        path_test = build_Zurcher_data_filename(
             env, n_envs, dataset_config, mode=1)
 
-        filename = build_darkroom_model_filename(env, model_config)
-
-    elif env == 'miniworld':
-        state_dim = 2   # direction vector is 2D, no position included
-        action_dim = 4
-
-        dataset_config.update({'rollin_type': 'uniform'})
-
-        increment = 5000
-        starts = np.arange(0, n_envs, increment)
-        starts = np.array(starts)
-        ends = starts + increment - 1
-
-        paths_train = []
-        paths_test = []
-        for start_env_id, end_env_id in zip(starts, ends):
-            path_train = build_miniworld_data_filename(
-                env, start_env_id, end_env_id, dataset_config, mode=0)
-            path_test = build_miniworld_data_filename(
-                env, start_env_id, end_env_id, dataset_config, mode=1)
-
-            paths_train.append(path_train)
-            paths_test.append(path_test)
-
-        filename = build_miniworld_model_filename(env, model_config)
-        print(f"Generate filename: {filename}")
+        filename = build_Zurcher_model_filename(env, model_config)
 
     else:
         raise NotImplementedError
@@ -193,11 +124,7 @@ if __name__ == '__main__':
         'test': False,
         'store_gpu': True,
     }
-    if env == 'miniworld':
-        config.update({'image_size': 25, 'store_gpu': False})
-        model = ImageTransformer(config).to(device)
-    else:
-        model = Transformer(config).to(device)
+    model = Transformer(config).to(device)
 
     params = {
         'batch_size': 64,
@@ -220,32 +147,8 @@ if __name__ == '__main__':
 
 
 
-
-    if env == 'miniworld':
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])
-        ])
-
-
-
-        params.update({'num_workers': 16,
-                'prefetch_factor': 2,
-                'persistent_workers': True,
-                'pin_memory': True,
-                'batch_size': 64,
-                'worker_init_fn': worker_init_fn,
-            })
-
-
-        printw("Loading miniworld data...")
-        train_dataset = ImageDataset(paths_train, config, transform)
-        test_dataset = ImageDataset(paths_test, config, transform)
-        printw("Done loading miniworld data")
-    else:
-        train_dataset = Dataset(path_train, config)
-        test_dataset = Dataset(path_test, config)
+    train_dataset = Dataset(path_train, config)
+    test_dataset = Dataset(path_test, config)
 
     train_loader = torch.utils.data.DataLoader(train_dataset, **params)
     test_loader = torch.utils.data.DataLoader(test_dataset, **params)
@@ -311,7 +214,7 @@ if __name__ == '__main__':
 
 
         # LOGGING
-        if (epoch + 1) % 50 == 0 or (env == 'linear_bandit' and (epoch + 1) % 10 == 0):
+        if (epoch + 1) % 50 == 0:
             torch.save(model.state_dict(),
                        f'models/{filename}_epoch{epoch+1}.pt')
 
