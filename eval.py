@@ -8,14 +8,12 @@ from IPython import embed
 
 import common_args
 from evals import eval_Zurcher
-from net import Transformer, ImageTransformer
+from net import Transformer
 from utils import (
     build_Zurcher_data_filename,
     build_Zurcher_model_filename
 )
 import numpy as np
-import scipy
-import time
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -155,8 +153,7 @@ if __name__ == '__main__':
             'horizon': horizon,
             'H': H,
             'n_eval': min(20, n_eval),
-            'dim': dim,
-            'permuted': True if envname == 'Zurcher_permuted' else False,
+            'dim': dim
         }
         eval_Zurcher.online(eval_trajs, model, **config)
         plt.savefig(f'figs/{evals_filename}/online/{save_filename}.png')
