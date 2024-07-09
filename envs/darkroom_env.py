@@ -82,34 +82,6 @@ class DarkroomEnv(BaseEnv):
         return zeros
 
 
-class DarkroomEnvPermuted(DarkroomEnv):
-    """
-    Darkroom environment with permuted actions. The goal is always the bottom right corner.
-    """
-
-    def __init__(self, dim, perm_index, H):
-        goal = np.array([dim - 1, dim - 1])
-        super().__init__(dim, goal, H)
-
-        self.perm_index = perm_index
-        assert perm_index < 120     # 5! permutations in darkroom
-        actions = np.arange(self.action_space.n)
-        permutations = list(itertools.permutations(actions))
-        self.perm = permutations[perm_index]
-
-    def transit(self, state, action):
-        perm_action = np.zeros(self.action_space.n)
-        perm_action[self.perm[np.argmax(action)]] = 1
-        return super().transit(state, perm_action)
-
-    def opt_action(self, state):
-        action = super().opt_action(state)
-        action = np.argmax(action)
-        perm_action = np.where(self.perm == action)[0][0]
-        zeros = np.zeros(self.action_space.n)
-        zeros[perm_action] = 1
-        return zeros
-
 
 class DarkroomEnvVec(BaseEnv):
     """

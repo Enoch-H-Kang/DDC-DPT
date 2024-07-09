@@ -10,7 +10,6 @@ from ctrls.ctrl_darkroom import (
 )
 from envs.darkroom_env import (
     DarkroomEnv,
-    DarkroomEnvPermuted,
     DarkroomEnvVec,
 )
 from utils import convert_to_tensor
@@ -85,7 +84,7 @@ def deploy_online_vec(vec_env, controller, Heps, H, horizon):
     return np.stack(cum_means, axis=1)
 
 
-def online(eval_trajs, model, Heps, H, n_eval, dim, horizon, permuted=False):
+def online(eval_trajs, model, Heps, H, n_eval, dim, horizon):
     assert H % horizon == 0
 
     all_means_lnr = []
@@ -94,10 +93,7 @@ def online(eval_trajs, model, Heps, H, n_eval, dim, horizon, permuted=False):
     for i_eval in tqdm(range(n_eval), desc="Online evaluation"):
         print(f"Eval traj: {i_eval}")
         traj = eval_trajs[i_eval]
-        if permuted:
-            env = DarkroomEnvPermuted(dim, traj['perm_index'], horizon)
-        else:
-            env = DarkroomEnv(dim, traj['goal'], horizon)
+        env = DarkroomEnv(dim, traj['goal'], horizon)
         envs.append(env)
 
     lnr_controller = DarkroomTransformerController(
@@ -122,7 +118,7 @@ def online(eval_trajs, model, Heps, H, n_eval, dim, horizon, permuted=False):
     plt.title(f'Online Evaluation on {n_eval} Envs')
 
 
-def offline(eval_trajs, model, n_eval, H, dim, permuted=False):
+def offline(eval_trajs, model, n_eval, H, dim):
     all_rs_opt = []
     all_rs_lnr = []
     all_rs_lnr_greedy = []
@@ -141,10 +137,7 @@ def offline(eval_trajs, model, n_eval, H, dim, permuted=False):
             'context_rewards': convert_to_tensor(traj['context_rewards'][None, :, None]),
         }
 
-        if permuted:
-            env = DarkroomEnvPermuted(dim, traj['perm_index'], H)
-        else:
-            env = DarkroomEnv(dim, traj['goal'], H)
+        env = DarkroomEnv(dim, traj['goal'], H)
 
         true_opt = DarkroomOptPolicy(env)
         true_opt.set_batch(batch)
