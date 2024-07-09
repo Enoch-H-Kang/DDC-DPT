@@ -130,10 +130,10 @@ if __name__ == '__main__':
 
         config.update({'dim': dim, 'rollin_type': 'uniform'})
         goals = np.array([[(j, i) for i in range(dim)]
-                         for j in range(dim)]).reshape(-1, 2)
+                         for j in range(dim)]).reshape(-1, 2) #flatten the array
         np.random.RandomState(seed=0).shuffle(goals)
-        train_test_split = int(.8 * len(goals))
-        train_goals = goals[:train_test_split]
+        train_test_split = int(.8 * len(goals)) #Calculates index that splits train/test data
+        train_goals = goals[:train_test_split] 
         test_goals = goals[train_test_split:]
 
         eval_goals = np.array(test_goals.tolist() *
