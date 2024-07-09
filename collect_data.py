@@ -76,9 +76,7 @@ def generate_mdp_histories_from_envs(envs, n_hists, n_samples, rollin_type):
                     'goal': env.goal,
                 }
 
-                # Add perm_index for DarkroomEnvPermuted
-                if hasattr(env, 'perm_index'):
-                    traj['perm_index'] = env.perm_index
+            
 
                 trajs.append(traj)
     return trajs
@@ -89,6 +87,7 @@ def generate_mdp_histories_from_envs(envs, n_hists, n_samples, rollin_type):
 
 def generate_Zurcher_histories(goals, dim, horizon, **kwargs):
     envs = [darkroom_env.DarkroomEnv(dim, goal, horizon) for goal in goals]
+    
     trajs = generate_mdp_histories_from_envs(envs, **kwargs)
     return trajs
 
