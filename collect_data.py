@@ -8,7 +8,7 @@ from skimage.transform import resize
 from IPython import embed
 
 import common_args
-from envs import darkroom_env, Zurcher_env
+from envs import Zurcher_env
 from utils import (
     build_Zurcher_data_filename
 )
@@ -52,48 +52,41 @@ def rand_pos_and_dir(env):
     return pos_vec, dir_vec
 
 
-def generate_mdp_histories_from_envs(envs, n_hists, n_samples, rollin_type):
+
+
+
+def generate_Zurcher_histories(buses, theta, beta, horizon, xmax, rollin_type, **kwargs):
+    envs = [Zurcher_env.ZurcherEnv(theta, beta, horizon, xmax, busType) for busType in buses]
+    
     trajs = []
     for env in tqdm(envs):
-        for j in range(n_hists):
-            (
-                context_states,
-                context_actions,
-                context_next_states,
-                context_rewards,
-            ) = rollin_mdp(env, rollin_type=rollin_type)
-            for k in range(n_samples):
-                query_state = env.sample_state()
-                optimal_action = env.opt_action(query_state)
+        (
+            context_states,
+            context_actions,
+            context_next_states,
+            context_rewards,
+        ) = rollin_mdp(env, rollin_type=rollin_type)
+        for k in range(len(context_states)):  
+            query_state = context_states[k]
+            optimal_action = env.opt_action(query_state)
+            traj = {
+                'query_state': query_state,
+                'optimal_action': optimal_action,
+                'context_states': context_states[:k],
+                'context_actions': context_actions[:k],
+                'context_next_states': context_next_states[:k],
+                'context_rewards': context_rewards[:k],
+                'busType': env.type,
+            }
 
-                traj = {
-                    'query_state': query_state,
-                    'optimal_action': optimal_action,
-                    'context_states': context_states,
-                    'context_actions': context_actions,
-                    'context_next_states': context_next_states,
-                    'context_rewards': context_rewards,
-                    'goal': env.goal,
-                }
+            trajs.append(traj)
 
-            
-
-                trajs.append(traj)
-    return trajs
-
-
-
-
-
-def generate_Zurcher_histories(goals, dim, horizon, **kwargs):
-    envs = [darkroom_env.DarkroomEnv(dim, goal, horizon) for goal in goals]
-    
-    trajs = generate_mdp_histories_from_envs(envs, **kwargs)
     return trajs
 
 
 
 if __name__ == '__main__':
+    #python3 collect_data.py --env Zurcher --Bustotal 100 --beta 0.95 --theta [1,2,9] --H 100 --maxMileage 200 --numTypes 4 --extrapolation False
     np.random.seed(0)
     random.seed(0)
 
@@ -104,51 +97,45 @@ if __name__ == '__main__':
     print("Args: ", args)
 
     env = args['env']
-    n_envs = args['envs']
-    n_eval_envs = args['envs_eval']
-    n_hists = args['hists']
-    n_samples = args['samples']
+    beta = args['beta']
+    theta = args['theta']
     horizon = args['H']
-    dim = args['dim']
-    var = args['var']
-    cov = args['cov']
-    env_id_start = args['env_id_start']
-    env_id_end = args['env_id_end']
-    lin_d = args['lin_d']
-
-
-    n_train_envs = int(.8 * n_envs)
-    n_test_envs = n_envs - n_train_envs
+    Bustotal = args['Bustotal']
+    xmax = args['maxMileage']
+    numTypes = args['numTypes']
+    extrapolation = args['extrapolation']
+    
 
     config = {
-        'n_hists': n_hists,
-        'n_samples': n_samples,
         'horizon': horizon,
     }
 
+    # Main data collection part
+    
     if env == 'Zurcher':
 
-        config.update({'dim': dim, 'rollin_type': 'uniform'})
-        goals = np.array([[(j, i) for i in range(dim)]
-                         for j in range(dim)]).reshape(-1, 2) #flatten the array
-        np.random.RandomState(seed=0).shuffle(goals)
-        train_test_split = int(.8 * len(goals)) #Calculates index that splits train/test data
-        train_goals = goals[:train_test_split] 
-        test_goals = goals[train_test_split:]
+        config.update({'Bustotal': Bustotal, 'maxMileage': xmax,'theta': theta, 'beta': beta, 'xmax': xmax, 'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'uniform'})
+        #We use uniform for RL objective. For IRL objective, we use expert.
+        
+        bus_types = np.random.choice(numTypes, Bustotal) #for n_envs number of environments, randomly choose a bus type from numTypes
+        train_test_split = int(.8 * Bustotal) #Calculates index that splits train/test data
+        train_buses = bus_types[:train_test_split] 
+        test_buses = bus_types[train_test_split:]
 
-        eval_goals = np.array(test_goals.tolist() *
-                              int(100 // len(test_goals)))
-        train_goals = np.repeat(train_goals, n_envs // (dim * dim), axis=0)
-        test_goals = np.repeat(test_goals, n_envs // (dim * dim), axis=0)
-
-        train_trajs = generate_Zurcher_histories(train_goals, **config)
-        test_trajs = generate_Zurcher_histories(test_goals, **config)
-        eval_trajs = generate_Zurcher_histories(eval_goals, **config)
+        if extrapolation == 'False':
+            eval_buses = np.random.choice(numTypes, 100)
+            
+        else:
+            raise NotImplementedError
+        
+        train_trajs = generate_Zurcher_histories(train_buses, **config)
+        test_trajs = generate_Zurcher_histories(test_buses, **config)
+        eval_trajs = generate_Zurcher_histories(eval_buses, **config)
 
         train_filepath = build_Zurcher_data_filename(
-            env, n_envs, config, mode=0)
+            env, Bustotal, config, mode=0)
         test_filepath = build_Zurcher_data_filename(
-            env, n_envs, config, mode=1)
+            env, Bustotal, config, mode=1)
         eval_filepath = build_Zurcher_data_filename(env, 100, config, mode=2)
 
     else:

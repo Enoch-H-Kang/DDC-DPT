@@ -15,31 +15,32 @@ def worker_init_fn(worker_id):
 
 def build_Zurcher_data_filename(env, n_envs, config, mode):
     """
-    Builds the filename for the darkroom data.
+    Builds the filename for the Zurcher data.
     Mode is either 0: train, 1: test, 2: eval.
     """
     filename_template = 'datasets/trajs_{}.pkl'
     filename = env
     filename += '_envs' + str(n_envs)
     if mode != 2:
-        filename += '_hists' + str(config['n_hists'])
-        filename += '_samples' + str(config['n_samples'])
+        filename += '_Bustotal' + str(config['Bustotal'])
+    filename += '_numTypes' + str(config['numTypes'])    
     filename += '_H' + str(config['horizon'])
-    filename += '_d' + str(config['dim'])
+    filename += '_' + config['rollin_type']
+    #filename += '_extrapolation' + str(config['extrapolation'])
     if mode == 0:
         filename += '_train'
     elif mode == 1:
         filename += '_test'
     elif mode == 2:
-        filename += '_' + config['rollin_type']
         filename += '_eval'
         
     return filename_template.format(filename)
 
 
+
 def build_Zurcher_model_filename(env, config):
     """
-    Builds the filename for the darkroom model.
+    Builds the filename for the Zurcher model.
     """
     filename = env
     filename += '_shuf' + str(config['shuffle'])
@@ -49,12 +50,12 @@ def build_Zurcher_model_filename(env, config):
     filename += '_layer' + str(config['n_layer'])
     filename += '_head' + str(config['n_head'])
     filename += '_envs' + str(config['n_envs'])
-    filename += '_hists' + str(config['n_hists'])
-    filename += '_samples' + str(config['n_samples'])
+    filename += '_Bustotal' + str(config['Bustotal'])
     filename += '_H' + str(config['horizon'])
-    filename += '_d' + str(config['dim'])
+    filename += '_maxMileage' + str(config['maxMileage'])
     filename += '_seed' + str(config['seed'])
     return filename
+
 
 
 

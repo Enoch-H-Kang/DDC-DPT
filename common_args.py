@@ -1,30 +1,28 @@
 
+def str_to_float_list(arg):
+    return [float(x) for x in arg.strip('[]').split(',')]
+
 def add_dataset_args(parser):
-    parser.add_argument("--envs", type=int, required=False,
-                        default=100000, help="Envs")
-    parser.add_argument("--envs_eval", type=int, required=False,
-                        default=100, help="Eval Envs")
-    parser.add_argument("--hists", type=int, required=False,
-                        default=1, help="Histories")
-    parser.add_argument("--samples", type=int,
-                        required=False, default=1, help="Samples")
+    
+    parser.add_argument("--env", type=str, required=True, help="Environment")
+    
+    parser.add_argument("--Bustotal", type=int, required=False,
+                        default=100, help="Total number of buses")
+
+    parser.add_argument("--beta", type=float, required=False,
+                        default=0.95, help="Beta")
+    parser.add_argument("--theta", type=str_to_float_list, required=False, default=[1, 2, 9], help="Theta values as a list of floats")
+    
     parser.add_argument("--H", type=int, required=False,
                         default=100, help="Context horizon")
-    parser.add_argument("--dim", type=int, required=False,
-                        default=10, help="Dimension")
-    parser.add_argument("--lin_d", type=int, required=False,
-                        default=2, help="Linear feature dimension")
-
-    parser.add_argument("--var", type=float, required=False,
-                        default=0.0, help="Bandit arm variance")
-    parser.add_argument("--cov", type=float, required=False,
-                        default=0.0, help="Coverage of optimal arm")
-
-    parser.add_argument("--env", type=str, required=True, help="Environment")
-    parser.add_argument("--env_id_start", type=int, required=False,
-                        default=-1, help="Start index of envs to sample")
-    parser.add_argument("--env_id_end", type=int, required=False,
-                        default=-1, help="End index of envs to sample")
+    
+    parser.add_argument("--maxMileage", type=int, required=False,
+                        default=200, help="Max mileage")
+    parser.add_argument("--numTypes", type=int, required=False,
+                        default=10, help="Number of bus types")
+    parser.add_argument("--extrapolation", type=str, required=False,
+                        default='False', help="Extrapolation")
+    
 
 
 def add_model_args(parser):
