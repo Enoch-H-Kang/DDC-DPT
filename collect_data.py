@@ -8,7 +8,7 @@ from skimage.transform import resize
 from IPython import embed
 
 import common_args
-from envs import darkroom_env
+from envs import darkroom_env, Zurcher_env
 from utils import (
     build_Zurcher_data_filename
 )
