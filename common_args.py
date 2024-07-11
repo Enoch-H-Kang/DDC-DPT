@@ -6,7 +6,7 @@ def add_dataset_args(parser):
     
     parser.add_argument("--env", type=str, required=True, help="Environment")
     
-    parser.add_argument("--Bustotal", type=int, required=False,
+    parser.add_argument("--bustotal", type=int, required=False,
                         default=100, help="Total number of buses")
 
     parser.add_argument("--beta", type=float, required=False,

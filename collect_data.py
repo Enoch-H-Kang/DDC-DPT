@@ -7,11 +7,35 @@ import numpy as np
 from skimage.transform import resize
 from IPython import embed
 
-import common_args
 from envs import Zurcher_env
 from utils import (
     build_Zurcher_data_filename
 )
+
+def str_to_float_list(arg):
+    return [float(x) for x in arg.strip('[]').split(',')]
+
+def add_dataset_args(parser):
+    
+    parser.add_argument("--env", type=str, required=True, help="Environment")
+    
+    parser.add_argument("--bustotal", type=int, required=False,
+                        default=100, help="Total number of buses")
+
+    parser.add_argument("--beta", type=float, required=False,
+                        default=0.95, help="Beta")
+    parser.add_argument("--theta", type=str_to_float_list, required=False, default=[1, 2, 9], help="Theta values as a list of floats")
+    
+    parser.add_argument("--H", type=int, required=False,
+                        default=100, help="Context horizon")
+    
+    parser.add_argument("--maxMileage", type=int, required=False,
+                        default=200, help="Max mileage")
+    parser.add_argument("--numTypes", type=int, required=False,
+                        default=10, help="Number of bus types")
+    parser.add_argument("--extrapolation", type=str, required=False,
+                        default='False', help="Extrapolation")
+    
 
 
 def rollin_mdp(env, rollin_type):
@@ -43,14 +67,6 @@ def rollin_mdp(env, rollin_type):
     rewards = np.array(rewards)
 
     return states, actions, next_states, rewards
-
-
-def rand_pos_and_dir(env):
-    pos_vec = np.random.uniform(0, env.size, size=3)
-    pos_vec[1] = 0.0
-    dir_vec = np.random.uniform(0, 2 * np.pi)
-    return pos_vec, dir_vec
-
 
 
 
@@ -85,12 +101,12 @@ def generate_Zurcher_histories(buses, theta, beta, horizon, xmax, rollin_type, *
 
 
 if __name__ == '__main__':
-    #python3 collect_data.py --env Zurcher --Bustotal 100 --beta 0.95 --theta [1,2,9] --H 100 --maxMileage 200 --numTypes 4 --extrapolation False
+    #python3 collect_data.py --env Zurcher --bustotal 100 --beta 0.95 --theta [1,2,9] --H 100 --maxMileage 200 --numTypes 4 --extrapolation False
     np.random.seed(0)
     random.seed(0)
 
     parser = argparse.ArgumentParser() #creates an ArgumentParser object
-    common_args.add_dataset_args(parser) #define what command-line arguments your script can accept
+    add_dataset_args(parser) #define what command-line arguments your script can accept
     args = vars(parser.parse_args()) #you parse the command line. 
                                      #This converts the command-line input into a dictionary of options that you can use in your script.
     print("Args: ", args)
@@ -99,7 +115,7 @@ if __name__ == '__main__':
     beta = args['beta']
     theta = args['theta']
     horizon = args['H']
-    Bustotal = args['Bustotal']
+    bustotal = args['bustotal']
     xmax = args['maxMileage']
     numTypes = args['numTypes']
     extrapolation = args['extrapolation']
@@ -115,12 +131,12 @@ if __name__ == '__main__':
     
     if env == 'Zurcher':
 
-        config.update({'Bustotal': Bustotal, 'maxMileage': xmax,'theta': theta, 'beta': beta, 'xmax': xmax, 
-                       'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'uniform'})
+        config.update({'bustotal': bustotal, 'maxMileage': xmax,'theta': theta, 'beta': beta, 'xmax': xmax, 
+                       'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'expert'})
         #We use uniform for RL objective. For IRL objective, we use expert.
         
-        bus_types = np.random.choice(numTypes, Bustotal) #for n_envs number of environments, randomly choose a bus type from numTypes
-        train_test_split = int(.8 * Bustotal) #Calculates index that splits train/test data
+        bus_types = np.random.choice(numTypes, bustotal) #for n_envs number of environments, randomly choose a bus type from numTypes
+        train_test_split = int(.8 * bustotal) #Calculates index that splits train/test data
         train_buses = bus_types[:train_test_split] 
         test_buses = bus_types[train_test_split:]
 

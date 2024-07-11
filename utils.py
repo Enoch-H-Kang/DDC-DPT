@@ -21,7 +21,7 @@ def build_Zurcher_data_filename(env, config, mode):
     filename_template = 'datasets/trajs_{}.pkl'
     filename = env
     if mode != 2:
-        filename += '_Bustotal' + str(config['Bustotal'])
+        filename += '_bustotal' + str(config['bustotal'])
     filename += '_beta' + str(config['beta'])
     filename += '_theta' + str(config['theta'])    
     filename += '_numTypes' + str(config['numTypes'])    

@@ -39,9 +39,9 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
     print("Args: ", args)
 
-    #python3 train.py --env Zurcher --Bustotal 100 --H 100 --lr 0.001 --layer 4 --head 4 --shuffle --seed 1
+    #python3 train.py --env Zurcher --bustotal 100 --H 100 --lr 0.001 --layer 4 --head 4 --shuffle --seed 1
     env = args['env']
-    Bustotal = args['Bustotal']
+    bustotal = args['bustotal']
     theta = args['theta']
     beta = args['beta']
     horizon = args['H']
@@ -92,8 +92,8 @@ if __name__ == '__main__':
         state_dim = 1
         action_dim = 2
 
-        dataset_config.update({'Bustotal': Bustotal, 'maxMileage': xmax,'theta': theta, 'beta': beta, 'xmax': xmax, 
-                               'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'uniform'})
+        dataset_config.update({'bustotal': bustotal, 'maxMileage': xmax,'theta': theta, 'beta': beta, 'xmax': xmax, 
+                               'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'expert'})
         
         path_train = build_Zurcher_data_filename(
             env, dataset_config, mode=0)
@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
     config = {
         'horizon': horizon,
-        #'Bustotal': Bustotal,
+        #'bustotal': bustotal,
         #'bus_types': numTypes,
         #'theta': theta,
         #'beta': beta,

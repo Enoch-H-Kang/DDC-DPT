@@ -36,12 +36,10 @@ class Transformer(nn.Module):
         self.transformer = GPT2Model(config)
 
         self.embed_transition = nn.Linear(
-            2 * self.state_dim + self.action_dim + 1, self.n_embd)
+            2 * self.state_dim + self.action_dim, self.n_embd)
         self.pred_actions = nn.Linear(self.n_embd, self.action_dim)
 
     def forward(self, x):
-        #print(x['query_states'].shape)
-        #exit(0)
         query_states = x['query_states'][:, None]
         zeros = x['zeros'][:, None]
         state_seq = torch.cat([query_states, x['context_states']], dim=1)
@@ -50,15 +48,17 @@ class Transformer(nn.Module):
         next_state_seq = torch.cat(
             [zeros[:, :, 1], x['context_next_states']], dim=1)
         
-        reward_seq = torch.cat([zeros[:, :, 1], x['context_rewards']], dim=1)
+        #reward_seq = torch.cat([zeros[:, :, 1], x['context_rewards']], dim=1)
         
         state_seq = state_seq.unsqueeze(2)
         next_state_seq = next_state_seq.unsqueeze(2)
-        reward_seq = reward_seq.unsqueeze(2)
+        #reward_seq = reward_seq.unsqueeze(2)
 
         
+        #seq = torch.cat(
+        #    [state_seq, action_seq, next_state_seq, reward_seq], dim=2)
         seq = torch.cat(
-            [state_seq, action_seq, next_state_seq, reward_seq], dim=2)
+            [state_seq, action_seq, next_state_seq], dim=2)
         stacked_inputs = self.embed_transition(seq)
         transformer_outputs = self.transformer(inputs_embeds=stacked_inputs)
         preds = self.pred_actions(transformer_outputs['last_hidden_state'])
