@@ -71,10 +71,10 @@ def generate_Zurcher_histories(buses, theta, beta, horizon, xmax, rollin_type, *
             traj = {
                 'query_state': query_state,
                 'optimal_action': optimal_action,
-                'context_states': np.concatenate((np.zeros(k) ,context_states[k:]), axis=0),
-                'context_actions': np.concatenate((np.zeros((k, 2)),context_actions[k:]), axis=0),
-                'context_next_states': np.concatenate((np.zeros(k) ,context_next_states[k:]), axis=0),
-                'context_rewards': np.concatenate((np.zeros(k) ,context_rewards[k:]), axis=0),
+                'context_states': context_states,
+                'context_actions': context_actions,
+                'context_next_states': context_next_states,
+                'context_rewards': context_rewards,
                 'busType': env.type,
             }
 
@@ -104,11 +104,11 @@ if __name__ == '__main__':
     numTypes = args['numTypes']
     extrapolation = args['extrapolation']
     
-    eval_num = 100
+    n_eval = 100
 
     config = {
         'horizon': horizon,
-        'eval_num': eval_num,
+        'n_eval': n_eval,
     }
 
     # Main data collection part
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     if env == 'Zurcher':
 
         config.update({'Bustotal': Bustotal, 'maxMileage': xmax,'theta': theta, 'beta': beta, 'xmax': xmax, 
-                       'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'expert'})
+                       'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'uniform'})
         #We use uniform for RL objective. For IRL objective, we use expert.
         
         bus_types = np.random.choice(numTypes, Bustotal) #for n_envs number of environments, randomly choose a bus type from numTypes
@@ -127,7 +127,7 @@ if __name__ == '__main__':
         
         
         if extrapolation == 'False':
-            eval_buses = np.random.choice(numTypes, eval_num)
+            eval_buses = np.random.choice(numTypes, n_eval)
             
         else:
             raise NotImplementedError
@@ -158,3 +158,4 @@ if __name__ == '__main__':
     print(f"Saved to {train_filepath}.")
     print(f"Saved to {test_filepath}.")
     print(f"Saved to {eval_filepath}.")
+

@@ -93,7 +93,7 @@ if __name__ == '__main__':
         action_dim = 2
 
         dataset_config.update({'Bustotal': Bustotal, 'maxMileage': xmax,'theta': theta, 'beta': beta, 'xmax': xmax, 
-                               'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'expert'})
+                               'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'uniform'})
         
         path_train = build_Zurcher_data_filename(
             env, dataset_config, mode=0)

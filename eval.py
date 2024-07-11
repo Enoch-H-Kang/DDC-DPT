@@ -28,13 +28,10 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
     print("Args: ", args)
 
-    n_envs = args['envs']
-    n_hists = args['hists']
-    n_samples = args['samples']
+    Bustotal = args['Bustotal']
     H = args['H']
-    dim = args['dim']
-    state_dim = dim
-    action_dim = dim
+    state_dim = 1
+    action_dim = 2
     n_embd = args['embd']
     n_head = args['head']
     n_layer = args['layer']
@@ -42,15 +39,17 @@ if __name__ == '__main__':
     epoch = args['epoch']
     shuffle = args['shuffle']
     dropout = args['dropout']
-    var = args['var']
-    cov = args['cov']
-    test_cov = args['test_cov']
     envname = args['env']
     horizon = args['hor']
     n_eval = args['n_eval']
     seed = args['seed']
-    lin_d = args['lin_d']
-    
+    beta = args['beta']
+    numTypes = args['numTypes']
+    theta = args['theta']
+    xmax = args['maxMileage']
+    extrapolation = args['extrapolation']
+    n_eval = args['n_eval']
+     
     tmp_seed = seed
     if seed == -1:
         tmp_seed = 0
@@ -60,8 +59,6 @@ if __name__ == '__main__':
         torch.cuda.manual_seed_all(tmp_seed)
     np.random.seed(tmp_seed)
 
-    if test_cov < 0:
-        test_cov = cov
     if horizon < 0:
         horizon = H
 
@@ -72,11 +69,7 @@ if __name__ == '__main__':
         'n_embd': n_embd,
         'n_layer': n_layer,
         'n_head': n_head,
-        'n_envs': n_envs,
-        'n_hists': n_hists,
-        'n_samples': n_samples,
         'horizon': horizon,
-        'dim': dim,
         'seed': seed,
     }
     if envname.startswith('Zurcher'):
@@ -118,13 +111,15 @@ if __name__ == '__main__':
     model.eval()
 
     dataset_config = {
-        'horizon': horizon,
-        'dim': dim,
+        'horizon': horizon,        
     }
     if envname =='Zurcher':
-        dataset_config.update({'rollin_type': 'uniform'})
+        dataset_config.update({'Bustotal': Bustotal, 'maxMileage': xmax,'theta': theta, 'beta': beta, 'xmax': xmax, 
+                               'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'expert',
+                               'n_eval': n_eval})
+        
         eval_filepath = build_Zurcher_data_filename(
-            envname, n_eval, dataset_config, mode=2)
+            envname, dataset_config, mode=2)
         save_filename = f'{filename}_hor{horizon}.pkl'
     else:
         raise ValueError(f'Environment {envname} not supported')
@@ -153,7 +148,6 @@ if __name__ == '__main__':
             'horizon': horizon,
             'H': H,
             'n_eval': min(20, n_eval),
-            'dim': dim
         }
         eval_Zurcher.online(eval_trajs, model, **config)
         plt.savefig(f'figs/{evals_filename}/online/{save_filename}.png')

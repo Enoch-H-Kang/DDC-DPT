@@ -100,9 +100,9 @@ class ZurcherEnv(BaseEnv):
 
 
 
-class DarkroomEnvVec(BaseEnv):
+class ZurcherEnvVec(BaseEnv):
     """
-    Vectorized Darkroom environment.
+    Vectorized Zurcher environment.
     """
 
     def __init__(self, envs):

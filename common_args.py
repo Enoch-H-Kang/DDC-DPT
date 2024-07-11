@@ -41,17 +41,13 @@ def add_model_args(parser):
 
 def add_train_args(parser):
     parser.add_argument("--num_epochs", type=int, required=False,
-                        default=50, help="Number of epochs")
+                        default=500, help="Number of epochs")
 
 
 def add_eval_args(parser):
     parser.add_argument("--epoch", type=int, required=False,
                         default=-1, help="Epoch to evaluate")
-    parser.add_argument("--test_cov", type=float,
-                        required=False, default=-1.0,
-                        help="Test coverage (for bandit)")
     parser.add_argument("--hor", type=int, required=False,
                         default=-1, help="Episode horizon (for mdp)")
     parser.add_argument("--n_eval", type=int, required=False,
                         default=100, help="Number of eval trajectories")
-    parser.add_argument("--save_video", default=False, action='store_true')

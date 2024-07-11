@@ -33,7 +33,7 @@ def build_Zurcher_data_filename(env, config, mode):
     elif mode == 1:
         filename += '_test'
     elif mode == 2:
-        filename += '_evalnum' + str(config['eval_num'])
+        filename += '_n_eval' + str(config['n_eval'])
         filename += '_eval'
         
     return filename_template.format(filename)

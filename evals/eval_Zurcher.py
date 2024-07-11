@@ -4,13 +4,13 @@ import scipy
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-from ctrls.ctrl_darkroom import (
-    DarkroomOptPolicy,
-    DarkroomTransformerController,
+from ctrls.ctrl_Zurcher import (
+    ZurcherOptPolicy,
+    ZurcherTransformerController,
 )
 from envs.Zurcher_env import (
-    DarkroomEnv,
-    DarkroomEnvVec,
+    ZurcherEnv,
+    ZurcherEnvVec,
 )
 from utils import convert_to_tensor
 
@@ -93,12 +93,12 @@ def online(eval_trajs, model, Heps, H, n_eval, dim, horizon):
     for i_eval in tqdm(range(n_eval), desc="Online evaluation"):
         print(f"Eval traj: {i_eval}")
         traj = eval_trajs[i_eval]
-        env = DarkroomEnv(dim, traj['goal'], horizon)
+        env = ZurcherEnv(dim, traj['goal'], horizon)
         envs.append(env)
 
-    lnr_controller = DarkroomTransformerController(
+    lnr_controller = ZurcherTransformerController(
         model, batch_size=n_eval, sample=True)
-    vec_env = DarkroomEnvVec(envs)
+    vec_env = ZurcherEnvVec(envs)
     cum_means_lnr = deploy_online_vec(vec_env, lnr_controller, Heps, H, horizon)
 
     all_means_lnr = np.array(cum_means_lnr)
@@ -137,9 +137,9 @@ def offline(eval_trajs, model, n_eval, H, dim):
             'context_rewards': convert_to_tensor(traj['context_rewards'][None, :, None]),
         }
 
-        env = DarkroomEnv(dim, traj['goal'], H)
+        env = ZurcherEnv(dim, traj['goal'], H)
 
-        true_opt = DarkroomOptPolicy(env)
+        true_opt = ZurcherOptPolicy(env)
         true_opt.set_batch(batch)
 
         _, _, _, rs_opt = env.deploy_eval(true_opt)
@@ -151,10 +151,10 @@ def offline(eval_trajs, model, n_eval, H, dim):
         
 
     print("Running Zurcher offline evaluations in parallel")
-    vec_env = DarkroomEnvVec(envs)
-    lnr = DarkroomTransformerController(
+    vec_env = ZurcherEnvVec(envs)
+    lnr = ZurcherTransformerController(
         model, batch_size=n_eval, sample=True)
-    lnr_greedy = DarkroomTransformerController(
+    lnr_greedy = ZurcherTransformerController(
         model, batch_size=n_eval, sample=False)
 
     batch = {
