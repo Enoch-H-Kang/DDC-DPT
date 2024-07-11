@@ -8,7 +8,7 @@ from ctrls.ctrl_darkroom import (
     DarkroomOptPolicy,
     DarkroomTransformerController,
 )
-from envs.darkroom_env import (
+from envs.Zurcher_env import (
     DarkroomEnv,
     DarkroomEnvVec,
 )
@@ -150,7 +150,7 @@ def offline(eval_trajs, model, n_eval, H, dim):
 
         
 
-    print("Running darkroom offline evaluations in parallel")
+    print("Running Zurcher offline evaluations in parallel")
     vec_env = DarkroomEnvVec(envs)
     lnr = DarkroomTransformerController(
         model, batch_size=n_eval, sample=True)

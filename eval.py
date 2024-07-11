@@ -80,8 +80,8 @@ if __name__ == '__main__':
         'seed': seed,
     }
     if envname.startswith('Zurcher'):
-        state_dim = 2
-        action_dim = 5
+        state_dim = 1
+        action_dim = 2
 
         filename = build_Zurcher_model_filename(envname, model_config)
     else:

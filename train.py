@@ -6,21 +6,18 @@ import argparse
 import os
 import time
 from tqdm import tqdm
-from IPython import embed
 
 import matplotlib.pyplot as plt
 import torch
-from torchvision.transforms import transforms
 
 import numpy as np
 import common_args
 import random
-from dataset import Dataset, ImageDataset
-from net import Transformer, ImageTransformer
+from dataset import Dataset
+from net import Transformer
 from utils import (
     build_Zurcher_data_filename,
     build_Zurcher_model_filename,
-    worker_init_fn,
 )
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -42,25 +39,26 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
     print("Args: ", args)
 
+    #python3 train.py --env Zurcher --Bustotal 100 --H 100 --lr 0.001 --layer 4 --head 4 --shuffle --seed 1
     env = args['env']
-    n_envs = args['envs']
-    n_hists = args['hists']
-    n_samples = args['samples']
+    Bustotal = args['Bustotal']
+    theta = args['theta']
+    beta = args['beta']
     horizon = args['H']
-    dim = args['dim']
-    state_dim = dim
-    action_dim = dim
+    xmax = args['maxMileage']
+    state_dim = xmax
+    action_dim = 2
+    numTypes = args['numTypes']
+    extrapolation = args['extrapolation']
+    
     n_embd = args['embd']
     n_head = args['head']
     n_layer = args['layer']
     lr = args['lr']
     shuffle = args['shuffle']
     dropout = args['dropout']
-    var = args['var']
-    cov = args['cov']
     num_epochs = args['num_epochs']
     seed = args['seed']
-    lin_d = args['lin_d']
     
     tmp_seed = seed
     if seed == -1:
@@ -78,10 +76,7 @@ if __name__ == '__main__':
 
    
     dataset_config = {
-        'n_hists': n_hists,
-        'n_samples': n_samples,
         'horizon': horizon,
-        'dim': dim,
     }
     model_config = {
         'shuffle': shuffle,
@@ -90,22 +85,20 @@ if __name__ == '__main__':
         'n_embd': n_embd,
         'n_layer': n_layer,
         'n_head': n_head,
-        'n_envs': n_envs,
-        'n_hists': n_hists,
-        'n_samples': n_samples,
         'horizon': horizon,
-        'dim': dim,
         'seed': seed,
     }
     if env.startswith('Zurcher'):
-        state_dim = 2
-        action_dim = 5
+        state_dim = 1
+        action_dim = 2
 
-        dataset_config.update({'rollin_type': 'uniform'})
+        dataset_config.update({'Bustotal': Bustotal, 'maxMileage': xmax,'theta': theta, 'beta': beta, 'xmax': xmax, 
+                               'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'expert'})
+        
         path_train = build_Zurcher_data_filename(
-            env, n_envs, dataset_config, mode=0)
+            env, dataset_config, mode=0)
         path_test = build_Zurcher_data_filename(
-            env, n_envs, dataset_config, mode=1)
+            env, dataset_config, mode=1)
 
         filename = build_Zurcher_model_filename(env, model_config)
 
@@ -114,8 +107,11 @@ if __name__ == '__main__':
 
     config = {
         'horizon': horizon,
-        'state_dim': state_dim,
-        'action_dim': action_dim,
+        #'Bustotal': Bustotal,
+        #'bus_types': numTypes,
+        #'theta': theta,
+        #'beta': beta,
+        'maxMileage': xmax,
         'n_layer': n_layer,
         'n_embd': n_embd,
         'n_head': n_head,

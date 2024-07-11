@@ -1,5 +1,6 @@
 import itertools
 
+import random
 import gym
 import numpy as np
 import torch
@@ -59,7 +60,8 @@ class ZurcherEnv(BaseEnv):
     
     def calculate_EP(self):
         Vtil = self.vfi()[0]
-        EP = np.exp(Vtil[:, 1]) / (np.exp(Vtil[:, 0]) + np.exp(Vtil[:, 1])) 
+        EP1 = np.exp(Vtil[:, 1]) / (np.exp(Vtil[:, 0]) + np.exp(Vtil[:, 1])) 
+        EP = np.array([1-EP1, EP1]).T.tolist()
         return EP
 
     def sample_state(self):
@@ -67,7 +69,8 @@ class ZurcherEnv(BaseEnv):
 
     def sample_action(self):
         #choose either 0 or 1
-        return np.random.choice([0, 1])
+        randchoice = random.choice([[0, 1], [1, 0]])
+        return randchoice
 
     def reset(self):
         self.current_step = 0
@@ -78,24 +81,16 @@ class ZurcherEnv(BaseEnv):
         action = np.argmax(action) # convert one-hot to integer
         state = np.array(state) #
         if action == 0:
-            state = min(state + 1, self.xmax)
+            next_state = min(state + 1, self.xmax)
             reward = -self.theta[0] * state - self.type*self.theta[1]
         elif action == 1:
-            state = 1
+            next_state = 1
             reward = -self.theta[2]
         else: 
             raise ValueError("Invalid action")
 
-        return state, reward
+        return next_state, reward
 
-    def step(self, action):
-        if self.current_step >= self.horizon:
-            raise ValueError("Episode has already ended")
-
-        self.state, r = self.transit(self.state, action)
-        self.current_step += 1
-        done = (self.current_step >= self.horizon)
-        return self.state.copy(), r, done, {}
 
     def get_obs(self):
         return self.state.copy()

@@ -13,16 +13,17 @@ def worker_init_fn(worker_id):
 
 
 
-def build_Zurcher_data_filename(env, n_envs, config, mode):
+def build_Zurcher_data_filename(env, config, mode):
     """
     Builds the filename for the Zurcher data.
     Mode is either 0: train, 1: test, 2: eval.
     """
     filename_template = 'datasets/trajs_{}.pkl'
     filename = env
-    filename += '_envs' + str(n_envs)
     if mode != 2:
         filename += '_Bustotal' + str(config['Bustotal'])
+    filename += '_beta' + str(config['beta'])
+    filename += '_theta' + str(config['theta'])    
     filename += '_numTypes' + str(config['numTypes'])    
     filename += '_H' + str(config['horizon'])
     filename += '_' + config['rollin_type']
@@ -32,6 +33,7 @@ def build_Zurcher_data_filename(env, n_envs, config, mode):
     elif mode == 1:
         filename += '_test'
     elif mode == 2:
+        filename += '_evalnum' + str(config['eval_num'])
         filename += '_eval'
         
     return filename_template.format(filename)
@@ -49,10 +51,11 @@ def build_Zurcher_model_filename(env, config):
     filename += '_embd' + str(config['n_embd'])
     filename += '_layer' + str(config['n_layer'])
     filename += '_head' + str(config['n_head'])
-    filename += '_envs' + str(config['n_envs'])
-    filename += '_Bustotal' + str(config['Bustotal'])
+    #filename += '_Bustotal' + str(config['Bustotal'])
+    #filename += '_beta' + str(config['beta'])
+    #filename += '_theta' + str(config['theta'])
+    #filename += '_numTypes' + str(config['numTypes'])
     filename += '_H' + str(config['horizon'])
-    filename += '_maxMileage' + str(config['maxMileage'])
     filename += '_seed' + str(config['seed'])
     return filename
 

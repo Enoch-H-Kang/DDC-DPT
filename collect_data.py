@@ -54,7 +54,6 @@ def rand_pos_and_dir(env):
 
 
 
-
 def generate_Zurcher_histories(buses, theta, beta, horizon, xmax, rollin_type, **kwargs):
     envs = [Zurcher_env.ZurcherEnv(theta, beta, horizon, xmax, busType) for busType in buses]
     
@@ -72,10 +71,10 @@ def generate_Zurcher_histories(buses, theta, beta, horizon, xmax, rollin_type, *
             traj = {
                 'query_state': query_state,
                 'optimal_action': optimal_action,
-                'context_states': context_states[:k],
-                'context_actions': context_actions[:k],
-                'context_next_states': context_next_states[:k],
-                'context_rewards': context_rewards[:k],
+                'context_states': np.concatenate((np.zeros(k) ,context_states[k:]), axis=0),
+                'context_actions': np.concatenate((np.zeros((k, 2)),context_actions[k:]), axis=0),
+                'context_next_states': np.concatenate((np.zeros(k) ,context_next_states[k:]), axis=0),
+                'context_rewards': np.concatenate((np.zeros(k) ,context_rewards[k:]), axis=0),
                 'busType': env.type,
             }
 
@@ -105,16 +104,19 @@ if __name__ == '__main__':
     numTypes = args['numTypes']
     extrapolation = args['extrapolation']
     
+    eval_num = 100
 
     config = {
         'horizon': horizon,
+        'eval_num': eval_num,
     }
 
     # Main data collection part
     
     if env == 'Zurcher':
 
-        config.update({'Bustotal': Bustotal, 'maxMileage': xmax,'theta': theta, 'beta': beta, 'xmax': xmax, 'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'uniform'})
+        config.update({'Bustotal': Bustotal, 'maxMileage': xmax,'theta': theta, 'beta': beta, 'xmax': xmax, 
+                       'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'expert'})
         #We use uniform for RL objective. For IRL objective, we use expert.
         
         bus_types = np.random.choice(numTypes, Bustotal) #for n_envs number of environments, randomly choose a bus type from numTypes
@@ -122,8 +124,10 @@ if __name__ == '__main__':
         train_buses = bus_types[:train_test_split] 
         test_buses = bus_types[train_test_split:]
 
+        
+        
         if extrapolation == 'False':
-            eval_buses = np.random.choice(numTypes, 100)
+            eval_buses = np.random.choice(numTypes, eval_num)
             
         else:
             raise NotImplementedError
@@ -133,10 +137,10 @@ if __name__ == '__main__':
         eval_trajs = generate_Zurcher_histories(eval_buses, **config)
 
         train_filepath = build_Zurcher_data_filename(
-            env, Bustotal, config, mode=0)
+            env, config, mode=0)
         test_filepath = build_Zurcher_data_filename(
-            env, Bustotal, config, mode=1)
-        eval_filepath = build_Zurcher_data_filename(env, 100, config, mode=2)
+            env, config, mode=1)
+        eval_filepath = build_Zurcher_data_filename(env, config, mode=2)
 
     else:
         raise NotImplementedError
