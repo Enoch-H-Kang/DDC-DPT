@@ -1,0 +1,90 @@
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 2.0, 9.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 2.0, 9.0]_numTypes4_H10_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H10_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 2.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H10_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H100_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 6.0, 2.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 2.0, 9.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 2.0, 9.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 5.0, 2.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 5.0, 2.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 6.0, 2.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 6.0, 2.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 2.0, 9.0]_numTypes4_H10_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 2.0, 9.0]_numTypes4_H10_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H10_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H10_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H10_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H10_expert_train.pkl
+datasets/trajs_Zurcher_bustotal100_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H100_expert_test.pkl
+datasets/trajs_Zurcher_bustotal100_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H100_expert_train.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 2.0, 9.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 2.0, 9.0]_numTypes4_H10_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H10_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 2.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H10_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H100_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 6.0, 2.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 2.0, 9.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 2.0, 9.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 5.0, 2.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 5.0, 2.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 6.0, 2.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 6.0, 2.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 2.0, 9.0]_numTypes4_H10_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 2.0, 9.0]_numTypes4_H10_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H10_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H10_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H10_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H10_expert_train.pkl
+datasets/trajs_Zurcher_bustotal100_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H100_expert_test.pkl
+datasets/trajs_Zurcher_bustotal100_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H100_expert_train.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 2.0, 9.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 2.0, 9.0]_numTypes4_H10_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H10_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 2.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H10_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H100_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 6.0, 2.0]_numTypes1_H5_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 2.0, 9.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 2.0, 9.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 5.0, 2.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 5.0, 2.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 6.0, 2.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal5_beta0.95_theta[1.0, 6.0, 2.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 2.0, 9.0]_numTypes4_H10_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 2.0, 9.0]_numTypes4_H10_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H10_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 3.0, 2.0]_numTypes1_H10_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H5_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H5_expert_train.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H10_expert_test.pkl
+datasets/trajs_Zurcher_bustotal10_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H10_expert_train.pkl
+datasets/trajs_Zurcher_bustotal100_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H100_expert_test.pkl
+datasets/trajs_Zurcher_bustotal100_beta0.95_theta[1.0, 5.0, 3.0]_numTypes1_H100_expert_train.pkl
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd32_layer4_head4_H5_seed1_logs.txt
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd32_layer4_head4_H5_seed1_train_loss.png
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd32_layer4_head4_H10_seed1_logs.txt
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd32_layer4_head4_H10_seed1_train_loss.png
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd128_layer4_head4_H5_seed1_logs.txt
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd128_layer12_head1_H10_seed1_logs.txt
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd128_layer12_head1_H10_seed1_train_loss.png
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd128_layer12_head1_H100_seed1_logs.txt
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd128_layer12_head1_H100_seed1_train_loss.png
