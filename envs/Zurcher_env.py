@@ -77,19 +77,21 @@ class ZurcherEnv(BaseEnv):
         self.state = 0
         return self.state
 
-    def transit(self, state, action):
-        action = np.argmax(action) # convert one-hot to integer
-        state = np.array(state) #
+    def transit(self, state, action_prob):
+        #action_prob is an two-dimensional array of probs, where the first element is
+        # the prob of action 0 and the second element is the prob of action 1
+        action = np.random.choice([0, 1], p=action_prob)
         if action == 0:
             next_state = min(state + 1, self.xmax)
-            reward = -self.theta[0] * state - self.type*self.theta[1]
+            #reward = -self.theta[0] * state - self.type*self.theta[1]
         elif action == 1:
             next_state = 1
-            reward = -self.theta[2]
+            #reward = -self.theta[2]
         else: 
             raise ValueError("Invalid action")
+        self.state = next_state
 
-        return next_state, reward
+        return next_state, action
 
 
     def get_obs(self):

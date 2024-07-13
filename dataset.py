@@ -33,35 +33,32 @@ class Dataset(torch.utils.data.Dataset):
         context_states = []
         context_actions = []
         context_next_states = []
-        #context_rewards = []
         query_states = []
-        optimal_actions = []
+        query_actions = []
 
         for traj in self.trajs:
             context_states.append(traj['context_states'])
             context_actions.append(traj['context_actions'])
             context_next_states.append(traj['context_next_states'])
-            #context_rewards.append(traj['context_rewards'])
 
             query_states.append(traj['query_state'])
-            optimal_actions.append(traj['optimal_action'])
+            query_actions.append(traj['query_action'])
 
         context_states = np.array(context_states)
         context_actions = np.array(context_actions)
         context_next_states = np.array(context_next_states)
-        #context_rewards = np.array(context_rewards)
+        
         #if len(context_rewards.shape) < 3:
         #    context_rewards = context_rewards[:, :, None]
-        query_states = np.array(query_states)
-        optimal_actions = np.array(optimal_actions)
+        query_states = np.array(query_states) #its dimension is (num_samples, state_dim)
+        query_actions = np.array(query_actions)
 
         self.dataset = {
             'query_states': convert_to_tensor(query_states, store_gpu=self.store_gpu),
-            'optimal_actions': convert_to_tensor(optimal_actions, store_gpu=self.store_gpu),
+            'query_actions': convert_to_tensor(query_actions, store_gpu=self.store_gpu),
             'context_states': convert_to_tensor(context_states, store_gpu=self.store_gpu),
             'context_actions': convert_to_tensor(context_actions, store_gpu=self.store_gpu),
             'context_next_states': convert_to_tensor(context_next_states, store_gpu=self.store_gpu),
-            #'context_rewards': convert_to_tensor(context_rewards, store_gpu=self.store_gpu),
         }
         
         self.zeros = np.zeros(
@@ -80,9 +77,8 @@ class Dataset(torch.utils.data.Dataset):
             'context_states': self.dataset['context_states'][index],
             'context_actions': self.dataset['context_actions'][index],
             'context_next_states': self.dataset['context_next_states'][index],
-            #'context_rewards': self.dataset['context_rewards'][index],
             'query_states': self.dataset['query_states'][index],
-            'optimal_actions': self.dataset['optimal_actions'][index],
+            'query_actions': self.dataset['query_actions'][index],
             'zeros': self.zeros
         }
 
@@ -91,7 +87,6 @@ class Dataset(torch.utils.data.Dataset):
             res['context_states'] = res['context_states'][perm]
             res['context_actions'] = res['context_actions'][perm]
             res['context_next_states'] = res['context_next_states'][perm]
-            #res['context_rewards'] = res['context_rewards'][perm]
 
         return res
 

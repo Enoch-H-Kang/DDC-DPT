@@ -17,7 +17,7 @@ def add_dataset_args(parser):
                         default=100, help="Context horizon")
     
     parser.add_argument("--maxMileage", type=int, required=False,
-                        default=200, help="Max mileage")
+                        default=10, help="Max mileage")
     parser.add_argument("--numTypes", type=int, required=False,
                         default=10, help="Number of bus types")
     parser.add_argument("--extrapolation", type=str, required=False,
@@ -29,9 +29,9 @@ def add_model_args(parser):
     parser.add_argument("--embd", type=int, required=False,
                         default=32, help="Embedding size")
     parser.add_argument("--head", type=int, required=False,
-                        default=1, help="Number of heads")
+                        default=4, help="Number of heads")
     parser.add_argument("--layer", type=int, required=False,
-                        default=3, help="Number of layers")
+                        default=12, help="Number of layers")
     parser.add_argument("--lr", type=float, required=False,
                         default=1e-3, help="Learning Rate")
     parser.add_argument("--dropout", type=float,

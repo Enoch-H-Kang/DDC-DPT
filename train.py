@@ -167,13 +167,18 @@ if __name__ == '__main__':
             for i, batch in enumerate(test_loader):
                 print(f"Batch {i} of {len(test_loader)}", end='\r')
                 batch = {k: v.to(device) for k, v in batch.items()}
-                true_actions = batch['optimal_actions']
-                pred_actions = model(batch)
+                
+                true_actions = batch['query_actions']
+                pred_q_values = model(batch)
                 true_actions = true_actions.unsqueeze(
-                    1).repeat(1, pred_actions.shape[1], 1)
+                    1).repeat(1, pred_q_values.shape[1], 1)
                 true_actions = true_actions.reshape(-1, action_dim)
-                pred_actions = pred_actions.reshape(-1, action_dim)
-
+                pred_q_values = pred_q_values.reshape(-1, action_dim)
+                pred_actions = torch.softmax(pred_q_values, dim=1)
+                
+                #print("pred_actions: ", pred_actions)
+                #print("true_actions: ", true_actions)
+                
                 loss = loss_fn(pred_actions, true_actions)
                 epoch_test_loss += loss.item() / horizon
 
@@ -190,12 +195,13 @@ if __name__ == '__main__':
         for i, batch in enumerate(train_loader):
             print(f"Batch {i} of {len(train_loader)}", end='\r')
             batch = {k: v.to(device) for k, v in batch.items()}
-            true_actions = batch['optimal_actions']
-            pred_actions = model(batch)
+            true_actions = batch['query_actions']
+            pred_q_values = model(batch)
             true_actions = true_actions.unsqueeze(
-                1).repeat(1, pred_actions.shape[1], 1)
+                1).repeat(1, pred_q_values.shape[1], 1)
             true_actions = true_actions.reshape(-1, action_dim)
-            pred_actions = pred_actions.reshape(-1, action_dim)
+            pred_q_values = pred_q_values.reshape(-1, action_dim)
+            pred_actions = torch.softmax(pred_q_values, dim=1)
 
             optimizer.zero_grad()
             loss = loss_fn(pred_actions, true_actions)

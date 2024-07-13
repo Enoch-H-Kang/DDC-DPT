@@ -49,25 +49,31 @@ def rollin_mdp(env, rollin_type):
         if rollin_type == 'uniform':
             state = env.sample_state()
             action = env.sample_action()
+            
+            #action_prob=one-hot encoding of action
+            action_prob = np.zeros(2)
+            action_prob[action] = 1
+            
         elif rollin_type == 'expert':
-            action = env.opt_action(state)
+            action_prob = env.opt_action(state)
         else:
             raise NotImplementedError
-        #next_state, reward = env.transit(state, action)
-        next_state, _ = env.transit(state, action)
+        next_state, action = env.transit(state, action_prob)
         
         states.append(state)
         actions.append(action)
         next_states.append(next_state)
-        #rewards.append(reward)
         state = next_state
 
     states = np.array(states)
     actions = np.array(actions)
     next_states = np.array(next_states)
-    #rewards = np.array(rewards)
+    
+    #construct a concatanated matrix that consists of (state, action, next_state)
+    #print(np.column_stack((states, actions, next_states)))
+    #exit(0)
 
-    return states, actions, next_states#, rewards
+    return states, actions, next_states
 
 
 
@@ -80,18 +86,17 @@ def generate_Zurcher_histories(buses, theta, beta, horizon, xmax, rollin_type, *
             context_states,
             context_actions,
             context_next_states,
-            #context_rewards,
         ) = rollin_mdp(env, rollin_type=rollin_type)
         for k in range(len(context_states)):  
             query_state = context_states[k]
-            optimal_action = env.opt_action(query_state)
+            action_prob = env.opt_action(query_state)
+            query_action = np.random.choice([0, 1], p=action_prob)
             traj = {
                 'query_state': query_state,
-                'optimal_action': optimal_action,
+                'query_action': query_action,
                 'context_states': context_states,
                 'context_actions': context_actions,
                 'context_next_states': context_next_states,
-                #'context_rewards': context_rewards,
                 'busType': env.type,
             }
 
