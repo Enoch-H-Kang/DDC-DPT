@@ -27,9 +27,9 @@ def add_dataset_args(parser):
 
 def add_model_args(parser):
     parser.add_argument("--embd", type=int, required=False,
-                        default=32, help="Embedding size")
+                        default=128, help="Embedding size")
     parser.add_argument("--head", type=int, required=False,
-                        default=4, help="Number of heads")
+                        default=1, help="Number of heads")
     parser.add_argument("--layer", type=int, required=False,
                         default=12, help="Number of layers")
     parser.add_argument("--lr", type=float, required=False,
@@ -41,7 +41,7 @@ def add_model_args(parser):
 
 def add_train_args(parser):
     parser.add_argument("--num_epochs", type=int, required=False,
-                        default=500, help="Number of epochs")
+                        default=50000, help="Number of epochs")
 
 
 def add_eval_args(parser):

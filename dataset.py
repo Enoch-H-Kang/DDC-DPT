@@ -35,6 +35,8 @@ class Dataset(torch.utils.data.Dataset):
         context_next_states = []
         query_states = []
         query_actions = []
+        query_true_EPs = []
+        query_true_Qs = []
 
         for traj in self.trajs:
             context_states.append(traj['context_states'])
@@ -43,6 +45,8 @@ class Dataset(torch.utils.data.Dataset):
 
             query_states.append(traj['query_state'])
             query_actions.append(traj['query_action'])
+            query_true_EPs.append(traj['query_true_EP'])
+            query_true_Qs.append(traj['query_true_Q'])  
 
         context_states = np.array(context_states)
         context_actions = np.array(context_actions)
@@ -52,6 +56,9 @@ class Dataset(torch.utils.data.Dataset):
         #    context_rewards = context_rewards[:, :, None]
         query_states = np.array(query_states) #its dimension is (num_samples, state_dim)
         query_actions = np.array(query_actions)
+        
+        query_true_EPs = np.array(query_true_EPs)
+        query_true_Qs = np.array(query_true_Qs)
 
         self.dataset = {
             'query_states': convert_to_tensor(query_states, store_gpu=self.store_gpu),
@@ -59,6 +66,8 @@ class Dataset(torch.utils.data.Dataset):
             'context_states': convert_to_tensor(context_states, store_gpu=self.store_gpu),
             'context_actions': convert_to_tensor(context_actions, store_gpu=self.store_gpu),
             'context_next_states': convert_to_tensor(context_next_states, store_gpu=self.store_gpu),
+            'query_true_EPs': convert_to_tensor(query_true_EPs, store_gpu=self.store_gpu),
+            'query_true_Qs': convert_to_tensor(query_true_Qs, store_gpu=self.store_gpu),
         }
         
         self.zeros = np.zeros(
@@ -79,6 +88,8 @@ class Dataset(torch.utils.data.Dataset):
             'context_next_states': self.dataset['context_next_states'][index],
             'query_states': self.dataset['query_states'][index],
             'query_actions': self.dataset['query_actions'][index],
+            'query_true_EPs': self.dataset['query_true_EPs'][index],
+            'query_true_Qs': self.dataset['query_true_Qs'][index],
             'zeros': self.zeros
         }
 

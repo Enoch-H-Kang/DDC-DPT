@@ -20,7 +20,8 @@ class ZurcherEnv(BaseEnv):
         self.states = np.arange(self.xmax+1)
         self.type = type #Type can be 0, 1, 2... numTypes-1
         self.current_step = 0
-        self.EP = self.calculate_EP()
+        self.EP, self.Vtil = self.calculate_EP_Vtil()
+        
         
     def get_util(self):
         theta1 = self.theta[0]
@@ -58,11 +59,11 @@ class ZurcherEnv(BaseEnv):
 
         return Vtil, expV
     
-    def calculate_EP(self):
+    def calculate_EP_Vtil(self):
         Vtil = self.vfi()[0]
         EP1 = np.exp(Vtil[:, 1]) / (np.exp(Vtil[:, 0]) + np.exp(Vtil[:, 1])) 
         EP = np.array([1-EP1, EP1]).T.tolist()
-        return EP
+        return EP, Vtil
 
     def sample_state(self):
         return np.random.randint(0, self.xmax+1)

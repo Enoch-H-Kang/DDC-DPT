@@ -169,17 +169,37 @@ if __name__ == '__main__':
                 batch = {k: v.to(device) for k, v in batch.items()}
                 
                 true_actions = batch['query_actions']
+                query_states = batch['query_states']
+                query_true_EPs = batch['query_true_EPs']
+                query_true_Qs = batch['query_true_Qs']
+                
+                
                 pred_q_values = model(batch)
+                full_pred_q_values = pred_q_values[:,-1,:] # Prediction of q of query state using full horizon of context states and actions
+                
+                min_true_Qs = torch.min(query_true_Qs, dim=1, keepdim=True)[0]
+                normalized_true_Qs = query_true_Qs - min_true_Qs
+                
+                min_q_values = torch.min(full_pred_q_values, dim=1, keepdim=True)[0]
+                normalized_full_pred_q_values = full_pred_q_values - min_q_values
+                #print(query_states)
+                #print(true_actions)
+                #print(query_true_EPs)
+                #print(query_true_Qs)
+                print(normalized_true_Qs)
+                print(normalized_full_pred_q_values)
+                
+                
                 true_actions = true_actions.unsqueeze(
                     1).repeat(1, pred_q_values.shape[1], 1)
                 true_actions = true_actions.reshape(-1, action_dim)
+                
                 pred_q_values = pred_q_values.reshape(-1, action_dim)
                 pred_actions = torch.softmax(pred_q_values, dim=1)
                 
-                #print("pred_actions: ", pred_actions)
-                #print("true_actions: ", true_actions)
                 
-                loss = loss_fn(pred_actions, true_actions)
+                #loss = loss_fn(pred_actions, true_actions)
+                loss = loss_fn(normalized_true_Qs, normalized_full_pred_q_values)
                 epoch_test_loss += loss.item() / horizon
 
         test_loss.append(epoch_test_loss / len(test_dataset))
@@ -195,16 +215,21 @@ if __name__ == '__main__':
         for i, batch in enumerate(train_loader):
             print(f"Batch {i} of {len(train_loader)}", end='\r')
             batch = {k: v.to(device) for k, v in batch.items()}
+            
             true_actions = batch['query_actions']
             pred_q_values = model(batch)
+            
             true_actions = true_actions.unsqueeze(
                 1).repeat(1, pred_q_values.shape[1], 1)
             true_actions = true_actions.reshape(-1, action_dim)
+            
             pred_q_values = pred_q_values.reshape(-1, action_dim)
             pred_actions = torch.softmax(pred_q_values, dim=1)
-
+            
             optimizer.zero_grad()
+            
             loss = loss_fn(pred_actions, true_actions)
+           
             loss.backward()
             optimizer.step()
             epoch_train_loss += loss.item() / horizon

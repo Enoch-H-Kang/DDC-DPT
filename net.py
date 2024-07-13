@@ -38,7 +38,7 @@ class Transformer(nn.Module):
         self.embed_transition = nn.Linear(
             2 * self.state_dim + self.action_dim, self.n_embd)
         
-        self.pred_q_values = nn.Linear(self.n_embd, self.action_dim)
+        self.pred_q_values = nn.Linear(self.n_embd, 2)
 
     def forward(self, x):
         query_states = x['query_states'][:, None] # (batch_size, 1, state_dim). #None and unsqueeze are equivalent
@@ -62,7 +62,6 @@ class Transformer(nn.Module):
         stacked_inputs = self.embed_transition(seq)
         transformer_outputs = self.transformer(inputs_embeds=stacked_inputs)
         preds = self.pred_q_values(transformer_outputs['last_hidden_state'])
-
         if self.test:
             return preds[:, -1, :]
         return preds[:, 1:, :]

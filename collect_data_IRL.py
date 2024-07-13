@@ -91,13 +91,28 @@ def generate_Zurcher_histories(buses, theta, beta, horizon, xmax, rollin_type, *
             query_state = context_states[k]
             action_prob = env.opt_action(query_state)
             query_action = np.random.choice([0, 1], p=action_prob)
+            query_true_EP = action_prob
+            query_true_Q = env.Vtil[query_state]
+            
+            if query_action == 0:
+                one_hot_query_action = np.array([1, 0])
+            elif query_action == 1:
+                one_hot_query_action = np.array([0, 1])
+            else:
+                raise ValueError("Invalid action")
+            #one-hot encoding of query_action. For other variables, we don't use one-hot encoding.
+            #one_hot_query_action = np.zeros(2)
+            #one_hot_query_action[query_action] = 1
+            
             traj = {
                 'query_state': query_state,
-                'query_action': query_action,
+                'query_action': one_hot_query_action,
                 'context_states': context_states,
                 'context_actions': context_actions,
                 'context_next_states': context_next_states,
                 'busType': env.type,
+                'query_true_EP': query_true_EP,
+                'query_true_Q': query_true_Q,
             }
 
             trajs.append(traj)
