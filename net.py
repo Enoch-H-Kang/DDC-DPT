@@ -33,7 +33,7 @@ class Transformer(nn.Module):
             attn_pdrop=self.dropout,
             use_cache=False,
         )
-        self.transformer = GPT2Model(config)
+        self.transformer = GPT2Model(config) # Model
 
         self.embed_transition = nn.Linear(
             2 * self.state_dim + self.action_dim, self.n_embd)

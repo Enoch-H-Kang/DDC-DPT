@@ -151,9 +151,12 @@ if __name__ == '__main__':
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
     loss_fn = torch.nn.CrossEntropyLoss(reduction='sum')
+    MSEloss_fn = torch.nn.MSELoss(reduction='sum')
 
-    test_loss = []
+    
     train_loss = []
+    test_cross_entropy_loss = []
+    test_MSE_loss = []
 
     printw("Num train batches: " + str(len(train_loader)))
     printw("Num test batches: " + str(len(test_loader)))
@@ -163,7 +166,9 @@ if __name__ == '__main__':
         printw(f"Epoch: {epoch + 1}")
         start_time = time.time()
         with torch.no_grad():
-            epoch_test_loss = 0.0
+            epoch_cross_entropy_loss = 0.0
+            epoch_MSE_loss = 0.0
+            
             for i, batch in enumerate(test_loader):
                 print(f"Batch {i} of {len(test_loader)}", end='\r')
                 batch = {k: v.to(device) for k, v in batch.items()}
@@ -174,9 +179,8 @@ if __name__ == '__main__':
                 query_true_Qs = batch['query_true_Qs']
                 
                 
-                pred_q_values = model(batch)
+                pred_q_values = model(batch) 
                 full_pred_q_values = pred_q_values[:,-1,:] # Prediction of q of query state using full horizon of context states and actions
-                
                 min_true_Qs = torch.min(query_true_Qs, dim=1, keepdim=True)[0]
                 normalized_true_Qs = query_true_Qs - min_true_Qs
                 
@@ -186,9 +190,10 @@ if __name__ == '__main__':
                 #print(true_actions)
                 #print(query_true_EPs)
                 #print(query_true_Qs)
-                print(normalized_true_Qs)
-                print(normalized_full_pred_q_values)
-                
+                if i == 0:
+                    print(normalized_true_Qs)
+                    print(normalized_full_pred_q_values)
+                    
                 
                 true_actions = true_actions.unsqueeze(
                     1).repeat(1, pred_q_values.shape[1], 1)
@@ -198,13 +203,16 @@ if __name__ == '__main__':
                 pred_actions = torch.softmax(pred_q_values, dim=1)
                 
                 
-                #loss = loss_fn(pred_actions, true_actions)
-                loss = loss_fn(normalized_true_Qs, normalized_full_pred_q_values)
-                epoch_test_loss += loss.item() / horizon
+                cross_entropy_loss = loss_fn(pred_actions, true_actions)
+                MSE_loss = MSEloss_fn(normalized_true_Qs, normalized_full_pred_q_values)
+                epoch_cross_entropy_loss += cross_entropy_loss.item() / horizon
+                epoch_MSE_loss += MSE_loss.item() / horizon
 
-        test_loss.append(epoch_test_loss / len(test_dataset))
+        test_cross_entropy_loss.append(epoch_cross_entropy_loss / len(test_dataset))
+        test_MSE_loss.append(epoch_MSE_loss / len(test_dataset))
         end_time = time.time()
-        printw(f"\tTest loss: {test_loss[-1]}")
+        printw(f"\tCross entropy test loss: {test_cross_entropy_loss[-1]}")
+        printw(f"\tMSE of Q-value: {test_MSE_loss[-1]}")
         printw(f"\tEval time: {end_time - start_time}")
 
 
@@ -236,7 +244,7 @@ if __name__ == '__main__':
 
         train_loss.append(epoch_train_loss / len(train_dataset))
         end_time = time.time()
-        printw(f"\tTrain loss: {train_loss[-1]}")
+        printw(f"\tCross entropy train loss: {train_loss[-1]}")
         printw(f"\tTrain time: {end_time - start_time}")
 
 
@@ -246,15 +254,17 @@ if __name__ == '__main__':
                        f'models/{filename}_epoch{epoch+1}.pt')
 
         # PLOTTING
-        if (epoch + 1) % 10 == 0:
+        if (epoch + 1) % 5 == 0:
             printw(f"Epoch: {epoch + 1}")
-            printw(f"Test Loss:        {test_loss[-1]}")
-            printw(f"Train Loss:       {train_loss[-1]}")
+            printw(f"Test Q value MSE Loss:        {test_MSE_loss[-1]}")
+            printw(f"Test action cross entropy Loss:        {test_cross_entropy_loss[-1]}")
+            printw(f"Train action cross entropy Loss:       {train_loss[-1]}")
             printw("\n")
 
             plt.yscale('log')
-            plt.plot(train_loss[1:], label="Train Loss")
-            plt.plot(test_loss[1:], label="Test Loss")
+            plt.plot(train_loss[1:], label="Train cross entropy Loss")
+            plt.plot(test_MSE_loss[1:], label="Test Q_MSE Loss")
+            plt.plot(test_cross_entropy_loss[1:], label="Test cross entropy Loss")
             plt.legend()
             plt.savefig(f"figs/loss/{filename}_train_loss.png")
             plt.clf()

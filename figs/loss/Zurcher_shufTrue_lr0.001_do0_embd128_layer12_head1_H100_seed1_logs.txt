@@ -1,1500 +1,1611 @@
 Num train batches: 125
 Num test batches: 32
 Epoch: 1
-	Test loss: 0.0027031449770927433
-	Eval time: 1.52130126953125
-	Train loss: 0.6105228872680662
-	Train time: 5.356232643127441
+	Cross entropy test loss: 0.6534670751953124
+	MSE of Q-value: 0.04374714054107665
+	Eval time: 1.5369701385498047
+	Cross entropy train loss: 0.5962678167724611
+	Train time: 5.679979562759399
 Epoch: 2
-	Test loss: 0.012721444396972655
-	Eval time: 0.722790002822876
-	Train loss: 0.6346293627929686
-	Train time: 5.250259876251221
+	Cross entropy test loss: 0.6126917947387697
+	MSE of Q-value: 0.2966175654602052
+	Eval time: 0.6797924041748047
+	Cross entropy train loss: 0.5736327743530277
+	Train time: 5.805547475814819
 Epoch: 3
-	Test loss: 0.037221574211120594
-	Eval time: 0.8236958980560303
-	Train loss: 0.6503126132202149
-	Train time: 5.522312641143799
+	Cross entropy test loss: 0.5358519232177733
+	MSE of Q-value: 0.08817733089447022
+	Eval time: 0.6734611988067627
+	Cross entropy train loss: 0.504689644470215
+	Train time: 5.6171510219573975
 Epoch: 4
-	Test loss: 0.03139026617050171
-	Eval time: 0.8258016109466553
-	Train loss: 0.6067604208374024
-	Train time: 5.289003610610962
+	Cross entropy test loss: 0.5273302148437499
+	MSE of Q-value: 0.18395557678222654
+	Eval time: 0.6653709411621094
+	Cross entropy train loss: 0.5027941622924806
+	Train time: 5.620595216751099
 Epoch: 5
-	Test loss: 0.012222388286590575
-	Eval time: 0.7077703475952148
-	Train loss: 0.5255894009399414
-	Train time: 5.254122495651245
+	Cross entropy test loss: 0.5178275335693361
+	MSE of Q-value: 0.13339475158691408
+	Eval time: 0.6132895946502686
+	Cross entropy train loss: 0.4999908517456053
+	Train time: 5.485035419464111
+Epoch: 5
+Test Q value MSE Loss:        0.13339475158691408
+Test action cross entropy Loss:        0.5178275335693361
+Train action cross entropy Loss:       0.4999908517456053
+
+
 Epoch: 6
-	Test loss: 0.011276875896453856
-	Eval time: 0.7104368209838867
-	Train loss: 0.522847428588867
-	Train time: 5.26102876663208
+	Cross entropy test loss: 0.5163665826416015
+	MSE of Q-value: 0.23096328552246095
+	Eval time: 0.5804922580718994
+	Cross entropy train loss: 0.504349719848633
+	Train time: 5.3499157428741455
 Epoch: 7
-	Test loss: 0.00862477620124817
-	Eval time: 0.7111444473266602
-	Train loss: 0.5213416296386716
-	Train time: 5.275268077850342
+	Cross entropy test loss: 0.5164180981445312
+	MSE of Q-value: 0.05383117008209229
+	Eval time: 0.5793957710266113
+	Cross entropy train loss: 0.4994816806030274
+	Train time: 5.523641347885132
 Epoch: 8
-	Test loss: 0.012274036674499512
-	Eval time: 0.7108149528503418
-	Train loss: 0.5196888427734376
-	Train time: 5.278126239776611
+	Cross entropy test loss: 0.5143044287109376
+	MSE of Q-value: 0.2016176393127441
+	Eval time: 0.6118412017822266
+	Cross entropy train loss: 0.5004540588378905
+	Train time: 5.424963712692261
 Epoch: 9
-	Test loss: 0.011803852186203001
-	Eval time: 0.7103536128997803
-	Train loss: 0.5195197799682617
-	Train time: 5.285635948181152
+	Cross entropy test loss: 0.5169902929687501
+	MSE of Q-value: 0.1569585668182373
+	Eval time: 0.5798087120056152
+	Cross entropy train loss: 0.49922785064697267
+	Train time: 5.361989498138428
 Epoch: 10
-	Test loss: 0.011561074886322022
-	Eval time: 0.7091629505157471
-	Train loss: 0.5198506442260742
-	Train time: 5.2881317138671875
+	Cross entropy test loss: 0.5121484509277344
+	MSE of Q-value: 0.16239913024902344
+	Eval time: 0.5786898136138916
+	Cross entropy train loss: 0.498394486694336
+	Train time: 5.495701551437378
 Epoch: 10
-Test Loss:        0.011561074886322022
-Train Loss:       0.5198506442260742
+Test Q value MSE Loss:        0.16239913024902344
+Test action cross entropy Loss:        0.5121484509277344
+Train action cross entropy Loss:       0.498394486694336
 
 
 Epoch: 11
-	Test loss: 0.012267385768890375
-	Eval time: 0.7186284065246582
-	Train loss: 0.5190119567871095
-	Train time: 5.2963707447052
+	Cross entropy test loss: 0.5113749612426757
+	MSE of Q-value: 0.2356141546630859
+	Eval time: 0.6051573753356934
+	Cross entropy train loss: 0.4969065307617187
+	Train time: 5.444578647613525
 Epoch: 12
-	Test loss: 0.007643401513099672
-	Eval time: 0.7115223407745361
-	Train loss: 0.5195118222045896
-	Train time: 5.295810699462891
+	Cross entropy test loss: 0.5165253030395508
+	MSE of Q-value: 0.20312418823242193
+	Eval time: 0.5831015110015869
+	Cross entropy train loss: 0.5013881301879882
+	Train time: 5.376930475234985
 Epoch: 13
-	Test loss: 0.012926022052764892
-	Eval time: 0.7116270065307617
-	Train loss: 0.5199246224975587
-	Train time: 5.297677040100098
+	Cross entropy test loss: 0.5153162573242188
+	MSE of Q-value: 0.24555064163208012
+	Eval time: 0.5821092128753662
+	Cross entropy train loss: 0.504018809814453
+	Train time: 5.441585302352905
 Epoch: 14
-	Test loss: 0.011391506099700927
-	Eval time: 0.7120676040649414
-	Train loss: 0.5212131460571289
-	Train time: 5.299089670181274
+	Cross entropy test loss: 0.520245288696289
+	MSE of Q-value: 0.18190320098876955
+	Eval time: 0.5804240703582764
+	Cross entropy train loss: 0.4983624188232421
+	Train time: 5.384411096572876
 Epoch: 15
-	Test loss: 0.012124945087432863
-	Eval time: 0.7126672267913818
-	Train loss: 0.5195660327148437
-	Train time: 5.301891326904297
+	Cross entropy test loss: 0.5137592385864258
+	MSE of Q-value: 0.17158375488281247
+	Eval time: 0.5810708999633789
+	Cross entropy train loss: 0.49783863586425786
+	Train time: 5.379260301589966
+Epoch: 15
+Test Q value MSE Loss:        0.17158375488281247
+Test action cross entropy Loss:        0.5137592385864258
+Train action cross entropy Loss:       0.49783863586425786
+
+
 Epoch: 16
-	Test loss: 0.012519512891769412
-	Eval time: 0.713433027267456
-	Train loss: 0.5191756683349611
-	Train time: 5.3097193241119385
+	Cross entropy test loss: 0.5151616830444338
+	MSE of Q-value: 0.10322053260803221
+	Eval time: 0.58217453956604
+	Cross entropy train loss: 0.530555723876953
+	Train time: 5.455508708953857
 Epoch: 17
-	Test loss: 0.012029381818771362
-	Eval time: 0.7134239673614502
-	Train loss: 0.5192188449096679
-	Train time: 5.327964782714844
+	Cross entropy test loss: 0.7242350927734377
+	MSE of Q-value: 0.30966975585937495
+	Eval time: 0.6031467914581299
+	Cross entropy train loss: 0.5660584497070311
+	Train time: 5.50450587272644
 Epoch: 18
-	Test loss: 0.01215675856590271
-	Eval time: 0.7135040760040283
-	Train loss: 0.5189146356201171
-	Train time: 5.3298659324646
+	Cross entropy test loss: 0.517470140686035
+	MSE of Q-value: 0.1389735678100586
+	Eval time: 0.6128029823303223
+	Cross entropy train loss: 0.5121297259521485
+	Train time: 5.560903310775757
 Epoch: 19
-	Test loss: 0.0111925186252594
-	Eval time: 0.7142255306243896
-	Train loss: 0.5197777355957033
-	Train time: 5.31833291053772
+	Cross entropy test loss: 0.5263914257812502
+	MSE of Q-value: 0.1621817767333984
+	Eval time: 0.616412878036499
+	Cross entropy train loss: 0.508269506225586
+	Train time: 5.441541910171509
 Epoch: 20
-	Test loss: 0.011646260023117068
-	Eval time: 0.7147438526153564
-	Train loss: 0.5191961245727539
-	Train time: 5.3179566860198975
+	Cross entropy test loss: 0.5300452166748045
+	MSE of Q-value: 0.360806319885254
+	Eval time: 0.5812256336212158
+	Cross entropy train loss: 0.5036293417358397
+	Train time: 5.469154596328735
 Epoch: 20
-Test Loss:        0.011646260023117068
-Train Loss:       0.5191961245727539
+Test Q value MSE Loss:        0.360806319885254
+Test action cross entropy Loss:        0.5300452166748045
+Train action cross entropy Loss:       0.5036293417358397
 
 
 Epoch: 21
-	Test loss: 0.011815898342132567
-	Eval time: 0.7143006324768066
-	Train loss: 0.5188293054199217
-	Train time: 5.3192315101623535
+	Cross entropy test loss: 0.5142845782470704
+	MSE of Q-value: 0.2638900685119629
+	Eval time: 0.5809564590454102
+	Cross entropy train loss: 0.502907906188965
+	Train time: 5.538459300994873
 Epoch: 22
-	Test loss: 0.011406208658218385
-	Eval time: 0.7133316993713379
-	Train loss: 0.5192370254516602
-	Train time: 5.323023080825806
+	Cross entropy test loss: 0.5209552587890626
+	MSE of Q-value: 0.3478268640136718
+	Eval time: 0.7016499042510986
+	Cross entropy train loss: 0.5031996365356446
+	Train time: 5.392031908035278
 Epoch: 23
-	Test loss: 0.012512282924652096
-	Eval time: 0.7156329154968262
-	Train loss: 0.5190440283203125
-	Train time: 5.319448947906494
+	Cross entropy test loss: 0.5167552127075195
+	MSE of Q-value: 0.32464000213623045
+	Eval time: 0.5818803310394287
+	Cross entropy train loss: 0.5038531887817382
+	Train time: 5.398638486862183
 Epoch: 24
-	Test loss: 0.01103881308555603
-	Eval time: 0.7131540775299072
-	Train loss: 0.5193114904785155
-	Train time: 5.322231292724609
+	Cross entropy test loss: 0.5161491506958008
+	MSE of Q-value: 0.25215718627929695
+	Eval time: 0.5816044807434082
+	Cross entropy train loss: 0.5007338641357424
+	Train time: 5.461137056350708
 Epoch: 25
-	Test loss: 0.01144402666091919
-	Eval time: 0.7143020629882812
-	Train loss: 0.5189058740234374
-	Train time: 5.319782257080078
+	Cross entropy test loss: 0.5195264151000976
+	MSE of Q-value: 0.25424120971679687
+	Eval time: 0.582399845123291
+	Cross entropy train loss: 0.5019055554199219
+	Train time: 5.452099323272705
+Epoch: 25
+Test Q value MSE Loss:        0.25424120971679687
+Test action cross entropy Loss:        0.5195264151000976
+Train action cross entropy Loss:       0.5019055554199219
+
+
 Epoch: 26
-	Test loss: 0.011877342224121096
-	Eval time: 0.7137808799743652
-	Train loss: 0.5191641479492188
-	Train time: 5.318490743637085
+	Cross entropy test loss: 0.5221960766601562
+	MSE of Q-value: 0.29013440826416015
+	Eval time: 0.5870132446289062
+	Cross entropy train loss: 0.5039910626220702
+	Train time: 5.45864725112915
 Epoch: 27
-	Test loss: 0.011944419040679935
-	Eval time: 0.7125024795532227
-	Train loss: 0.5193123147583008
-	Train time: 5.321179628372192
+	Cross entropy test loss: 0.5197935412597657
+	MSE of Q-value: 0.24723100036621098
+	Eval time: 0.6190578937530518
+	Cross entropy train loss: 0.502082124328613
+	Train time: 5.4594526290893555
 Epoch: 28
-	Test loss: 0.011698163757324218
-	Eval time: 0.7127513885498047
-	Train loss: 0.5189234841918947
-	Train time: 5.320691108703613
+	Cross entropy test loss: 0.514600142211914
+	MSE of Q-value: 0.2316798760986328
+	Eval time: 0.58343505859375
+	Cross entropy train loss: 0.49997913055419935
+	Train time: 5.400067329406738
 Epoch: 29
-	Test loss: 0.012415707902908324
-	Eval time: 0.7123696804046631
-	Train loss: 0.5191481573486328
-	Train time: 5.325654029846191
+	Cross entropy test loss: 0.5172168603515626
+	MSE of Q-value: 0.2335966644287109
+	Eval time: 0.5842726230621338
+	Cross entropy train loss: 0.5001940017700194
+	Train time: 5.400557041168213
 Epoch: 30
-	Test loss: 0.012278895702362062
-	Eval time: 0.7129225730895996
-	Train loss: 0.5192232083129881
-	Train time: 5.327033281326294
+	Cross entropy test loss: 0.5142789108276367
+	MSE of Q-value: 0.26648689300537115
+	Eval time: 0.5819845199584961
+	Cross entropy train loss: 0.501010951538086
+	Train time: 5.4689249992370605
 Epoch: 30
-Test Loss:        0.012278895702362062
-Train Loss:       0.5192232083129881
+Test Q value MSE Loss:        0.26648689300537115
+Test action cross entropy Loss:        0.5142789108276367
+Train action cross entropy Loss:       0.501010951538086
 
 
 Epoch: 31
-	Test loss: 0.012674155635833741
-	Eval time: 0.7139804363250732
-	Train loss: 0.5190878939819337
-	Train time: 5.420366287231445
+	Cross entropy test loss: 0.5235695056152344
+	MSE of Q-value: 0.290278539276123
+	Eval time: 0.5833420753479004
+	Cross entropy train loss: 0.5011008654785155
+	Train time: 5.412865877151489
 Epoch: 32
-	Test loss: 0.012470570411682131
-	Eval time: 0.7738864421844482
-	Train loss: 0.5189192459106446
-	Train time: 5.334146976470947
+	Cross entropy test loss: 0.5160748162841797
+	MSE of Q-value: 0.2863732876586914
+	Eval time: 0.5833868980407715
+	Cross entropy train loss: 0.500869201660156
+	Train time: 5.543655157089233
 Epoch: 33
-	Test loss: 0.01189563619613648
-	Eval time: 0.7176589965820312
-	Train loss: 0.5188789581298826
-	Train time: 5.332769870758057
+	Cross entropy test loss: 0.5151709338378906
+	MSE of Q-value: 0.30967041748046875
+	Eval time: 0.7769415378570557
+	Cross entropy train loss: 0.5004013064575198
+	Train time: 5.635264158248901
 Epoch: 34
-	Test loss: 0.012140982141494753
-	Eval time: 0.7145826816558838
-	Train loss: 0.5189810281372068
-	Train time: 5.33101224899292
+	Cross entropy test loss: 0.5157017752075194
+	MSE of Q-value: 0.274724284362793
+	Eval time: 0.6198768615722656
+	Cross entropy train loss: 0.500919935913086
+	Train time: 5.401113510131836
 Epoch: 35
-	Test loss: 0.01304022256851196
-	Eval time: 0.7127385139465332
-	Train loss: 0.5189798519897464
-	Train time: 5.536418914794922
+	Cross entropy test loss: 0.5139569982910157
+	MSE of Q-value: 0.22525580978393553
+	Eval time: 0.5828518867492676
+	Cross entropy train loss: 0.5000145684814452
+	Train time: 5.5100953578948975
+Epoch: 35
+Test Q value MSE Loss:        0.22525580978393553
+Test action cross entropy Loss:        0.5139569982910157
+Train action cross entropy Loss:       0.5000145684814452
+
+
 Epoch: 36
-	Test loss: 0.012812898998260498
-	Eval time: 0.7675795555114746
-	Train loss: 0.5189324822998044
-	Train time: 5.337460994720459
+	Cross entropy test loss: 0.5216317425537107
+	MSE of Q-value: 0.27038596176147456
+	Eval time: 0.6055712699890137
+	Cross entropy train loss: 0.5011117098999025
+	Train time: 5.4786741733551025
 Epoch: 37
-	Test loss: 0.012969287338256837
-	Eval time: 0.7130038738250732
-	Train loss: 0.5189272680664063
-	Train time: 5.337442636489868
+	Cross entropy test loss: 0.5188467755126953
+	MSE of Q-value: 0.3603044140624999
+	Eval time: 0.6144447326660156
+	Cross entropy train loss: 0.49981584625244135
+	Train time: 5.400102853775024
 Epoch: 38
-	Test loss: 0.01254434473991394
-	Eval time: 0.7138285636901855
-	Train loss: 0.5189160467529296
-	Train time: 5.3327085971832275
+	Cross entropy test loss: 0.520510771484375
+	MSE of Q-value: 0.3288894287109375
+	Eval time: 0.5824666023254395
+	Cross entropy train loss: 0.5013728356933594
+	Train time: 5.468677282333374
 Epoch: 39
-	Test loss: 0.013007477378845214
-	Eval time: 0.7133514881134033
-	Train loss: 0.5188997488403322
-	Train time: 5.417196989059448
+	Cross entropy test loss: 0.5140000207519532
+	MSE of Q-value: 0.232256015625
+	Eval time: 0.5832352638244629
+	Cross entropy train loss: 0.5016312893676758
+	Train time: 5.444027900695801
 Epoch: 40
-	Test loss: 0.009938196563720705
-	Eval time: 0.8311669826507568
-	Train loss: 0.5425933978271483
-	Train time: 5.575836420059204
+	Cross entropy test loss: 0.5156214428710937
+	MSE of Q-value: 0.25652279388427734
+	Eval time: 0.615394115447998
+	Cross entropy train loss: 0.4993624966430663
+	Train time: 5.400327444076538
 Epoch: 40
-Test Loss:        0.009938196563720705
-Train Loss:       0.5425933978271483
+Test Q value MSE Loss:        0.25652279388427734
+Test action cross entropy Loss:        0.5156214428710937
+Train action cross entropy Loss:       0.4993624966430663
 
 
 Epoch: 41
-	Test loss: 0.03844424947738648
-	Eval time: 0.7284486293792725
-	Train loss: 0.5745389450073239
-	Train time: 5.332209825515747
+	Cross entropy test loss: 0.5162243121337892
+	MSE of Q-value: 0.2981712997436525
+	Eval time: 0.5828502178192139
+	Cross entropy train loss: 0.5001245578002929
+	Train time: 5.663769483566284
 Epoch: 42
-	Test loss: 0.010501947708129882
-	Eval time: 0.7152397632598877
-	Train loss: 0.5226717709350588
-	Train time: 5.337296009063721
+	Cross entropy test loss: 0.5137923220825195
+	MSE of Q-value: 0.24832177810668946
+	Eval time: 0.6162087917327881
+	Cross entropy train loss: 0.4997111184692384
+	Train time: 5.608819007873535
 Epoch: 43
-	Test loss: 0.010065639581680297
-	Eval time: 0.7143568992614746
-	Train loss: 0.5208810430908203
-	Train time: 5.337594747543335
+	Cross entropy test loss: 0.5173174761962889
+	MSE of Q-value: 0.31297773254394534
+	Eval time: 0.6181490421295166
+	Cross entropy train loss: 0.4999935186767577
+	Train time: 5.500509738922119
 Epoch: 44
-	Test loss: 0.010512458648681642
-	Eval time: 0.7136399745941162
-	Train loss: 0.5237558813476564
-	Train time: 5.337717771530151
+	Cross entropy test loss: 0.5135452304077148
+	MSE of Q-value: 0.2854604119873046
+	Eval time: 0.6886510848999023
+	Cross entropy train loss: 0.5001905047607422
+	Train time: 5.5958251953125
 Epoch: 45
-	Test loss: 0.010407799377441405
-	Eval time: 0.7134294509887695
-	Train loss: 0.5196910656738281
-	Train time: 5.336911678314209
+	Cross entropy test loss: 0.5159245617675781
+	MSE of Q-value: 0.2714110438537598
+	Eval time: 0.6186871528625488
+	Cross entropy train loss: 0.4995535037231444
+	Train time: 5.400592565536499
+Epoch: 45
+Test Q value MSE Loss:        0.2714110438537598
+Test action cross entropy Loss:        0.5159245617675781
+Train action cross entropy Loss:       0.4995535037231444
+
+
 Epoch: 46
-	Test loss: 0.011221359367370601
-	Eval time: 0.7149484157562256
-	Train loss: 0.5202106484985352
-	Train time: 5.335182428359985
+	Cross entropy test loss: 0.51739663482666
+	MSE of Q-value: 0.22253362625122078
+	Eval time: 0.5832059383392334
+	Cross entropy train loss: 0.49736956756591805
+	Train time: 5.608044624328613
 Epoch: 47
-	Test loss: 0.008409228181838988
-	Eval time: 0.7139215469360352
-	Train loss: 0.5190539498901366
-	Train time: 5.3378705978393555
+	Cross entropy test loss: 0.5136965017700195
+	MSE of Q-value: 0.2649240591430664
+	Eval time: 0.6170895099639893
+	Cross entropy train loss: 0.4966460961914061
+	Train time: 5.399439096450806
 Epoch: 48
-	Test loss: 0.009859078865051269
-	Eval time: 0.7147531509399414
-	Train loss: 0.5201219262695314
-	Train time: 5.340034008026123
+	Cross entropy test loss: 0.5137680487060546
+	MSE of Q-value: 0.26953445892333994
+	Eval time: 0.5819718837738037
+	Cross entropy train loss: 0.49583076965332024
+	Train time: 5.398490905761719
 Epoch: 49
-	Test loss: 0.00934182903289795
-	Eval time: 0.7149612903594971
-	Train loss: 0.5190860543823241
-	Train time: 5.340315341949463
+	Cross entropy test loss: 0.5133358624267577
+	MSE of Q-value: 0.2405555355834961
+	Eval time: 0.5801537036895752
+	Cross entropy train loss: 0.4958936968994137
+	Train time: 5.465710639953613
 Epoch: 50
-	Test loss: 0.010573160400390623
-	Eval time: 0.7144508361816406
-	Train loss: 0.519825401306152
-	Train time: 5.337948322296143
+	Cross entropy test loss: 0.515068870239258
+	MSE of Q-value: 0.27323013656616213
+	Eval time: 0.5817685127258301
+	Cross entropy train loss: 0.4959486798095705
+	Train time: 5.533954620361328
 Epoch: 50
-Test Loss:        0.010573160400390623
-Train Loss:       0.519825401306152
+Test Q value MSE Loss:        0.27323013656616213
+Test action cross entropy Loss:        0.515068870239258
+Train action cross entropy Loss:       0.4959486798095705
 
 
 Epoch: 51
-	Test loss: 0.013614579792022706
-	Eval time: 0.7165546417236328
-	Train loss: 0.5191158120727538
-	Train time: 5.338778495788574
+	Cross entropy test loss: 0.5127961981201173
+	MSE of Q-value: 0.28809938507080085
+	Eval time: 0.5931568145751953
+	Cross entropy train loss: 0.4963779333496095
+	Train time: 5.658066987991333
 Epoch: 52
-	Test loss: 0.013675910110473635
-	Eval time: 0.7153751850128174
-	Train loss: 0.5191660513305663
-	Train time: 5.337409496307373
+	Cross entropy test loss: 0.5137514831542969
+	MSE of Q-value: 0.2662297207641602
+	Eval time: 0.7012581825256348
+	Cross entropy train loss: 0.49788594055175783
+	Train time: 5.785538196563721
 Epoch: 53
-	Test loss: 0.013010410070419311
-	Eval time: 0.714249849319458
-	Train loss: 0.5190275756835938
-	Train time: 5.338876485824585
+	Cross entropy test loss: 0.52381751953125
+	MSE of Q-value: 0.2336139408874512
+	Eval time: 0.6241226196289062
+	Cross entropy train loss: 0.5019371673583983
+	Train time: 5.635268926620483
 Epoch: 54
-	Test loss: 0.01357034853935242
-	Eval time: 0.7171521186828613
-	Train loss: 0.5340671368408202
-	Train time: 5.339602947235107
+	Cross entropy test loss: 0.5138066934204102
+	MSE of Q-value: 0.2869527514648438
+	Eval time: 0.6162455081939697
+	Cross entropy train loss: 0.4995206448364257
+	Train time: 5.508047580718994
 Epoch: 55
-	Test loss: 0.005954469780921936
-	Eval time: 0.7148828506469727
-	Train loss: 0.5189731750488282
-	Train time: 5.429575443267822
+	Cross entropy test loss: 0.5152886087036133
+	MSE of Q-value: 0.33449809204101566
+	Eval time: 0.6162004470825195
+	Cross entropy train loss: 0.49798548065185533
+	Train time: 5.556829929351807
+Epoch: 55
+Test Q value MSE Loss:        0.33449809204101566
+Test action cross entropy Loss:        0.5152886087036133
+Train action cross entropy Loss:       0.49798548065185533
+
+
 Epoch: 56
-	Test loss: 0.007623294529914853
-	Eval time: 0.7701094150543213
-	Train loss: 0.5202303466796875
-	Train time: 5.3384764194488525
+	Cross entropy test loss: 0.5144231057739256
+	MSE of Q-value: 0.3119696978759765
+	Eval time: 0.5886061191558838
+	Cross entropy train loss: 0.4981534814453128
+	Train time: 5.510517120361328
 Epoch: 57
-	Test loss: 0.007279236707687379
-	Eval time: 0.7128865718841553
-	Train loss: 0.519469780883789
-	Train time: 5.335239410400391
+	Cross entropy test loss: 0.5133437036132813
+	MSE of Q-value: 0.25493310134887703
+	Eval time: 0.6173288822174072
+	Cross entropy train loss: 0.4982424301147461
+	Train time: 5.465707540512085
 Epoch: 58
-	Test loss: 0.009142011542320251
-	Eval time: 0.7129874229431152
-	Train loss: 0.5192677456665037
-	Train time: 5.372507810592651
+	Cross entropy test loss: 0.5113111840820312
+	MSE of Q-value: 0.22826433715820318
+	Eval time: 0.5817077159881592
+	Cross entropy train loss: 0.4966861889648436
+	Train time: 5.407079696655273
 Epoch: 59
-	Test loss: 0.009961207962036131
-	Eval time: 0.7671749591827393
-	Train loss: 0.5192185412597656
-	Train time: 5.336928844451904
+	Cross entropy test loss: 0.5148183666992188
+	MSE of Q-value: 0.27762714813232425
+	Eval time: 0.5820958614349365
+	Cross entropy train loss: 0.49554789154052736
+	Train time: 5.4914538860321045
 Epoch: 60
-	Test loss: 0.010806773719787598
-	Eval time: 0.7131004333496094
-	Train loss: 0.519649172668457
-	Train time: 5.471311807632446
+	Cross entropy test loss: 0.5164203002929688
+	MSE of Q-value: 0.29625500671386723
+	Eval time: 0.7099366188049316
+	Cross entropy train loss: 0.4956514624023437
+	Train time: 5.403446912765503
 Epoch: 60
-Test Loss:        0.010806773719787598
-Train Loss:       0.519649172668457
+Test Q value MSE Loss:        0.29625500671386723
+Test action cross entropy Loss:        0.5164203002929688
+Train action cross entropy Loss:       0.4956514624023437
 
 
 Epoch: 61
-	Test loss: 0.010065580434799192
-	Eval time: 0.7519114017486572
-	Train loss: 0.5190203240966796
-	Train time: 5.336796998977661
+	Cross entropy test loss: 0.5118835903930665
+	MSE of Q-value: 0.2566868171691895
+	Eval time: 0.5826036930084229
+	Cross entropy train loss: 0.49518284881591784
+	Train time: 5.567254543304443
 Epoch: 62
-	Test loss: 0.009969346723556517
-	Eval time: 0.7131752967834473
-	Train loss: 0.5189573995971682
-	Train time: 5.574897766113281
+	Cross entropy test loss: 0.5138731518554688
+	MSE of Q-value: 0.3028592605590821
+	Eval time: 0.6171960830688477
+	Cross entropy train loss: 0.49706097473144534
+	Train time: 5.474616527557373
 Epoch: 63
-	Test loss: 0.010892297172546387
-	Eval time: 0.7637832164764404
-	Train loss: 0.5192860552978515
-	Train time: 5.3410491943359375
+	Cross entropy test loss: 0.5126085226440431
+	MSE of Q-value: 0.26836596618652353
+	Eval time: 0.5812239646911621
+	Cross entropy train loss: 0.49620917297363276
+	Train time: 5.408639192581177
 Epoch: 64
-	Test loss: 0.010820826015472412
-	Eval time: 0.7131905555725098
-	Train loss: 0.5191422012329102
-	Train time: 5.340883016586304
+	Cross entropy test loss: 0.5114426678466797
+	MSE of Q-value: 0.22273641876220704
+	Eval time: 0.5818078517913818
+	Cross entropy train loss: 0.4954410250854493
+	Train time: 5.411549806594849
 Epoch: 65
-	Test loss: 0.011244629364013672
-	Eval time: 0.7138056755065918
-	Train loss: 0.5190095660400391
-	Train time: 5.3452606201171875
+	Cross entropy test loss: 0.5143491735839846
+	MSE of Q-value: 0.2743243846130372
+	Eval time: 0.5839958190917969
+	Cross entropy train loss: 0.4964577642822264
+	Train time: 5.473165273666382
+Epoch: 65
+Test Q value MSE Loss:        0.2743243846130372
+Test action cross entropy Loss:        0.5143491735839846
+Train action cross entropy Loss:       0.4964577642822264
+
+
 Epoch: 66
-	Test loss: 0.01162284737586975
-	Eval time: 0.7132747173309326
-	Train loss: 0.5192044204711914
-	Train time: 5.345630168914795
+	Cross entropy test loss: 0.5114954583740234
+	MSE of Q-value: 0.2647737629699707
+	Eval time: 0.5830235481262207
+	Cross entropy train loss: 0.4947456546020508
+	Train time: 5.645047426223755
 Epoch: 67
-	Test loss: 0.01082265535354614
-	Eval time: 0.7158939838409424
-	Train loss: 0.5188807092285157
-	Train time: 5.348325252532959
+	Cross entropy test loss: 0.5108227502441406
+	MSE of Q-value: 0.26075289199829105
+	Eval time: 0.6129465103149414
+	Cross entropy train loss: 0.49500782653808595
+	Train time: 5.490563154220581
 Epoch: 68
-	Test loss: 0.01143537298202515
-	Eval time: 0.7145712375640869
-	Train loss: 0.5188533239746094
-	Train time: 5.34162974357605
+	Cross entropy test loss: 0.5147795190429688
+	MSE of Q-value: 0.2639482412719727
+	Eval time: 0.6160144805908203
+	Cross entropy train loss: 0.49560950469970705
+	Train time: 5.469529390335083
 Epoch: 69
-	Test loss: 0.013534061203002927
-	Eval time: 0.7145845890045166
-	Train loss: 0.5190012033081056
-	Train time: 5.339326620101929
+	Cross entropy test loss: 0.5134978631591798
+	MSE of Q-value: 0.29625290878295896
+	Eval time: 0.5813291072845459
+	Cross entropy train loss: 0.49456046539306653
+	Train time: 5.405379056930542
 Epoch: 70
-	Test loss: 0.013175639028549192
-	Eval time: 0.7143111228942871
-	Train loss: 0.5190032263183594
-	Train time: 5.3453545570373535
+	Cross entropy test loss: 0.5122893310546873
+	MSE of Q-value: 0.34520929977417
+	Eval time: 0.5832834243774414
+	Cross entropy train loss: 0.49521892852783195
+	Train time: 5.470925331115723
 Epoch: 70
-Test Loss:        0.013175639028549192
-Train Loss:       0.5190032263183594
+Test Q value MSE Loss:        0.34520929977417
+Test action cross entropy Loss:        0.5122893310546873
+Train action cross entropy Loss:       0.49521892852783195
 
 
 Epoch: 71
-	Test loss: 0.01251357961654663
-	Eval time: 0.716254472732544
-	Train loss: 0.5189918048095702
-	Train time: 5.34334397315979
+	Cross entropy test loss: 0.5168802862548828
+	MSE of Q-value: 0.1918103011322022
+	Eval time: 0.5849921703338623
+	Cross entropy train loss: 0.4984465289306641
+	Train time: 5.415301084518433
 Epoch: 72
-	Test loss: 0.012258953561782835
-	Eval time: 0.7139084339141846
-	Train loss: 0.5188451593017579
-	Train time: 5.3478639125823975
+	Cross entropy test loss: 0.518085584411621
+	MSE of Q-value: 0.24817720825195314
+	Eval time: 0.5849649906158447
+	Cross entropy train loss: 0.4957403887939455
+	Train time: 5.413939714431763
 Epoch: 73
-	Test loss: 0.01125474281311035
-	Eval time: 0.7149083614349365
-	Train loss: 0.5191531326293946
-	Train time: 5.553894519805908
+	Cross entropy test loss: 0.5123077151489258
+	MSE of Q-value: 0.42412167358398445
+	Eval time: 0.582059383392334
+	Cross entropy train loss: 0.4954937640380859
+	Train time: 5.632165908813477
 Epoch: 74
-	Test loss: 0.011916013545989989
-	Eval time: 0.756903886795044
-	Train loss: 0.5189893072509767
-	Train time: 5.344543933868408
+	Cross entropy test loss: 0.5118841571044922
+	MSE of Q-value: 0.3159407678222655
+	Eval time: 0.6195855140686035
+	Cross entropy train loss: 0.49661020233154296
+	Train time: 5.411475419998169
 Epoch: 75
-	Test loss: 0.012246603603363037
-	Eval time: 0.7153754234313965
-	Train loss: 0.5192693420410156
-	Train time: 5.341454267501831
+	Cross entropy test loss: 0.5136201739501953
+	MSE of Q-value: 0.2966419888305665
+	Eval time: 0.5820143222808838
+	Cross entropy train loss: 0.4959072833251952
+	Train time: 5.406245231628418
+Epoch: 75
+Test Q value MSE Loss:        0.2966419888305665
+Test action cross entropy Loss:        0.5136201739501953
+Train action cross entropy Loss:       0.4959072833251952
+
+
 Epoch: 76
-	Test loss: 0.01154304885864258
-	Eval time: 0.7230303287506104
-	Train loss: 0.5191179550170897
-	Train time: 5.341698169708252
+	Cross entropy test loss: 0.5132131408691406
+	MSE of Q-value: 0.2466531645202637
+	Eval time: 0.5843126773834229
+	Cross entropy train loss: 0.4959567019653321
+	Train time: 5.468397617340088
 Epoch: 77
-	Test loss: 0.012424932823181151
-	Eval time: 0.7132918834686279
-	Train loss: 0.5191004089355467
-	Train time: 5.340078592300415
+	Cross entropy test loss: 0.5158748870849611
+	MSE of Q-value: 0.3219585598754884
+	Eval time: 0.5816652774810791
+	Cross entropy train loss: 0.49443744323730465
+	Train time: 5.547848463058472
 Epoch: 78
-	Test loss: 0.012444411430358886
-	Eval time: 0.7135264873504639
-	Train loss: 0.519220207824707
-	Train time: 5.340655326843262
+	Cross entropy test loss: 0.5114190411376953
+	MSE of Q-value: 0.30757000915527344
+	Eval time: 0.6167881488800049
+	Cross entropy train loss: 0.49380099395751936
+	Train time: 5.413715124130249
 Epoch: 79
-	Test loss: 0.01332708793640137
-	Eval time: 0.71455979347229
-	Train loss: 0.5192349688720704
-	Train time: 5.340409517288208
+	Cross entropy test loss: 0.5133131890869141
+	MSE of Q-value: 0.4025594018554687
+	Eval time: 0.703669548034668
+	Cross entropy train loss: 0.4945132095336911
+	Train time: 5.403282880783081
 Epoch: 80
-	Test loss: 0.01228433759689331
-	Eval time: 0.7143032550811768
-	Train loss: 0.5189043649291992
-	Train time: 5.342438697814941
+	Cross entropy test loss: 0.5131951593017579
+	MSE of Q-value: 0.3789931768798828
+	Eval time: 0.5829570293426514
+	Cross entropy train loss: 0.49787410125732434
+	Train time: 5.407319784164429
 Epoch: 80
-Test Loss:        0.01228433759689331
-Train Loss:       0.5189043649291992
+Test Q value MSE Loss:        0.3789931768798828
+Test action cross entropy Loss:        0.5131951593017579
+Train action cross entropy Loss:       0.49787410125732434
 
 
 Epoch: 81
-	Test loss: 0.012513755702972414
-	Eval time: 0.7155547142028809
-	Train loss: 0.5189737719726563
-	Train time: 5.343019008636475
+	Cross entropy test loss: 0.521989931640625
+	MSE of Q-value: 0.28267052474975585
+	Eval time: 0.5823581218719482
+	Cross entropy train loss: 0.4956079455566408
+	Train time: 5.524757623672485
 Epoch: 82
-	Test loss: 0.012753110904693605
-	Eval time: 0.7141733169555664
-	Train loss: 0.5189164559936521
-	Train time: 5.338328838348389
+	Cross entropy test loss: 0.5125822100830077
+	MSE of Q-value: 0.27141852035522457
+	Eval time: 0.6150195598602295
+	Cross entropy train loss: 0.49615882080078133
+	Train time: 5.424987077713013
 Epoch: 83
-	Test loss: 0.01230110394477844
-	Eval time: 0.7141139507293701
-	Train loss: 0.5188522619628907
-	Train time: 5.3397605419158936
+	Cross entropy test loss: 0.511625244140625
+	MSE of Q-value: 0.22079145690917967
+	Eval time: 0.6197521686553955
+	Cross entropy train loss: 0.4953062875366211
+	Train time: 5.5257954597473145
 Epoch: 84
-	Test loss: 0.01251672071456909
-	Eval time: 0.7140340805053711
-	Train loss: 0.5188965563964844
-	Train time: 5.573022127151489
+	Cross entropy test loss: 0.5142682723999022
+	MSE of Q-value: 0.29772595626831067
+	Eval time: 0.6135997772216797
+	Cross entropy train loss: 0.4947225708007815
+	Train time: 5.470801830291748
 Epoch: 85
-	Test loss: 0.013532689018249515
-	Eval time: 0.7664017677307129
-	Train loss: 0.5188967739868164
-	Train time: 5.337567329406738
+	Cross entropy test loss: 0.5159604336547851
+	MSE of Q-value: 0.3257654931640625
+	Eval time: 0.5836207866668701
+	Cross entropy train loss: 0.4955398538208007
+	Train time: 5.609299659729004
+Epoch: 85
+Test Q value MSE Loss:        0.3257654931640625
+Test action cross entropy Loss:        0.5159604336547851
+Train action cross entropy Loss:       0.4955398538208007
+
+
 Epoch: 86
-	Test loss: 0.012825126647949218
-	Eval time: 0.7130155563354492
-	Train loss: 0.5190621307373046
-	Train time: 5.339764595031738
+	Cross entropy test loss: 0.5147269326782227
+	MSE of Q-value: 0.29655329101562494
+	Eval time: 0.591010570526123
+	Cross entropy train loss: 0.4948602032470704
+	Train time: 5.407697439193726
 Epoch: 87
-	Test loss: 0.011952515010833739
-	Eval time: 0.7129309177398682
-	Train loss: 0.5187636993408201
-	Train time: 5.341422080993652
+	Cross entropy test loss: 0.5150876934814452
+	MSE of Q-value: 0.2931175790405274
+	Eval time: 0.6680243015289307
+	Cross entropy train loss: 0.49584938018798835
+	Train time: 5.501431941986084
 Epoch: 88
-	Test loss: 0.013313013324737548
-	Eval time: 0.7151455879211426
-	Train loss: 0.5189032693481447
-	Train time: 5.338927984237671
+	Cross entropy test loss: 0.5136447982788085
+	MSE of Q-value: 0.25657362091064456
+	Eval time: 0.5832481384277344
+	Cross entropy train loss: 0.49595997528076197
+	Train time: 5.427780389785767
 Epoch: 89
-	Test loss: 0.013074361763000485
-	Eval time: 0.7140538692474365
-	Train loss: 0.5191120498657228
-	Train time: 5.3406805992126465
+	Cross entropy test loss: 0.5170810504150389
+	MSE of Q-value: 0.14935600799560547
+	Eval time: 0.5837352275848389
+	Cross entropy train loss: 0.4974381762695312
+	Train time: 5.637558698654175
 Epoch: 90
-	Test loss: 0.014429126024246215
-	Eval time: 0.714519739151001
-	Train loss: 0.5187649844360351
-	Train time: 5.339371204376221
+	Cross entropy test loss: 0.5125562258911134
+	MSE of Q-value: 0.29759537704467776
+	Eval time: 0.6182363033294678
+	Cross entropy train loss: 0.49900005798339864
+	Train time: 5.550331115722656
 Epoch: 90
-Test Loss:        0.014429126024246215
-Train Loss:       0.5187649844360351
+Test Q value MSE Loss:        0.29759537704467776
+Test action cross entropy Loss:        0.5125562258911134
+Train action cross entropy Loss:       0.49900005798339864
 
 
 Epoch: 91
-	Test loss: 0.014048344974517825
-	Eval time: 0.7139902114868164
-	Train loss: 0.5189061236572268
-	Train time: 5.3390092849731445
+	Cross entropy test loss: 0.5137929736328125
+	MSE of Q-value: 0.31186138977050787
+	Eval time: 0.6058261394500732
+	Cross entropy train loss: 0.4983844433593751
+	Train time: 5.45301079750061
 Epoch: 92
-	Test loss: 0.01452268594741821
-	Eval time: 0.7132296562194824
-	Train loss: 0.5188480307006835
-	Train time: 5.435364484786987
+	Cross entropy test loss: 0.5132935394287109
+	MSE of Q-value: 0.3273923400878907
+	Eval time: 0.6164817810058594
+	Cross entropy train loss: 0.4976117733764646
+	Train time: 5.579694032669067
 Epoch: 93
-	Test loss: 0.014610834298133847
-	Eval time: 0.7713494300842285
-	Train loss: 0.5188475216674805
-	Train time: 5.348559141159058
+	Cross entropy test loss: 0.5147529544067383
+	MSE of Q-value: 0.3366139309692382
+	Eval time: 0.6161456108093262
+	Cross entropy train loss: 0.49908448303222663
+	Train time: 5.40045166015625
 Epoch: 94
-	Test loss: 0.014664522113800049
-	Eval time: 0.7151107788085938
-	Train loss: 0.5189393835449219
-	Train time: 5.54598593711853
+	Cross entropy test loss: 0.5355543975830078
+	MSE of Q-value: 0.27819377120971683
+	Eval time: 0.5825965404510498
+	Cross entropy train loss: 0.5055479385375977
+	Train time: 5.400871515274048
 Epoch: 95
-	Test loss: 0.0138851237487793
-	Eval time: 0.7683320045471191
-	Train loss: 0.5187958352661134
-	Train time: 5.358285903930664
+	Cross entropy test loss: 0.5260044195556641
+	MSE of Q-value: 0.1458005253601074
+	Eval time: 0.582277774810791
+	Cross entropy train loss: 0.504202756652832
+	Train time: 5.474747896194458
+Epoch: 95
+Test Q value MSE Loss:        0.1458005253601074
+Test action cross entropy Loss:        0.5260044195556641
+Train action cross entropy Loss:       0.504202756652832
+
+
 Epoch: 96
-	Test loss: 0.011533070030212401
-	Eval time: 0.7143275737762451
-	Train loss: 0.5188903076171874
-	Train time: 5.3662192821502686
+	Cross entropy test loss: 0.5236223123168945
+	MSE of Q-value: 0.1763278790283203
+	Eval time: 0.5831236839294434
+	Cross entropy train loss: 0.5058502188110353
+	Train time: 5.405362129211426
 Epoch: 97
-	Test loss: 0.013398737506866456
-	Eval time: 0.7150115966796875
-	Train loss: 0.5188572760009765
-	Train time: 5.354069232940674
+	Cross entropy test loss: 0.520761390991211
+	MSE of Q-value: 0.1293274878692627
+	Eval time: 0.5832135677337646
+	Cross entropy train loss: 0.503443043823242
+	Train time: 5.4722020626068115
 Epoch: 98
-	Test loss: 0.014127255783081057
-	Eval time: 0.7134747505187988
-	Train loss: 0.5188753912353514
-	Train time: 5.341171026229858
+	Cross entropy test loss: 0.5180649987792969
+	MSE of Q-value: 0.13671173095703126
+	Eval time: 0.5835292339324951
+	Cross entropy train loss: 0.5021334158325196
+	Train time: 5.41201114654541
 Epoch: 99
-	Test loss: 0.01351342130661011
-	Eval time: 0.71490478515625
-	Train loss: 0.5188341326904297
-	Train time: 5.343621253967285
+	Cross entropy test loss: 0.5232917764282226
+	MSE of Q-value: 0.23568261657714842
+	Eval time: 0.5815725326538086
+	Cross entropy train loss: 0.4999844564819337
+	Train time: 5.4072301387786865
 Epoch: 100
-	Test loss: 0.013176902408599854
-	Eval time: 0.7152960300445557
-	Train loss: 0.5188434527587888
-	Train time: 5.340336799621582
+	Cross entropy test loss: 0.516033243713379
+	MSE of Q-value: 0.17520235351562505
+	Eval time: 0.5808742046356201
+	Cross entropy train loss: 0.4996997970581057
+	Train time: 5.469520330429077
 Epoch: 100
-Test Loss:        0.013176902408599854
-Train Loss:       0.5188434527587888
+Test Q value MSE Loss:        0.17520235351562505
+Test action cross entropy Loss:        0.516033243713379
+Train action cross entropy Loss:       0.4996997970581057
 
 
 Epoch: 101
-	Test loss: 0.013198017673492435
-	Eval time: 0.7166104316711426
-	Train loss: 0.5190202911376951
-	Train time: 5.341562271118164
+	Cross entropy test loss: 0.516155725402832
+	MSE of Q-value: 0.24044665191650394
+	Eval time: 0.5819063186645508
+	Cross entropy train loss: 0.49931946716308606
+	Train time: 5.404734134674072
 Epoch: 102
-	Test loss: 0.013109966173171997
-	Eval time: 0.7146015167236328
-	Train loss: 0.5191115231323241
-	Train time: 5.341629266738892
+	Cross entropy test loss: 0.5166838903808594
+	MSE of Q-value: 0.2361248066711426
+	Eval time: 0.5819683074951172
+	Cross entropy train loss: 0.49923473083496106
+	Train time: 5.404461860656738
 Epoch: 103
-	Test loss: 0.011906658763885495
-	Eval time: 0.7152376174926758
-	Train loss: 0.518994045715332
-	Train time: 5.345479965209961
+	Cross entropy test loss: 0.5144019979858397
+	MSE of Q-value: 0.23020639190673828
+	Eval time: 0.5823771953582764
+	Cross entropy train loss: 0.499677873840332
+	Train time: 5.6466288566589355
 Epoch: 104
-	Test loss: 0.012934437351226805
-	Eval time: 0.7151763439178467
-	Train loss: 0.5188884887695311
-	Train time: 5.3438498973846436
+	Cross entropy test loss: 0.5172156231689454
+	MSE of Q-value: 0.23527179992675787
+	Eval time: 0.6135029792785645
+	Cross entropy train loss: 0.49902537292480476
+	Train time: 5.584559440612793
 Epoch: 105
-	Test loss: 0.01417778929710388
-	Eval time: 0.7145106792449951
-	Train loss: 0.5189166732788086
-	Train time: 5.3450117111206055
+	Cross entropy test loss: 0.517445414428711
+	MSE of Q-value: 0.2535006402587891
+	Eval time: 0.6148927211761475
+	Cross entropy train loss: 0.49894070983886735
+	Train time: 5.478765487670898
+Epoch: 105
+Test Q value MSE Loss:        0.2535006402587891
+Test action cross entropy Loss:        0.517445414428711
+Train action cross entropy Loss:       0.49894070983886735
+
+
 Epoch: 106
-	Test loss: 0.013994795370101927
-	Eval time: 0.7135879993438721
-	Train loss: 0.5187499121093753
-	Train time: 5.34409499168396
+	Cross entropy test loss: 0.5160709045410156
+	MSE of Q-value: 0.2489174472045898
+	Eval time: 0.6904215812683105
+	Cross entropy train loss: 0.49846062011718756
+	Train time: 5.481610298156738
 Epoch: 107
-	Test loss: 0.0131676517868042
-	Eval time: 0.7141940593719482
-	Train loss: 0.5187483624267578
-	Train time: 5.521841526031494
+	Cross entropy test loss: 0.5163824209594727
+	MSE of Q-value: 0.20940937454223632
+	Eval time: 0.6224050521850586
+	Cross entropy train loss: 0.5002675067138673
+	Train time: 5.399632930755615
 Epoch: 108
-	Test loss: 0.014891030960083007
-	Eval time: 0.7669510841369629
-	Train loss: 0.5189775588989256
-	Train time: 5.342429161071777
+	Cross entropy test loss: 0.5159970703125
+	MSE of Q-value: 0.22483400207519538
+	Eval time: 0.5820622444152832
+	Cross entropy train loss: 0.4995402047729491
+	Train time: 5.460858583450317
 Epoch: 109
-	Test loss: 0.014070903873443601
-	Eval time: 0.7162444591522217
-	Train loss: 0.5188704470825195
-	Train time: 5.341520547866821
+	Cross entropy test loss: 0.5296136279296875
+	MSE of Q-value: 0.28693863006591797
+	Eval time: 0.5835258960723877
+	Cross entropy train loss: 0.509014669494629
+	Train time: 5.471812725067139
 Epoch: 110
-	Test loss: 0.0138738374710083
-	Eval time: 0.7134222984313965
-	Train loss: 0.5248834207153323
-	Train time: 5.366639137268066
+	Cross entropy test loss: 0.5245530740356446
+	MSE of Q-value: 0.0881808755493164
+	Eval time: 0.6161243915557861
+	Cross entropy train loss: 0.5045644308471678
+	Train time: 5.396303176879883
 Epoch: 110
-Test Loss:        0.0138738374710083
-Train Loss:       0.5248834207153323
+Test Q value MSE Loss:        0.0881808755493164
+Test action cross entropy Loss:        0.5245530740356446
+Train action cross entropy Loss:       0.5045644308471678
 
 
 Epoch: 111
-	Test loss: 0.012673391284942626
-	Eval time: 0.7411553859710693
-	Train loss: 0.5189209542846679
-	Train time: 5.34523606300354
+	Cross entropy test loss: 0.5219070220947266
+	MSE of Q-value: 0.11496959365844726
+	Eval time: 0.5828661918640137
+	Cross entropy train loss: 0.4998125775146483
+	Train time: 5.459789514541626
 Epoch: 112
-	Test loss: 0.015363634157180787
-	Eval time: 0.7158749103546143
-	Train loss: 0.5190436724853518
-	Train time: 5.346280336380005
+	Cross entropy test loss: 0.52104458984375
+	MSE of Q-value: 0.25024652557373045
+	Eval time: 0.5808124542236328
+	Cross entropy train loss: 0.4989954583740234
+	Train time: 5.396175146102905
 Epoch: 113
-	Test loss: 0.014673491287231446
-	Eval time: 0.7154145240783691
-	Train loss: 0.5187993984985353
-	Train time: 5.445257663726807
+	Cross entropy test loss: 0.5176614559936525
+	MSE of Q-value: 0.308160357055664
+	Eval time: 0.5809230804443359
+	Cross entropy train loss: 0.49934492889404297
+	Train time: 5.609445571899414
 Epoch: 114
-	Test loss: 0.015662383298873907
-	Eval time: 0.767855167388916
-	Train loss: 0.5188252560424805
-	Train time: 5.341319799423218
+	Cross entropy test loss: 0.5194595642089844
+	MSE of Q-value: 0.28794763671875
+	Eval time: 0.6158504486083984
+	Cross entropy train loss: 0.5001027023315431
+	Train time: 5.4894585609436035
 Epoch: 115
-	Test loss: 0.014983112583160402
-	Eval time: 0.7134089469909668
-	Train loss: 0.5189446566772459
-	Train time: 5.412607908248901
+	Cross entropy test loss: 0.5181205456542969
+	MSE of Q-value: 0.2940801605224609
+	Eval time: 0.6156022548675537
+	Cross entropy train loss: 0.4982847122192381
+	Train time: 5.398427724838257
+Epoch: 115
+Test Q value MSE Loss:        0.2940801605224609
+Test action cross entropy Loss:        0.5181205456542969
+Train action cross entropy Loss:       0.4982847122192381
+
+
 Epoch: 116
-	Test loss: 0.01611887844085693
-	Eval time: 0.7702560424804688
-	Train loss: 0.5188838723754883
-	Train time: 5.342405080795288
+	Cross entropy test loss: 0.5153874786376953
+	MSE of Q-value: 0.3014767736816405
+	Eval time: 0.5826675891876221
+	Cross entropy train loss: 0.4972982427978516
+	Train time: 5.459038496017456
 Epoch: 117
-	Test loss: 0.015798637046813967
-	Eval time: 0.71451735496521
-	Train loss: 0.5188907720947267
-	Train time: 5.566582679748535
+	Cross entropy test loss: 0.5160780187988281
+	MSE of Q-value: 0.3181843843078614
+	Eval time: 0.5822596549987793
+	Cross entropy train loss: 0.4980243472290039
+	Train time: 5.4540016651153564
 Epoch: 118
-	Test loss: 0.0165315481376648
-	Eval time: 0.7661178112030029
-	Train loss: 0.5188115136718751
-	Train time: 5.34539270401001
+	Cross entropy test loss: 0.518109342956543
+	MSE of Q-value: 0.2878042166137695
+	Eval time: 0.6157276630401611
+	Cross entropy train loss: 0.4973397482299808
+	Train time: 5.454654693603516
 Epoch: 119
-	Test loss: 0.0166949875831604
-	Eval time: 0.7161200046539307
-	Train loss: 0.5189758224487302
-	Train time: 5.341158866882324
+	Cross entropy test loss: 0.5144711303710937
+	MSE of Q-value: 0.13873784591674804
+	Eval time: 0.6172261238098145
+	Cross entropy train loss: 0.4963077954101564
+	Train time: 5.458420753479004
 Epoch: 120
-	Test loss: 0.014986314849853516
-	Eval time: 0.7142174243927002
-	Train loss: 0.5186533480834958
-	Train time: 5.343373775482178
+	Cross entropy test loss: 0.5135975650024414
+	MSE of Q-value: 0.2925941439819336
+	Eval time: 0.5835583209991455
+	Cross entropy train loss: 0.4990153158569338
+	Train time: 5.393063068389893
 Epoch: 120
-Test Loss:        0.014986314849853516
-Train Loss:       0.5186533480834958
+Test Q value MSE Loss:        0.2925941439819336
+Test action cross entropy Loss:        0.5135975650024414
+Train action cross entropy Loss:       0.4990153158569338
 
 
 Epoch: 121
-	Test loss: 0.014825501899719236
-	Eval time: 0.7148585319519043
-	Train loss: 0.5188999179077152
-	Train time: 5.339892387390137
+	Cross entropy test loss: 0.5126116046142579
+	MSE of Q-value: 0.25268211776733396
+	Eval time: 0.5843348503112793
+	Cross entropy train loss: 0.49747562103271487
+	Train time: 5.5055766105651855
 Epoch: 122
-	Test loss: 0.016845573482513428
-	Eval time: 0.7132043838500977
-	Train loss: 0.5188795034790039
-	Train time: 5.340502738952637
+	Cross entropy test loss: 0.5123123602294922
+	MSE of Q-value: 0.29283798690795904
+	Eval time: 0.6152253150939941
+	Cross entropy train loss: 0.4978524267578124
+	Train time: 5.535038709640503
 Epoch: 123
-	Test loss: 0.01578567518234253
-	Eval time: 0.7127664089202881
-	Train loss: 0.5188321591186525
-	Train time: 5.338780403137207
+	Cross entropy test loss: 0.5161794210815429
+	MSE of Q-value: 0.23894772308349607
+	Eval time: 0.61861252784729
+	Cross entropy train loss: 0.49564448883056644
+	Train time: 5.468623399734497
 Epoch: 124
-	Test loss: 0.01597985969543457
-	Eval time: 0.7144820690155029
-	Train loss: 0.518937742919922
-	Train time: 5.34296178817749
+	Cross entropy test loss: 0.5123443084716797
+	MSE of Q-value: 0.29939098907470696
+	Eval time: 0.601395845413208
+	Cross entropy train loss: 0.4953448309326173
+	Train time: 5.46644926071167
 Epoch: 125
-	Test loss: 0.01582117030143738
-	Eval time: 0.7143237590789795
-	Train loss: 0.5187711657714845
-	Train time: 5.342000722885132
+	Cross entropy test loss: 0.5144071133422853
+	MSE of Q-value: 0.34888346191406244
+	Eval time: 0.5820484161376953
+	Cross entropy train loss: 0.495909692993164
+	Train time: 5.547974348068237
+Epoch: 125
+Test Q value MSE Loss:        0.34888346191406244
+Test action cross entropy Loss:        0.5144071133422853
+Train action cross entropy Loss:       0.495909692993164
+
+
 Epoch: 126
-	Test loss: 0.015049718055725095
-	Eval time: 0.7152538299560547
-	Train loss: 0.5188822396850585
-	Train time: 5.341973304748535
+	Cross entropy test loss: 0.5123654681396485
+	MSE of Q-value: 0.2688120776367187
+	Eval time: 0.6030080318450928
+	Cross entropy train loss: 0.4954825006103517
+	Train time: 5.541251182556152
 Epoch: 127
-	Test loss: 0.015148115997314453
-	Eval time: 0.7142910957336426
-	Train loss: 0.5187862728881837
-	Train time: 5.341652870178223
+	Cross entropy test loss: 0.5169310766601563
+	MSE of Q-value: 0.15121549346923832
+	Eval time: 0.5810291767120361
+	Cross entropy train loss: 0.4946537075805662
+	Train time: 5.470839500427246
 Epoch: 128
-	Test loss: 0.01612914816856384
-	Eval time: 0.7135260105133057
-	Train loss: 0.5191994650268554
-	Train time: 5.34261679649353
+	Cross entropy test loss: 0.5116596743774415
+	MSE of Q-value: 0.15256357795715333
+	Eval time: 0.5829145908355713
+	Cross entropy train loss: 0.4965658984375001
+	Train time: 5.400707960128784
 Epoch: 129
-	Test loss: 0.015227805442810056
-	Eval time: 0.7147486209869385
-	Train loss: 0.5187605187988282
-	Train time: 5.344480514526367
+	Cross entropy test loss: 0.5173746716308595
+	MSE of Q-value: 0.20926982086181642
+	Eval time: 0.5827758312225342
+	Cross entropy train loss: 0.49590658416748057
+	Train time: 5.423120737075806
 Epoch: 130
-	Test loss: 0.014260119676589966
-	Eval time: 0.7140383720397949
-	Train loss: 0.5190007540893556
-	Train time: 5.345185041427612
+	Cross entropy test loss: 0.5147879049682619
+	MSE of Q-value: 0.25907336822509763
+	Eval time: 0.6172993183135986
+	Cross entropy train loss: 0.494971207885742
+	Train time: 5.5977771282196045
 Epoch: 130
-Test Loss:        0.014260119676589966
-Train Loss:       0.5190007540893556
+Test Q value MSE Loss:        0.25907336822509763
+Test action cross entropy Loss:        0.5147879049682619
+Train action cross entropy Loss:       0.494971207885742
 
 
 Epoch: 131
-	Test loss: 0.0153851047039032
-	Eval time: 0.7157716751098633
-	Train loss: 0.519132844848633
-	Train time: 5.343900442123413
+	Cross entropy test loss: 0.5123102511596679
+	MSE of Q-value: 0.19227133438110353
+	Eval time: 0.592334508895874
+	Cross entropy train loss: 0.4954440026855469
+	Train time: 5.48281455039978
 Epoch: 132
-	Test loss: 0.014911852397918703
-	Eval time: 0.7135181427001953
-	Train loss: 0.5187745568847657
-	Train time: 5.346631288528442
+	Cross entropy test loss: 0.5142969342041016
+	MSE of Q-value: 0.2529592016601563
+	Eval time: 0.6159565448760986
+	Cross entropy train loss: 0.4966422540283204
+	Train time: 5.600244045257568
 Epoch: 133
-	Test loss: 0.014728429374694825
-	Eval time: 0.7134523391723633
-	Train loss: 0.5188187951660154
-	Train time: 5.343730211257935
+	Cross entropy test loss: 0.5139624899291992
+	MSE of Q-value: 0.2511598846435547
+	Eval time: 0.6141388416290283
+	Cross entropy train loss: 0.49532579437255864
+	Train time: 5.397783994674683
 Epoch: 134
-	Test loss: 0.015527099761962891
-	Eval time: 0.7140345573425293
-	Train loss: 0.5187892816162111
-	Train time: 5.3423380851745605
+	Cross entropy test loss: 0.5134208117675781
+	MSE of Q-value: 0.2499799850463867
+	Eval time: 0.581810712814331
+	Cross entropy train loss: 0.49641347229003924
+	Train time: 5.423728704452515
 Epoch: 135
-	Test loss: 0.01508236749649048
-	Eval time: 0.7135498523712158
-	Train loss: 0.5188124423217776
-	Train time: 5.5095603466033936
+	Cross entropy test loss: 0.5235159802246094
+	MSE of Q-value: 0.28442973144531253
+	Eval time: 0.6152045726776123
+	Cross entropy train loss: 0.4965473013305661
+	Train time: 5.457822322845459
+Epoch: 135
+Test Q value MSE Loss:        0.28442973144531253
+Test action cross entropy Loss:        0.5235159802246094
+Train action cross entropy Loss:       0.4965473013305661
+
+
 Epoch: 136
-	Test loss: 0.015050304889678958
-	Eval time: 0.7718601226806641
-	Train loss: 0.5189341726684572
-	Train time: 5.3452231884002686
+	Cross entropy test loss: 0.5124764990234373
+	MSE of Q-value: 0.2777075706481934
+	Eval time: 0.5815293788909912
+	Cross entropy train loss: 0.4946065490722656
+	Train time: 5.388647556304932
 Epoch: 137
-	Test loss: 0.014838160133361818
-	Eval time: 0.7138617038726807
-	Train loss: 0.5187650784301759
-	Train time: 5.348402976989746
+	Cross entropy test loss: 0.5162052850341796
+	MSE of Q-value: 0.2610012542724609
+	Eval time: 0.5816247463226318
+	Cross entropy train loss: 0.49843302795410166
+	Train time: 5.570619821548462
 Epoch: 138
-	Test loss: 0.01566043245315552
-	Eval time: 0.7147111892700195
-	Train loss: 0.5188997378540039
-	Train time: 5.347350120544434
+	Cross entropy test loss: 0.5207936807250976
+	MSE of Q-value: 0.243789938659668
+	Eval time: 0.616046667098999
+	Cross entropy train loss: 0.49971185455322237
+	Train time: 5.457476377487183
 Epoch: 139
-	Test loss: 0.015455378608703614
-	Eval time: 0.7133681774139404
-	Train loss: 0.5187825964355469
-	Train time: 5.345914840698242
+	Cross entropy test loss: 0.5129208386230467
+	MSE of Q-value: 0.1500074024963379
+	Eval time: 0.5815582275390625
+	Cross entropy train loss: 0.49773843841552745
+	Train time: 5.397561073303223
 Epoch: 140
-	Test loss: 0.015633243703842163
-	Eval time: 0.714350700378418
-	Train loss: 0.5187397064208986
-	Train time: 5.559942722320557
+	Cross entropy test loss: 0.5122450262451171
+	MSE of Q-value: 0.2854637030029297
+	Eval time: 0.5816195011138916
+	Cross entropy train loss: 0.4958233718872068
+	Train time: 5.457339763641357
 Epoch: 140
-Test Loss:        0.015633243703842163
-Train Loss:       0.5187397064208986
+Test Q value MSE Loss:        0.2854637030029297
+Test action cross entropy Loss:        0.5122450262451171
+Train action cross entropy Loss:       0.4958233718872068
 
 
 Epoch: 141
-	Test loss: 0.01654657324790955
-	Eval time: 0.7451298236846924
-	Train loss: 0.5188535943603516
-	Train time: 5.348191738128662
+	Cross entropy test loss: 0.5157973428344726
+	MSE of Q-value: 0.30184030639648435
+	Eval time: 0.5839793682098389
+	Cross entropy train loss: 0.4967374691772461
+	Train time: 5.530790328979492
 Epoch: 142
-	Test loss: 0.015125300292968751
-	Eval time: 0.7148702144622803
-	Train loss: 0.5188634616088865
-	Train time: 5.345444917678833
+	Cross entropy test loss: 0.5111824615478515
+	MSE of Q-value: 0.2727950552368164
+	Eval time: 0.5985937118530273
+	Cross entropy train loss: 0.49607455017089863
+	Train time: 5.42948579788208
 Epoch: 143
-	Test loss: 0.015109087724685675
-	Eval time: 0.7162256240844727
-	Train loss: 0.5188302157592772
-	Train time: 5.3480377197265625
+	Cross entropy test loss: 0.5136841067504883
+	MSE of Q-value: 0.2980440209960938
+	Eval time: 0.6170651912689209
+	Cross entropy train loss: 0.4968337026977539
+	Train time: 5.599573135375977
 Epoch: 144
-	Test loss: 0.015904752931594844
-	Eval time: 0.7145586013793945
-	Train loss: 0.5189725918579103
-	Train time: 5.348349094390869
+	Cross entropy test loss: 0.5153417059326173
+	MSE of Q-value: 0.31626447692871096
+	Eval time: 0.6119468212127686
+	Cross entropy train loss: 0.49477127960205086
+	Train time: 5.417844533920288
 Epoch: 145
-	Test loss: 0.014604841451644895
-	Eval time: 0.7154357433319092
-	Train loss: 0.5189626580810549
-	Train time: 5.347977876663208
+	Cross entropy test loss: 0.5201109921264648
+	MSE of Q-value: 0.33797066040039064
+	Eval time: 0.5809502601623535
+	Cross entropy train loss: 0.4961429342651367
+	Train time: 5.56551194190979
+Epoch: 145
+Test Q value MSE Loss:        0.33797066040039064
+Test action cross entropy Loss:        0.5201109921264648
+Train action cross entropy Loss:       0.4961429342651367
+
+
 Epoch: 146
-	Test loss: 0.01555334632873535
-	Eval time: 0.7147939205169678
-	Train loss: 0.5188117565917969
-	Train time: 5.366924285888672
+	Cross entropy test loss: 0.5156607614135743
+	MSE of Q-value: 0.37662577209472664
+	Eval time: 0.5949773788452148
+	Cross entropy train loss: 0.49519844329833973
+	Train time: 5.460134267807007
 Epoch: 147
-	Test loss: 0.016289260158538817
-	Eval time: 0.7586815357208252
-	Train loss: 0.5190406491088868
-	Train time: 5.4897871017456055
+	Cross entropy test loss: 0.5152705053710938
+	MSE of Q-value: 0.40333964111328124
+	Eval time: 0.5823764801025391
+	Cross entropy train loss: 0.4962156628417968
+	Train time: 5.395940542221069
 Epoch: 148
-	Test loss: 0.015413427028656008
-	Eval time: 0.7727959156036377
-	Train loss: 0.5190766024780272
-	Train time: 5.343649864196777
+	Cross entropy test loss: 0.5150976776123046
+	MSE of Q-value: 0.33425433044433595
+	Eval time: 0.5822343826293945
+	Cross entropy train loss: 0.4945270907592774
+	Train time: 5.461098670959473
 Epoch: 149
-	Test loss: 0.014951827802658083
-	Eval time: 0.7144255638122559
-	Train loss: 0.5187029229736326
-	Train time: 5.342891693115234
+	Cross entropy test loss: 0.5134500845336913
+	MSE of Q-value: 0.35987149932861323
+	Eval time: 0.5820953845977783
+	Cross entropy train loss: 0.49534037689208993
+	Train time: 5.468716382980347
 Epoch: 150
-	Test loss: 0.016497445526123047
-	Eval time: 0.7157182693481445
-	Train loss: 0.5190797805786135
-	Train time: 5.343537092208862
+	Cross entropy test loss: 0.5148770959472657
+	MSE of Q-value: 0.3606449176025391
+	Eval time: 0.6121664047241211
+	Cross entropy train loss: 0.4958612716674803
+	Train time: 5.4228434562683105
 Epoch: 150
-Test Loss:        0.016497445526123047
-Train Loss:       0.5190797805786135
+Test Q value MSE Loss:        0.3606449176025391
+Test action cross entropy Loss:        0.5148770959472657
+Train action cross entropy Loss:       0.4958612716674803
 
 
 Epoch: 151
-	Test loss: 0.014891368980407712
-	Eval time: 0.7161481380462646
-	Train loss: 0.5189144439697266
-	Train time: 5.339951753616333
+	Cross entropy test loss: 0.513636596069336
+	MSE of Q-value: 0.4374953857421876
+	Eval time: 0.5963630676269531
+	Cross entropy train loss: 0.4959240948486328
+	Train time: 5.637842416763306
 Epoch: 152
-	Test loss: 0.015214244499206544
-	Eval time: 0.7151486873626709
-	Train loss: 0.5188031777954102
-	Train time: 5.342554330825806
+	Cross entropy test loss: 0.5181866348266603
+	MSE of Q-value: 0.4209446688842773
+	Eval time: 0.61474609375
+	Cross entropy train loss: 0.49546815582275383
+	Train time: 5.395123720169067
 Epoch: 153
-	Test loss: 0.014621888141632079
-	Eval time: 0.7160532474517822
-	Train loss: 0.5188072994995119
-	Train time: 5.344674825668335
+	Cross entropy test loss: 0.5124973425292968
+	MSE of Q-value: 0.341918885192871
+	Eval time: 0.5819482803344727
+	Cross entropy train loss: 0.4952876116943356
+	Train time: 5.53739595413208
 Epoch: 154
-	Test loss: 0.015506164989471438
-	Eval time: 0.7157034873962402
-	Train loss: 0.5187675228881838
-	Train time: 5.560027599334717
+	Cross entropy test loss: 0.5120742486572265
+	MSE of Q-value: 0.25403136337280274
+	Eval time: 0.6176292896270752
+	Cross entropy train loss: 0.49658973449707033
+	Train time: 5.581287860870361
 Epoch: 155
-	Test loss: 0.01609970865249634
-	Eval time: 0.7742729187011719
-	Train loss: 0.5187357122802734
-	Train time: 5.342849493026733
+	Cross entropy test loss: 0.5117464422607423
+	MSE of Q-value: 0.37778284606933604
+	Eval time: 0.6214916706085205
+	Cross entropy train loss: 0.4954893795776367
+	Train time: 5.5800089836120605
+Epoch: 155
+Test Q value MSE Loss:        0.37778284606933604
+Test action cross entropy Loss:        0.5117464422607423
+Train action cross entropy Loss:       0.4954893795776367
+
+
 Epoch: 156
-	Test loss: 0.015185120315551755
-	Eval time: 0.7147986888885498
-	Train loss: 0.5188725973510742
-	Train time: 5.343687295913696
+	Cross entropy test loss: 0.5138128051757812
+	MSE of Q-value: 0.291044508972168
+	Eval time: 0.6061456203460693
+	Cross entropy train loss: 0.4965400006103515
+	Train time: 5.478287935256958
 Epoch: 157
-	Test loss: 0.014991863212585452
-	Eval time: 0.7158405780792236
-	Train loss: 0.5189521948242186
-	Train time: 5.3798933029174805
+	Cross entropy test loss: 0.5135628479003906
+	MSE of Q-value: 0.31806992645263676
+	Eval time: 0.5816712379455566
+	Cross entropy train loss: 0.4941592456054687
+	Train time: 5.394289016723633
 Epoch: 158
-	Test loss: 0.015204997348785401
-	Eval time: 0.7731709480285645
-	Train loss: 0.5188699188232423
-	Train time: 5.343099355697632
+	Cross entropy test loss: 0.5178449829101562
+	MSE of Q-value: 0.26973889984130855
+	Eval time: 0.5824427604675293
+	Cross entropy train loss: 0.4958852243041993
+	Train time: 5.405118465423584
 Epoch: 159
-	Test loss: 0.015261892952919003
-	Eval time: 0.7150444984436035
-	Train loss: 0.5188498147583008
-	Train time: 5.341814756393433
+	Cross entropy test loss: 0.5123474383544923
+	MSE of Q-value: 0.384684327392578
+	Eval time: 0.5828521251678467
+	Cross entropy train loss: 0.49652906646728495
+	Train time: 5.4617719650268555
 Epoch: 160
-	Test loss: 0.01527173213005066
-	Eval time: 0.7154333591461182
-	Train loss: 0.5188545346069335
-	Train time: 5.342288255691528
+	Cross entropy test loss: 0.5151084176635743
+	MSE of Q-value: 0.42710753509521493
+	Eval time: 0.5839412212371826
+	Cross entropy train loss: 0.4981442224121095
+	Train time: 5.397595643997192
 Epoch: 160
-Test Loss:        0.01527173213005066
-Train Loss:       0.5188545346069335
+Test Q value MSE Loss:        0.42710753509521493
+Test action cross entropy Loss:        0.5151084176635743
+Train action cross entropy Loss:       0.4981442224121095
 
 
 Epoch: 161
-	Test loss: 0.016056188402175906
-	Eval time: 0.7162377834320068
-	Train loss: 0.5189465994262698
-	Train time: 5.342681884765625
+	Cross entropy test loss: 0.5145821502685549
+	MSE of Q-value: 0.2804441790771485
+	Eval time: 0.5869114398956299
+	Cross entropy train loss: 0.4971831918334963
+	Train time: 5.566006660461426
 Epoch: 162
-	Test loss: 0.015050115823745729
-	Eval time: 0.7160336971282959
-	Train loss: 0.5190961108398439
-	Train time: 5.343116760253906
+	Cross entropy test loss: 0.514420157775879
+	MSE of Q-value: 0.4086440747070313
+	Eval time: 0.6164991855621338
+	Cross entropy train loss: 0.49425747802734366
+	Train time: 5.46656060218811
 Epoch: 163
-	Test loss: 0.014913118228912357
-	Eval time: 0.7156949043273926
-	Train loss: 0.5189352761840818
-	Train time: 5.549046993255615
+	Cross entropy test loss: 0.511843924560547
+	MSE of Q-value: 0.4556111038208007
+	Eval time: 0.5814495086669922
+	Cross entropy train loss: 0.49692211334228525
+	Train time: 5.404764413833618
 Epoch: 164
-	Test loss: 0.01442807599067688
-	Eval time: 0.7724695205688477
-	Train loss: 0.5187806494140625
-	Train time: 5.4526238441467285
+	Cross entropy test loss: 0.5127728906250001
+	MSE of Q-value: 0.44931208679199214
+	Eval time: 0.5837898254394531
+	Cross entropy train loss: 0.49574200714111333
+	Train time: 5.466963768005371
 Epoch: 165
-	Test loss: 0.015494413394927978
-	Eval time: 0.7676105499267578
-	Train loss: 0.5187669335937498
-	Train time: 5.344214200973511
+	Cross entropy test loss: 0.5151628399658204
+	MSE of Q-value: 0.4134671908569335
+	Eval time: 0.6178297996520996
+	Cross entropy train loss: 0.49545652435302706
+	Train time: 5.492072820663452
+Epoch: 165
+Test Q value MSE Loss:        0.4134671908569335
+Test action cross entropy Loss:        0.5151628399658204
+Train action cross entropy Loss:       0.49545652435302706
+
+
 Epoch: 166
-	Test loss: 0.01459893508911133
-	Eval time: 0.7142822742462158
-	Train loss: 0.5187880642700197
-	Train time: 5.340341567993164
+	Cross entropy test loss: 0.5119601397705079
+	MSE of Q-value: 0.4150269985961914
+	Eval time: 0.6023256778717041
+	Cross entropy train loss: 0.49695872955322273
+	Train time: 5.441728353500366
 Epoch: 167
-	Test loss: 0.016894293842315677
-	Eval time: 0.7137413024902344
-	Train loss: 0.5188501452636719
-	Train time: 5.3424646854400635
+	Cross entropy test loss: 0.5150478390502929
+	MSE of Q-value: 0.2139359565734863
+	Eval time: 0.5919182300567627
+	Cross entropy train loss: 0.49744087951660143
+	Train time: 5.456721067428589
 Epoch: 168
-	Test loss: 0.015577609958648682
-	Eval time: 0.7165274620056152
-	Train loss: 0.518769317932129
-	Train time: 5.344135284423828
+	Cross entropy test loss: 0.5188653030395508
+	MSE of Q-value: 0.29269705627441406
+	Eval time: 0.5831010341644287
+	Cross entropy train loss: 0.49823804718017595
+	Train time: 5.394225358963013
 Epoch: 169
-	Test loss: 0.015501270027160641
-	Eval time: 0.7189607620239258
-	Train loss: 0.518782856750488
-	Train time: 5.350873708724976
+	Cross entropy test loss: 0.5145905969238281
+	MSE of Q-value: 0.3334513711547852
+	Eval time: 0.5826725959777832
+	Cross entropy train loss: 0.49780329467773443
+	Train time: 5.404324769973755
 Epoch: 170
-	Test loss: 0.01460401824951172
-	Eval time: 0.7200756072998047
-	Train loss: 0.5188111532592773
-	Train time: 5.342898845672607
+	Cross entropy test loss: 0.5172764776611328
+	MSE of Q-value: 0.47021150024414066
+	Eval time: 0.6096036434173584
+	Cross entropy train loss: 0.4967579235839846
+	Train time: 5.722164154052734
 Epoch: 170
-Test Loss:        0.01460401824951172
-Train Loss:       0.5188111532592773
+Test Q value MSE Loss:        0.47021150024414066
+Test action cross entropy Loss:        0.5172764776611328
+Train action cross entropy Loss:       0.4967579235839846
 
 
 Epoch: 171
-	Test loss: 0.015247037048339842
-	Eval time: 0.7212493419647217
-	Train loss: 0.5188330395507812
-	Train time: 5.349451303482056
+	Cross entropy test loss: 0.5112360192871095
+	MSE of Q-value: 0.40196730072021497
+	Eval time: 0.5844240188598633
+	Cross entropy train loss: 0.49824782623291
+	Train time: 5.420368671417236
 Epoch: 172
-	Test loss: 0.016704167881011967
-	Eval time: 0.7196860313415527
-	Train loss: 0.5189465014648437
-	Train time: 5.344228982925415
+	Cross entropy test loss: 0.5155534777832032
+	MSE of Q-value: 0.48430686218261726
+	Eval time: 0.6004302501678467
+	Cross entropy train loss: 0.49628830657958983
+	Train time: 5.678659677505493
 Epoch: 173
-	Test loss: 0.014944351367950436
-	Eval time: 0.7201213836669922
-	Train loss: 0.5187977066040039
-	Train time: 5.353376865386963
+	Cross entropy test loss: 0.5123149700927735
+	MSE of Q-value: 0.4355449963378908
+	Eval time: 0.6188750267028809
+	Cross entropy train loss: 0.49766093658447247
+	Train time: 5.490830183029175
 Epoch: 174
-	Test loss: 0.01495955959320068
-	Eval time: 0.7200336456298828
-	Train loss: 0.5188946365356445
-	Train time: 5.34677529335022
+	Cross entropy test loss: 0.5132660647583008
+	MSE of Q-value: 0.5219465039062501
+	Eval time: 0.5873639583587646
+	Cross entropy train loss: 0.49820573760986303
+	Train time: 5.553117513656616
 Epoch: 175
-	Test loss: 0.015154062089920043
-	Eval time: 0.7225487232208252
-	Train loss: 0.5187944915771486
-	Train time: 5.355064153671265
+	Cross entropy test loss: 0.5151753802490234
+	MSE of Q-value: 0.30668866943359374
+	Eval time: 0.6184248924255371
+	Cross entropy train loss: 0.496671273803711
+	Train time: 5.390263557434082
+Epoch: 175
+Test Q value MSE Loss:        0.30668866943359374
+Test action cross entropy Loss:        0.5151753802490234
+Train action cross entropy Loss:       0.496671273803711
+
+
 Epoch: 176
-	Test loss: 0.01494260304450989
-	Eval time: 0.7233872413635254
-	Train loss: 0.5187341564941403
-	Train time: 5.555607795715332
+	Cross entropy test loss: 0.512470025024414
+	MSE of Q-value: 0.36899454711914065
+	Eval time: 0.6614818572998047
+	Cross entropy train loss: 0.4958058279418944
+	Train time: 5.555915594100952
 Epoch: 177
-	Test loss: 0.015342672967910767
-	Eval time: 0.7711803913116455
-	Train loss: 0.518797373046875
-	Train time: 5.347422361373901
+	Cross entropy test loss: 0.5158407598876953
+	MSE of Q-value: 0.4565351663208008
+	Eval time: 0.5829806327819824
+	Cross entropy train loss: 0.49651474395751943
+	Train time: 5.53771710395813
 Epoch: 178
-	Test loss: 0.015311859855651856
-	Eval time: 0.7207067012786865
-	Train loss: 0.5187857778930665
-	Train time: 5.345730543136597
+	Cross entropy test loss: 0.5138125491333007
+	MSE of Q-value: 0.4304205892944336
+	Eval time: 0.6151976585388184
+	Cross entropy train loss: 0.4969487707519531
+	Train time: 5.563954591751099
 Epoch: 179
-	Test loss: 0.0159423281955719
-	Eval time: 0.7231638431549072
-	Train loss: 0.5188622320556642
-	Train time: 5.344506740570068
+	Cross entropy test loss: 0.5147606573486327
+	MSE of Q-value: 0.4698123272705078
+	Eval time: 0.616138219833374
+	Cross entropy train loss: 0.49780775573730457
+	Train time: 5.501286745071411
 Epoch: 180
-	Test loss: 0.014516607532501221
-	Eval time: 0.7147731781005859
-	Train loss: 0.5188817358398438
-	Train time: 5.342740058898926
+	Cross entropy test loss: 0.5175956292724608
+	MSE of Q-value: 0.37135146453857415
+	Eval time: 0.6172871589660645
+	Cross entropy train loss: 0.49610558105468744
+	Train time: 5.398130655288696
 Epoch: 180
-Test Loss:        0.014516607532501221
-Train Loss:       0.5188817358398438
+Test Q value MSE Loss:        0.37135146453857415
+Test action cross entropy Loss:        0.5175956292724608
+Train action cross entropy Loss:       0.49610558105468744
 
 
 Epoch: 181
-	Test loss: 0.015571549434661866
-	Eval time: 0.7150661945343018
-	Train loss: 0.5187731155395509
-	Train time: 5.340934753417969
+	Cross entropy test loss: 0.5127440356445313
+	MSE of Q-value: 0.3370589135742188
+	Eval time: 0.5853986740112305
+	Cross entropy train loss: 0.4962038766479491
+	Train time: 5.456671714782715
 Epoch: 182
-	Test loss: 0.015526587715148926
-	Eval time: 0.7143213748931885
-	Train loss: 0.5209578961181639
-	Train time: 5.347135543823242
+	Cross entropy test loss: 0.5175299853515626
+	MSE of Q-value: 0.39714751037597656
+	Eval time: 0.5851664543151855
+	Cross entropy train loss: 0.495473067932129
+	Train time: 5.3985302448272705
 Epoch: 183
-	Test loss: 0.01763450176239014
-	Eval time: 0.7161355018615723
-	Train loss: 0.5273646987915036
-	Train time: 5.444129943847656
+	Cross entropy test loss: 0.5123770050048829
+	MSE of Q-value: 0.3654160314941406
+	Eval time: 0.5830557346343994
+	Cross entropy train loss: 0.49618112182617197
+	Train time: 5.452335834503174
 Epoch: 184
-	Test loss: 0.026210991325378415
-	Eval time: 0.7702720165252686
-	Train loss: 0.5275103680419921
-	Train time: 5.340623140335083
+	Cross entropy test loss: 0.5133262097167969
+	MSE of Q-value: 0.4414148974609374
+	Eval time: 0.6161551475524902
+	Cross entropy train loss: 0.49529047271728543
+	Train time: 5.502866983413696
 Epoch: 185
-	Test loss: 0.02602640823364257
-	Eval time: 0.7150275707244873
-	Train loss: 0.5275101956176759
-	Train time: 5.339340686798096
+	Cross entropy test loss: 0.5112190838623046
+	MSE of Q-value: 0.3376849932861328
+	Eval time: 0.5816843509674072
+	Cross entropy train loss: 0.49414613250732403
+	Train time: 5.573476552963257
+Epoch: 185
+Test Q value MSE Loss:        0.3376849932861328
+Test action cross entropy Loss:        0.5112190838623046
+Train action cross entropy Loss:       0.49414613250732403
+
+
 Epoch: 186
-	Test loss: 0.025603360176086425
-	Eval time: 0.7176759243011475
-	Train loss: 0.5275100784301755
-	Train time: 5.341599464416504
+	Cross entropy test loss: 0.5226326745605469
+	MSE of Q-value: 0.3198891275024415
+	Eval time: 0.6056079864501953
+	Cross entropy train loss: 0.4960952328491211
+	Train time: 5.391095161437988
 Epoch: 187
-	Test loss: 0.025239337081909174
-	Eval time: 0.7156600952148438
-	Train loss: 0.527510313720703
-	Train time: 5.3426947593688965
+	Cross entropy test loss: 0.5140977487182617
+	MSE of Q-value: 0.39431036132812486
+	Eval time: 0.5838003158569336
+	Cross entropy train loss: 0.4962463583374025
+	Train time: 5.454726696014404
 Epoch: 188
-	Test loss: 0.0254106897354126
-	Eval time: 0.7154281139373779
-	Train loss: 0.5275096475219727
-	Train time: 5.342261791229248
+	Cross entropy test loss: 0.5146793176269531
+	MSE of Q-value: 0.4106412570190429
+	Eval time: 0.5816130638122559
+	Cross entropy train loss: 0.49641433868408186
+	Train time: 5.392652988433838
 Epoch: 189
-	Test loss: 0.02561749580383301
-	Eval time: 0.7156224250793457
-	Train loss: 0.5275091510009765
-	Train time: 5.340254545211792
+	Cross entropy test loss: 0.5126538653564454
+	MSE of Q-value: 0.3687219018554688
+	Eval time: 0.5933635234832764
+	Cross entropy train loss: 0.49733105621337914
+	Train time: 5.455291509628296
 Epoch: 190
-	Test loss: 0.024875806694030764
-	Eval time: 0.7161319255828857
-	Train loss: 0.5275087371826171
-	Train time: 5.339815139770508
+	Cross entropy test loss: 0.5139931207275389
+	MSE of Q-value: 0.32515859558105464
+	Eval time: 0.5846085548400879
+	Cross entropy train loss: 0.4962913964843749
+	Train time: 5.407145023345947
 Epoch: 190
-Test Loss:        0.024875806694030764
-Train Loss:       0.5275087371826171
+Test Q value MSE Loss:        0.32515859558105464
+Test action cross entropy Loss:        0.5139931207275389
+Train action cross entropy Loss:       0.4962913964843749
 
 
 Epoch: 191
-	Test loss: 0.024825387516021723
-	Eval time: 0.715548038482666
-	Train loss: 0.5275076577758789
-	Train time: 5.34263014793396
+	Cross entropy test loss: 0.5153177114868163
+	MSE of Q-value: 0.3861867413330078
+	Eval time: 0.5838339328765869
+	Cross entropy train loss: 0.49716465667724635
+	Train time: 5.489304304122925
 Epoch: 192
-	Test loss: 0.024144449157714853
-	Eval time: 0.7154169082641602
-	Train loss: 0.5275055517578126
-	Train time: 5.340906858444214
+	Cross entropy test loss: 0.5182638177490234
+	MSE of Q-value: 0.40903535003662106
+	Eval time: 0.6156301498413086
+	Cross entropy train loss: 0.49696028900146466
+	Train time: 5.488494634628296
 Epoch: 193
-	Test loss: 0.023373841152191165
-	Eval time: 0.7147166728973389
-	Train loss: 0.5274994360351564
-	Train time: 5.341796875
+	Cross entropy test loss: 0.514305075378418
+	MSE of Q-value: 0.38173615112304693
+	Eval time: 0.6138393878936768
+	Cross entropy train loss: 0.4970879409790039
+	Train time: 5.640918731689453
 Epoch: 194
-	Test loss: 0.022140883998870847
-	Eval time: 0.7156872749328613
-	Train loss: 0.5273412927246093
-	Train time: 5.339007616043091
+	Cross entropy test loss: 0.5141615814208983
+	MSE of Q-value: 0.3937765124511719
+	Eval time: 0.6165323257446289
+	Cross entropy train loss: 0.502626417541504
+	Train time: 5.3889336585998535
 Epoch: 195
-	Test loss: 0.01885524102210999
-	Eval time: 0.715543270111084
-	Train loss: 0.5273185205078126
-	Train time: 5.486900806427002
+	Cross entropy test loss: 0.5173628735351563
+	MSE of Q-value: 0.2222233193969727
+	Eval time: 0.583242654800415
+	Cross entropy train loss: 0.5007183544921874
+	Train time: 5.634215831756592
+Epoch: 195
+Test Q value MSE Loss:        0.2222233193969727
+Test action cross entropy Loss:        0.5173628735351563
+Train action cross entropy Loss:       0.5007183544921874
+
+
 Epoch: 196
-	Test loss: 0.022529384994506838
-	Eval time: 0.7695209980010986
-	Train loss: 0.527098765258789
-	Train time: 5.460309743881226
+	Cross entropy test loss: 0.5149754150390624
+	MSE of Q-value: 0.26872546020507815
+	Eval time: 0.6055140495300293
+	Cross entropy train loss: 0.49929661071777337
+	Train time: 5.553041219711304
 Epoch: 197
-	Test loss: 0.014265213174819946
-	Eval time: 0.770270586013794
-	Train loss: 0.5267730187988282
-	Train time: 5.338356256484985
+	Cross entropy test loss: 0.5162519329833986
+	MSE of Q-value: 0.34324713989257805
+	Eval time: 0.6320242881774902
+	Cross entropy train loss: 0.49882710815429676
+	Train time: 5.640256643295288
 Epoch: 198
-	Test loss: 0.01796203184127807
-	Eval time: 0.715322732925415
-	Train loss: 0.5205796231079103
-	Train time: 5.340047359466553
+	Cross entropy test loss: 0.514151242980957
+	MSE of Q-value: 0.36392659912109376
+	Eval time: 0.6166713237762451
+	Cross entropy train loss: 0.5002181100463868
+	Train time: 5.393709182739258
 Epoch: 199
-	Test loss: 0.01714164035797119
-	Eval time: 0.7142307758331299
-	Train loss: 0.5204597467041014
-	Train time: 5.337767839431763
+	Cross entropy test loss: 0.5131231872558594
+	MSE of Q-value: 0.36306991638183594
+	Eval time: 0.5821530818939209
+	Cross entropy train loss: 0.49904473724365245
+	Train time: 5.396939516067505
 Epoch: 200
-	Test loss: 0.014966081161499023
-	Eval time: 0.7152886390686035
-	Train loss: 0.519493971557617
-	Train time: 5.424239158630371
+	Cross entropy test loss: 0.513097515258789
+	MSE of Q-value: 0.29832840744018563
+	Eval time: 0.5833005905151367
+	Cross entropy train loss: 0.49760944732666
+	Train time: 5.492558240890503
 Epoch: 200
-Test Loss:        0.014966081161499023
-Train Loss:       0.519493971557617
+Test Q value MSE Loss:        0.29832840744018563
+Test action cross entropy Loss:        0.513097515258789
+Train action cross entropy Loss:       0.49760944732666
 
 
 Epoch: 201
-	Test loss: 0.015399587364196778
-	Eval time: 0.7380633354187012
-	Train loss: 0.5190825149536132
-	Train time: 5.334742784500122
+	Cross entropy test loss: 0.5194559289550782
+	MSE of Q-value: 0.3460071337890625
+	Eval time: 0.5991060733795166
+	Cross entropy train loss: 0.49666118041992174
+	Train time: 5.414691925048828
 Epoch: 202
-	Test loss: 0.016384094228744508
-	Eval time: 0.713740348815918
-	Train loss: 0.5192246298217772
-	Train time: 5.336902141571045
+	Cross entropy test loss: 0.5137296786499023
+	MSE of Q-value: 0.3215248126220702
+	Eval time: 0.5844244956970215
+	Cross entropy train loss: 0.49715872161865204
+	Train time: 5.396448373794556
 Epoch: 203
-	Test loss: 0.014881083669662478
-	Eval time: 0.713538408279419
-	Train loss: 0.5189843234252929
-	Train time: 5.33842921257019
+	Cross entropy test loss: 0.5127755957031249
+	MSE of Q-value: 0.3119643226623535
+	Eval time: 0.5829689502716064
+	Cross entropy train loss: 0.4977174423217775
+	Train time: 5.550550222396851
 Epoch: 204
-	Test loss: 0.016395290441513062
-	Eval time: 0.714127779006958
-	Train loss: 0.5187697238159178
-	Train time: 5.343033790588379
+	Cross entropy test loss: 0.5157422979736328
+	MSE of Q-value: 0.3672416027832031
+	Eval time: 0.6194982528686523
+	Cross entropy train loss: 0.49601537414550784
+	Train time: 5.396097660064697
 Epoch: 205
-	Test loss: 0.013718373394012452
-	Eval time: 0.7136878967285156
-	Train loss: 0.5195116641235353
-	Train time: 5.347394943237305
+	Cross entropy test loss: 0.515598607788086
+	MSE of Q-value: 0.39939715454101565
+	Eval time: 0.5849266052246094
+	Cross entropy train loss: 0.5004740270996093
+	Train time: 5.396139621734619
+Epoch: 205
+Test Q value MSE Loss:        0.39939715454101565
+Test action cross entropy Loss:        0.515598607788086
+Train action cross entropy Loss:       0.5004740270996093
+
+
 Epoch: 206
-	Test loss: 0.013113663654327392
-	Eval time: 0.7140133380889893
-	Train loss: 0.5190340182495121
-	Train time: 5.345390796661377
+	Cross entropy test loss: 0.5246905017089843
+	MSE of Q-value: 0.04333440505981447
+	Eval time: 0.5853283405303955
+	Cross entropy train loss: 0.5010833639526368
+	Train time: 5.399657726287842
 Epoch: 207
-	Test loss: 0.013506802330017092
-	Eval time: 0.7151265144348145
-	Train loss: 0.519134810180664
-	Train time: 5.467582702636719
+	Cross entropy test loss: 0.536108916015625
+	MSE of Q-value: 0.5421315173339845
+	Eval time: 0.5835878849029541
+	Cross entropy train loss: 0.49803804290771486
+	Train time: 5.3982884883880615
 Epoch: 208
-	Test loss: 0.013661509175300597
-	Eval time: 0.7673258781433105
-	Train loss: 0.518805636291504
-	Train time: 5.348723888397217
+	Cross entropy test loss: 0.5200701007080077
+	MSE of Q-value: 0.4436006243896484
+	Eval time: 0.5830798149108887
+	Cross entropy train loss: 0.5216129449462888
+	Train time: 5.459898233413696
 Epoch: 209
-	Test loss: 0.015015272598266599
-	Eval time: 0.7154731750488281
-	Train loss: 0.518916685180664
-	Train time: 5.345119953155518
+	Cross entropy test loss: 0.5358523608398437
+	MSE of Q-value: 0.04668993740081788
+	Eval time: 0.5841224193572998
+	Cross entropy train loss: 0.5005408416748048
+	Train time: 5.396453380584717
 Epoch: 210
-	Test loss: 0.015431903200149538
-	Eval time: 0.7142696380615234
-	Train loss: 0.5189092391967772
-	Train time: 5.344189643859863
+	Cross entropy test loss: 0.5144486126708984
+	MSE of Q-value: 0.09861721405029297
+	Eval time: 0.5856592655181885
+	Cross entropy train loss: 0.4976384243774413
+	Train time: 5.395979881286621
 Epoch: 210
-Test Loss:        0.015431903200149538
-Train Loss:       0.5189092391967772
+Test Q value MSE Loss:        0.09861721405029297
+Test action cross entropy Loss:        0.5144486126708984
+Train action cross entropy Loss:       0.4976384243774413
 
 
 Epoch: 211
-	Test loss: 0.013889523067474364
-	Eval time: 0.7146732807159424
-	Train loss: 0.518829379272461
-	Train time: 5.512555360794067
+	Cross entropy test loss: 0.5160576779174806
+	MSE of Q-value: 0.333748000793457
+	Eval time: 0.5846772193908691
+	Cross entropy train loss: 0.4971023629760745
+	Train time: 5.463479280471802
 Epoch: 212
-	Test loss: 0.014986141433715818
-	Eval time: 0.7634007930755615
-	Train loss: 0.5190366461181639
-	Train time: 5.453588962554932
+	Cross entropy test loss: 0.5128867736816406
+	MSE of Q-value: 0.29217484222412116
+	Eval time: 0.5850765705108643
+	Cross entropy train loss: 0.49663526672363323
+	Train time: 5.454633712768555
 Epoch: 213
-	Test loss: 0.014705544261932373
-	Eval time: 0.7630224227905273
-	Train loss: 0.5188331048583985
-	Train time: 5.344033241271973
+	Cross entropy test loss: 0.5132951672363281
+	MSE of Q-value: 0.2846419155883788
+	Eval time: 0.5826733112335205
+	Cross entropy train loss: 0.4970720285034179
+	Train time: 5.401240825653076
 Epoch: 214
-	Test loss: 0.01514544065475464
-	Eval time: 0.7140231132507324
-	Train loss: 0.518894729614258
-	Train time: 5.351294994354248
+	Cross entropy test loss: 0.5136544311523437
+	MSE of Q-value: 0.23533235961914062
+	Eval time: 0.5844278335571289
+	Cross entropy train loss: 0.4954656457519529
+	Train time: 5.480335474014282
 Epoch: 215
-	Test loss: 0.015143790130615233
-	Eval time: 0.7155499458312988
-	Train loss: 0.5189357022094725
-	Train time: 5.345341444015503
+	Cross entropy test loss: 0.5114964892578125
+	MSE of Q-value: 0.40368372589111323
+	Eval time: 0.5871384143829346
+	Cross entropy train loss: 0.4955635046386716
+	Train time: 5.504072427749634
+Epoch: 215
+Test Q value MSE Loss:        0.40368372589111323
+Test action cross entropy Loss:        0.5114964892578125
+Train action cross entropy Loss:       0.4955635046386716
+
+
 Epoch: 216
-	Test loss: 0.013233732595443725
-	Eval time: 0.7142224311828613
-	Train loss: 0.5189654306030272
-	Train time: 5.3476245403289795
+	Cross entropy test loss: 0.5154648565673827
+	MSE of Q-value: 0.3440098141479492
+	Eval time: 0.6053838729858398
+	Cross entropy train loss: 0.493814053955078
+	Train time: 5.397324085235596
 Epoch: 217
-	Test loss: 0.014912405643463135
-	Eval time: 0.7142879962921143
-	Train loss: 0.5187486236572266
-	Train time: 5.343286752700806
+	Cross entropy test loss: 0.5146356494140625
+	MSE of Q-value: 0.3331212881469727
+	Eval time: 0.6710100173950195
+	Cross entropy train loss: 0.4953455557250974
+	Train time: 5.393724203109741
 Epoch: 218
-	Test loss: 0.013411813926696776
-	Eval time: 0.7131633758544922
-	Train loss: 0.5189378820800782
-	Train time: 5.339911699295044
+	Cross entropy test loss: 0.5144260705566407
+	MSE of Q-value: 0.22994463348388677
+	Eval time: 0.5843663215637207
+	Cross entropy train loss: 0.4938523049926758
+	Train time: 5.402023792266846
 Epoch: 219
-	Test loss: 0.014581190986633304
-	Eval time: 0.714763879776001
-	Train loss: 0.5190592739868162
-	Train time: 5.339258432388306
+	Cross entropy test loss: 0.5115407153320314
+	MSE of Q-value: 0.31291519653320327
+	Eval time: 0.5849134922027588
+	Cross entropy train loss: 0.494681079711914
+	Train time: 5.462475776672363
 Epoch: 220
-	Test loss: 0.013878766536712649
-	Eval time: 0.7127740383148193
-	Train loss: 0.5190012533569337
-	Train time: 5.33851432800293
+	Cross entropy test loss: 0.5133187756347656
+	MSE of Q-value: 0.3915603363037109
+	Eval time: 0.5828118324279785
+	Cross entropy train loss: 0.494572721862793
+	Train time: 5.44221830368042
 Epoch: 220
-Test Loss:        0.013878766536712649
-Train Loss:       0.5190012533569337
+Test Q value MSE Loss:        0.3915603363037109
+Test action cross entropy Loss:        0.5133187756347656
+Train action cross entropy Loss:       0.494572721862793
 
 
 Epoch: 221
-	Test loss: 0.013800192317962649
-	Eval time: 0.7154326438903809
-	Train loss: 0.5188887719726561
-	Train time: 5.339092493057251
+	Cross entropy test loss: 0.5110961361694335
+	MSE of Q-value: 0.34595858489990233
+	Eval time: 0.6073448657989502
+	Cross entropy train loss: 0.4944280126953122
+	Train time: 5.397092819213867
 Epoch: 222
-	Test loss: 0.014386064281463624
-	Eval time: 0.7144742012023926
-	Train loss: 0.5189239630126955
-	Train time: 5.338812589645386
+	Cross entropy test loss: 0.5109714288330078
+	MSE of Q-value: 0.3969960797119139
+	Eval time: 0.5838003158569336
+	Cross entropy train loss: 0.49555207702636694
+	Train time: 5.4572837352752686
 Epoch: 223
-	Test loss: 0.014001337699890136
-	Eval time: 0.7144887447357178
-	Train loss: 0.5188271743774416
-	Train time: 5.33915638923645
+	Cross entropy test loss: 0.5111502587890625
+	MSE of Q-value: 0.43205640869140627
+	Eval time: 0.5838174819946289
+	Cross entropy train loss: 0.49447980499267563
+	Train time: 5.396277666091919
 Epoch: 224
-	Test loss: 0.014144896850585936
-	Eval time: 0.7140798568725586
-	Train loss: 0.5190592706298826
-	Train time: 5.337946891784668
+	Cross entropy test loss: 0.5134064361572266
+	MSE of Q-value: 0.3715974127197266
+	Eval time: 0.5843830108642578
+	Cross entropy train loss: 0.49780574218749996
+	Train time: 5.396955251693726
 Epoch: 225
-	Test loss: 0.012957293863296505
-	Eval time: 0.7135460376739502
-	Train loss: 0.5189183557128906
-	Train time: 5.338197708129883
-Epoch: 226
-	Test loss: 0.013914422206878658
-	Eval time: 0.7139778137207031
-	Train loss: 0.518963629150391
-	Train time: 5.339659690856934
-Epoch: 227
-	Test loss: 0.014041249027252197
-	Eval time: 0.7129464149475098
-	Train loss: 0.518857458190918
-	Train time: 5.337581157684326
-Epoch: 228
-	Test loss: 0.015218909292221071
-	Eval time: 0.7136240005493164
-	Train loss: 0.5188432803344727
-	Train time: 5.339074373245239
-Epoch: 229
-	Test loss: 0.0143252467918396
-	Eval time: 0.7138855457305908
-	Train loss: 0.5189418185424804
-	Train time: 5.340290069580078
-Epoch: 230
-	Test loss: 0.015077045822143552
-	Eval time: 0.7137348651885986
-	Train loss: 0.5189142419433596
-	Train time: 5.5073583126068115
-Epoch: 230
-Test Loss:        0.015077045822143552
-Train Loss:       0.5189142419433596
-
-
-Epoch: 231
-	Test loss: 0.01483575330734253
-	Eval time: 0.74886155128479
-	Train loss: 0.5189763214111328
-	Train time: 5.335314750671387
-Epoch: 232
-	Test loss: 0.013314587011337283
-	Eval time: 0.712630033493042
-	Train loss: 0.5187645068359376
-	Train time: 5.336725950241089
-Epoch: 233
-	Test loss: 0.015136235218048095
-	Eval time: 0.7124531269073486
-	Train loss: 0.5189009628295899
-	Train time: 5.336249828338623
-Epoch: 234
-	Test loss: 0.014334548206329347
-	Eval time: 0.7195212841033936
-	Train loss: 0.518824479980469
-	Train time: 5.342123031616211
-Epoch: 235
-	Test loss: 0.014387872314453124
-	Eval time: 0.7243001461029053
-	Train loss: 0.5190174508666991
-	Train time: 5.34549880027771
-Epoch: 236
-	Test loss: 0.014108616886138915
-	Eval time: 0.7223250865936279
-	Train loss: 0.5188340167236324
-	Train time: 5.342167377471924
-Epoch: 237
-	Test loss: 0.014311415700912473
-	Eval time: 0.7223191261291504
-	Train loss: 0.5188343566894531
-	Train time: 5.342578649520874
-Epoch: 238
-	Test loss: 0.01448841485977173
-	Eval time: 0.7249596118927002
-	Train loss: 0.5187835037231444
-	Train time: 5.346479892730713
-Epoch: 239
-	Test loss: 0.014842229747772216
-	Eval time: 0.7219538688659668
-	Train loss: 0.5189117556762698
-	Train time: 5.529911041259766
-Epoch: 240
-	Test loss: 0.015175926342010499
-	Eval time: 0.7720620632171631
-	Train loss: 0.5188777911376955
-	Train time: 5.34782600402832
-Epoch: 240
-Test Loss:        0.015175926342010499
-Train Loss:       0.5188777911376955
-
-
-Epoch: 241
-	Test loss: 0.014455235748291018
-	Eval time: 0.7240309715270996
-	Train loss: 0.5190208761596679
-	Train time: 5.4643754959106445
-Epoch: 242
-	Test loss: 0.01461348677635193
-	Eval time: 0.7703561782836914
-	Train loss: 0.5189284890747069
-	Train time: 5.336321115493774
-Epoch: 243
-	Test loss: 0.014726548700332647
-	Eval time: 0.7187566757202148
-	Train loss: 0.5187098913574218
-	Train time: 5.336833953857422
-Epoch: 244
-	Test loss: 0.016104416646957397
-	Eval time: 0.7182719707489014
-	Train loss: 0.5189680709838868
-	Train time: 5.342948913574219
-Epoch: 245
-	Test loss: 0.01586805667877197
-	Eval time: 0.7198278903961182
-	Train loss: 0.518924719848633
-	Train time: 5.341293096542358
-Epoch: 246
-	Test loss: 0.015138494396209718
-	Eval time: 0.7183783054351807
-	Train loss: 0.5187790600585939
-	Train time: 5.3439600467681885
-Epoch: 247
-	Test loss: 0.01614259667396545
-	Eval time: 0.7207255363464355
-	Train loss: 0.5187762899780275
-	Train time: 5.338935613632202
-Epoch: 248
-	Test loss: 0.015094819269180297
-	Eval time: 0.7196037769317627
-	Train loss: 0.5188686441040038
-	Train time: 5.339803695678711
-Epoch: 249
-	Test loss: 0.015563631954193117
-	Eval time: 0.7150897979736328
-	Train loss: 0.5187962655639646
-	Train time: 5.37522029876709
-Epoch: 250
-	Test loss: 0.014659937858581544
-	Eval time: 0.7677185535430908
-	Train loss: 0.5188830120849609
-	Train time: 5.33771538734436
-Epoch: 250
-Test Loss:        0.014659937858581544
-Train Loss:       0.5188830120849609
-
-
-Epoch: 251
-	Test loss: 0.015541568984985354
-	Eval time: 0.7156555652618408
-	Train loss: 0.5188866958618165
-	Train time: 5.4175498485565186
-Epoch: 252
-	Test loss: 0.01517430826187134
-	Eval time: 0.7706751823425293
-	Train loss: 0.5188132077026366
-	Train time: 5.341179132461548
-Epoch: 253
-	Test loss: 0.016328342914581302
-	Eval time: 0.7172846794128418
-	Train loss: 0.5189275146484376
-	Train time: 5.451990604400635
-Epoch: 254
-	Test loss: 0.015096058197021487
-	Eval time: 0.7643845081329346
-	Train loss: 0.5188038934326171
-	Train time: 5.505236625671387
-Epoch: 255
-	Test loss: 0.015629217414855956
-	Eval time: 0.7738373279571533
-	Train loss: 0.5188751638793946
-	Train time: 5.341217041015625
-Epoch: 256
-	Test loss: 0.01558683084487915
-	Eval time: 0.7148153781890869
-	Train loss: 0.5186647265625001
-	Train time: 5.339146375656128
-Epoch: 257
-	Test loss: 0.01422895586013794
-	Eval time: 0.7145249843597412
-	Train loss: 0.5188894500732422
-	Train time: 5.337779760360718
-Epoch: 258
-	Test loss: 0.015751524429321283
-	Eval time: 0.7154312133789062
-	Train loss: 0.5188395037841798
-	Train time: 5.3397767543792725
-Epoch: 259
-	Test loss: 0.015589378032684325
-	Eval time: 0.7196884155273438
-	Train loss: 0.5187694561767578
-	Train time: 5.3448381423950195
-Epoch: 260
-	Test loss: 0.015003536787033082
-	Eval time: 0.7191162109375
-	Train loss: 0.5188808291625979
-	Train time: 5.343144416809082
-Epoch: 260
-Test Loss:        0.015003536787033082
-Train Loss:       0.5188808291625979
-
-
-Epoch: 261
-	Test loss: 0.01566707118988037
-	Eval time: 0.7182662487030029
-	Train loss: 0.5188308102416993
-	Train time: 5.341670274734497
-Epoch: 262
-	Test loss: 0.016332016124725342
-	Eval time: 0.7216486930847168
-	Train loss: 0.5188763211059568
-	Train time: 5.346004009246826
-Epoch: 263
-	Test loss: 0.015295208644866942
-	Eval time: 0.7213454246520996
-	Train loss: 0.5189146127319338
-	Train time: 5.346489191055298
-Epoch: 264
-	Test loss: 0.015109684467315674
-	Eval time: 0.722834587097168
-	Train loss: 0.5186672177124023
-	Train time: 5.346548557281494
-Epoch: 265
-	Test loss: 0.016844922256469726
-	Eval time: 0.7219569683074951
-	Train loss: 0.538688369140625
-	Train time: 5.342090129852295
-Epoch: 266
-	Test loss: 0.015093107585906979
-	Eval time: 0.7220635414123535
-	Train loss: 0.5190386871337892
-	Train time: 5.344281435012817
-Epoch: 267
-	Test loss: 0.011974405727386478
-	Eval time: 0.7214460372924805
-	Train loss: 0.5188816653442384
-	Train time: 5.343870162963867
-Epoch: 268
-	Test loss: 0.01512687770843506
-	Eval time: 0.7227344512939453
-	Train loss: 0.5187987786865237
-	Train time: 5.340175628662109
-Epoch: 269
-	Test loss: 0.015310886096954345
-	Eval time: 0.7211072444915771
-	Train loss: 0.5188256713867185
-	Train time: 5.342390775680542
-Epoch: 270
-	Test loss: 0.015362363243103031
-	Eval time: 0.7218773365020752
-	Train loss: 0.5187736743164063
-	Train time: 5.34022068977356
-Epoch: 270
-Test Loss:        0.015362363243103031
-Train Loss:       0.5187736743164063
-
-
-Epoch: 271
-	Test loss: 0.015253545122146609
-	Eval time: 0.7169616222381592
-	Train loss: 0.518890231628418
-	Train time: 5.549254894256592
-Epoch: 272
-	Test loss: 0.015321967935562134
-	Eval time: 0.7707834243774414
-	Train loss: 0.518707251586914
-	Train time: 5.341444253921509
-Epoch: 273
-	Test loss: 0.01463262113571167
-	Eval time: 0.7130763530731201
