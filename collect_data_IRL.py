@@ -87,35 +87,34 @@ def generate_Zurcher_histories(buses, theta, beta, horizon, xmax, rollin_type, *
             context_actions,
             context_next_states,
         ) = rollin_mdp(env, rollin_type=rollin_type)
-        for k in range(len(context_states)):  
-            query_state = context_states[k]
-            action_prob = env.opt_action(query_state)
-            query_action = np.random.choice([0, 1], p=action_prob)
-            query_true_EP = action_prob
-            query_true_Q = env.Vtil[query_state]
-            
-            if query_action == 0:
-                one_hot_query_action = np.array([1, 0])
-            elif query_action == 1:
-                one_hot_query_action = np.array([0, 1])
-            else:
-                raise ValueError("Invalid action")
-            #one-hot encoding of query_action. For other variables, we don't use one-hot encoding.
-            #one_hot_query_action = np.zeros(2)
-            #one_hot_query_action[query_action] = 1
-            
-            traj = {
-                'query_state': query_state,
-                'query_action': one_hot_query_action,
-                'context_states': context_states,
-                'context_actions': context_actions,
-                'context_next_states': context_next_states,
-                'busType': env.type,
-                'query_true_EP': query_true_EP,
-                'query_true_Q': query_true_Q,
-            }
+        
+        query_state = context_next_states[-1] #query_state is the state after the last context state
+        query_true_EP = env.opt_action(query_state) #True optimal choice prob vector at the query state
+        query_action = np.random.choice([0, 1], p=query_true_EP) #The target action chosen according to true optimal choice prob 
+        query_true_Q = env.Vtil[query_state] #Q value at the query state
+        
+        if query_action == 0:
+            one_hot_query_action = np.array([1, 0])
+        elif query_action == 1:
+            one_hot_query_action = np.array([0, 1])
+        else:
+            raise ValueError("Invalid action")
+        #one-hot encoding of query_action. For other variables, we don't use one-hot encoding.
+        #one_hot_query_action = np.zeros(2)
+        #one_hot_query_action[query_action] = 1
+        
+        traj = {
+            'query_state': query_state,
+            'query_action': one_hot_query_action,
+            'context_states': context_states,
+            'context_actions': context_actions,
+            'context_next_states': context_next_states,
+            'busType': env.type,
+            'query_true_EP': query_true_EP, #True EP at the query state, of dimension 2
+            'query_true_Q': query_true_Q, #True Q at the query state, of dimension 2
+        }
 
-            trajs.append(traj)
+        trajs.append(traj)
 
     return trajs
 

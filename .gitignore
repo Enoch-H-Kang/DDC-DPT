@@ -137,3 +137,28 @@ models/Zurcher_shufTrue_lr0.001_do0_embd128_layer12_head1_H100_seed1_epoch100.pt
 models/Zurcher_shufTrue_lr0.001_do0_embd128_layer12_head1_H100_seed1_epoch150.pt
 models/Zurcher_shufTrue_lr0.001_do0_embd128_layer12_head1_H100_seed1_epoch200.pt
 models/Zurcher_shufTrue_lr0.001_do0_embd128_layer12_head1_H100_seed1_epoch250.pt
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 1.0]_numTypes1_H100_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 1.0]_numTypes5_H100_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_bustotal100_beta0.95_theta[1.0, 5.0, 1.0]_numTypes1_H100_expert_test.pkl
+datasets/trajs_Zurcher_bustotal100_beta0.95_theta[1.0, 5.0, 1.0]_numTypes1_H100_expert_train.pkl
+datasets/trajs_Zurcher_bustotal100_beta0.95_theta[1.0, 5.0, 1.0]_numTypes5_H100_expert_test.pkl
+datasets/trajs_Zurcher_bustotal100_beta0.95_theta[1.0, 5.0, 1.0]_numTypes5_H100_expert_train.pkl
+datasets/trajs_Zurcher_bustotal1000_beta0.95_theta[1.0, 5.0, 1.0]_numTypes1_H100_expert_test.pkl
+datasets/trajs_Zurcher_bustotal1000_beta0.95_theta[1.0, 5.0, 1.0]_numTypes1_H100_expert_train.pkl
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd128_layer4_head4_H100_seed1_logs.txt
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd128_layer4_head4_H100_seed1_train_loss.png
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd128_layer4_head4_H100_seed1_train_MSE_loss.png
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd128_layer4_head4_H100_seed1_train_MSE&QMSE_loss.png
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd128_layer12_head1_H100_seed1_logs.txt
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd128_layer12_head1_H100_seed1_train_loss.png
+nohup.out
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 1.0]_numTypes1_H100_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_beta0.95_theta[1.0, 5.0, 1.0]_numTypes5_H100_expert_n_eval100_eval.pkl
+datasets/trajs_Zurcher_bustotal100_beta0.95_theta[1.0, 5.0, 1.0]_numTypes1_H100_expert_test.pkl
+datasets/trajs_Zurcher_bustotal100_beta0.95_theta[1.0, 5.0, 1.0]_numTypes1_H100_expert_train.pkl
+datasets/trajs_Zurcher_bustotal100_beta0.95_theta[1.0, 5.0, 1.0]_numTypes5_H100_expert_test.pkl
+datasets/trajs_Zurcher_bustotal100_beta0.95_theta[1.0, 5.0, 1.0]_numTypes5_H100_expert_train.pkl
+datasets/trajs_Zurcher_bustotal1000_beta0.95_theta[1.0, 5.0, 1.0]_numTypes1_H100_expert_test.pkl
+datasets/trajs_Zurcher_bustotal1000_beta0.95_theta[1.0, 5.0, 1.0]_numTypes1_H100_expert_train.pkl
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd128_layer12_head1_H100_seed1_logs.txt
+figs/loss/Zurcher_shufTrue_lr0.001_do0_embd128_layer12_head1_H100_seed1_train_loss.png

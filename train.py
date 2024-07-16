@@ -152,11 +152,12 @@ if __name__ == '__main__':
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
     loss_fn = torch.nn.CrossEntropyLoss(reduction='sum')
     MSEloss_fn = torch.nn.MSELoss(reduction='sum')
+    KLDivloss_fn = torch.nn.KLDivLoss(reduction='sum')
 
     
-    train_loss = []
-    test_cross_entropy_loss = []
+    train_MSE_loss = []
     test_MSE_loss = []
+    test_Q_MSE_loss = []
 
     printw("Num train batches: " + str(len(train_loader)))
     printw("Num test batches: " + str(len(test_loader)))
@@ -166,53 +167,48 @@ if __name__ == '__main__':
         printw(f"Epoch: {epoch + 1}")
         start_time = time.time()
         with torch.no_grad():
-            epoch_cross_entropy_loss = 0.0
             epoch_MSE_loss = 0.0
+            epoch_Q_MSE_loss = 0.0
             
             for i, batch in enumerate(test_loader):
                 print(f"Batch {i} of {len(test_loader)}", end='\r')
                 batch = {k: v.to(device) for k, v in batch.items()}
                 
-                true_actions = batch['query_actions']
-                query_states = batch['query_states']
-                query_true_EPs = batch['query_true_EPs']
-                query_true_Qs = batch['query_true_Qs']
+                true_actions = batch['query_actions'] #dimension is (batch_size, action_dim)
+                query_states = batch['query_states'] #dimension is (batch_size, state_dim)
+                query_true_EPs = batch['query_true_EPs'] #dimension is (batch_size, action_dim)
+                query_true_Qs = batch['query_true_Qs'] #dimension is (batch_size, action_dim)
                 
                 
-                pred_q_values = model(batch) 
-                full_pred_q_values = pred_q_values[:,-1,:] # Prediction of q of query state using full horizon of context states and actions
+                pred_q_values = model(batch) #dimension is (batch_size, horizon, action_dim)
+                full_pred_q_values = pred_q_values[:,-1,:] #dimension is (batch_size, action_dim)
+                pred_actions = torch.softmax(full_pred_q_values, dim=1) #dimension is (batch_size, action_dim)
+
+
+                #Print and compare normalized Q values
+                
                 min_true_Qs = torch.min(query_true_Qs, dim=1, keepdim=True)[0]
                 normalized_true_Qs = query_true_Qs - min_true_Qs
-                
+            
                 min_q_values = torch.min(full_pred_q_values, dim=1, keepdim=True)[0]
                 normalized_full_pred_q_values = full_pred_q_values - min_q_values
-                #print(query_states)
-                #print(true_actions)
-                #print(query_true_EPs)
-                #print(query_true_Qs)
-                if i == 0:
+
+                if i == 0:                    
                     print(normalized_true_Qs)
                     print(normalized_full_pred_q_values)
                     
+                #true_actions = true_actions.unsqueeze(1).repeat(1, pred_q_values.shape[1], 1)
                 
-                true_actions = true_actions.unsqueeze(
-                    1).repeat(1, pred_q_values.shape[1], 1)
-                true_actions = true_actions.reshape(-1, action_dim)
-                
-                pred_q_values = pred_q_values.reshape(-1, action_dim)
-                pred_actions = torch.softmax(pred_q_values, dim=1)
-                
-                
-                cross_entropy_loss = loss_fn(pred_actions, true_actions)
-                MSE_loss = MSEloss_fn(normalized_true_Qs, normalized_full_pred_q_values)
-                epoch_cross_entropy_loss += cross_entropy_loss.item() / horizon
-                epoch_MSE_loss += MSE_loss.item() / horizon
+                cross_entropy_loss = loss_fn(pred_actions, query_true_EPs)
+                Q_MSE_loss = MSEloss_fn(normalized_true_Qs, normalized_full_pred_q_values)
+                epoch_MSE_loss += cross_entropy_loss.item() / horizon
+                epoch_Q_MSE_loss += Q_MSE_loss.item() / horizon
 
-        test_cross_entropy_loss.append(epoch_cross_entropy_loss / len(test_dataset))
         test_MSE_loss.append(epoch_MSE_loss / len(test_dataset))
+        test_Q_MSE_loss.append(epoch_Q_MSE_loss / len(test_dataset))
         end_time = time.time()
-        printw(f"\tCross entropy test loss: {test_cross_entropy_loss[-1]}")
-        printw(f"\tMSE of Q-value: {test_MSE_loss[-1]}")
+        printw(f"\tCross entropy test loss: {test_MSE_loss[-1]}")
+        printw(f"\tMSE of Q-value: {test_Q_MSE_loss[-1]}")
         printw(f"\tEval time: {end_time - start_time}")
 
 
@@ -224,49 +220,49 @@ if __name__ == '__main__':
             print(f"Batch {i} of {len(train_loader)}", end='\r')
             batch = {k: v.to(device) for k, v in batch.items()}
             
-            true_actions = batch['query_actions']
-            pred_q_values = model(batch)
-            
+            pred_q_values = model(batch) #dimension is (batch_size, horizon, action_dim)
+
+            true_actions = batch['query_actions'] #dimension is (batch_size, action_dim)
             true_actions = true_actions.unsqueeze(
-                1).repeat(1, pred_q_values.shape[1], 1)
-            true_actions = true_actions.reshape(-1, action_dim)
+                1).repeat(1, pred_q_values.shape[1], 1) #dimension is (batch_size, horizon, action_dim)
+            true_actions = true_actions.reshape(-1, action_dim)  #dimension is (batch_size*horizon, action_dim)
             
-            pred_q_values = pred_q_values.reshape(-1, action_dim)
-            pred_actions = torch.softmax(pred_q_values, dim=1)
+            pred_q_values = pred_q_values.reshape(-1, action_dim) #dimension is (batch_size*horizon, action_dim)
+            pred_actions = torch.softmax(pred_q_values, dim=1) 
             
             optimizer.zero_grad()
             
-            loss = loss_fn(pred_actions, true_actions)
+            loss = MSEloss_fn(pred_actions, true_actions)
            
             loss.backward()
             optimizer.step()
             epoch_train_loss += loss.item() / horizon
 
-        train_loss.append(epoch_train_loss / len(train_dataset))
+        train_MSE_loss.append(epoch_train_loss / len(train_dataset))
         end_time = time.time()
-        printw(f"\tCross entropy train loss: {train_loss[-1]}")
+        printw(f"\tTrain MSE loss: {train_MSE_loss[-1]}")
         printw(f"\tTrain time: {end_time - start_time}")
 
 
         # LOGGING
-        if (epoch + 1) % 50 == 0:
+        if (epoch + 1) % 500 == 0:
             torch.save(model.state_dict(),
                        f'models/{filename}_epoch{epoch+1}.pt')
 
         # PLOTTING
         if (epoch + 1) % 5 == 0:
             printw(f"Epoch: {epoch + 1}")
-            printw(f"Test Q value MSE Loss:        {test_MSE_loss[-1]}")
-            printw(f"Test action cross entropy Loss:        {test_cross_entropy_loss[-1]}")
-            printw(f"Train action cross entropy Loss:       {train_loss[-1]}")
+            printw(f"Test Q value MSE Loss:        {test_Q_MSE_loss[-1]}")
+            printw(f"Test action cross entropy Loss:        {test_MSE_loss[-1]}")
+            printw(f"Train action cross entropy Loss:       {train_MSE_loss[-1]}")
             printw("\n")
 
             plt.yscale('log')
-            plt.plot(train_loss[1:], label="Train cross entropy Loss")
-            plt.plot(test_MSE_loss[1:], label="Test Q_MSE Loss")
-            plt.plot(test_cross_entropy_loss[1:], label="Test cross entropy Loss")
+            plt.plot(train_MSE_loss[1:], label="Train prediction_MSE Loss")
+            plt.plot(test_MSE_loss[1:], label="Test prediction_MSE Loss")
+            plt.plot(test_Q_MSE_loss[1:], label="Test Q_MSE Loss")
             plt.legend()
-            plt.savefig(f"figs/loss/{filename}_train_loss.png")
+            plt.savefig(f"figs/loss/{filename}_train_MSE&QMSE_loss.png")
             plt.clf()
 
     torch.save(model.state_dict(), f'models/{filename}.pt')
