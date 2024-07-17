@@ -1,6 +1,0 @@
-Num train batches: 2
-Num test batches: 1
-Epoch: 1
-	Cross entropy test loss: 0.6424953002929688
-	MSE of Q-value: 0.03345232772827149
-	Eval time: 1.4297254085540771

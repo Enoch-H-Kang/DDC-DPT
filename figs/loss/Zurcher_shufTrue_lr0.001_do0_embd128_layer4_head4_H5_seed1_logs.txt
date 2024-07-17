@@ -1,3 +1,0 @@
-Num train batches: 1
-Num test batches: 1
-Epoch: 1
