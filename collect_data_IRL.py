@@ -1,9 +1,7 @@
 import argparse
 import os
 import pickle
-import random
 from tqdm import tqdm
-import numpy as np
 import random
 import numpy as np
 from scipy.special import logsumexp
