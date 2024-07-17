@@ -24,7 +24,7 @@ jobs -l
 #Step 2: kill the task
 kill 1767977
 #Force terminate if necessary:
-killl -9 1767977
+kill -9 1767977
 
 #Check all the processes running behind
 ps aux | grep train.py
