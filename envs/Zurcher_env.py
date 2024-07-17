@@ -1,17 +1,12 @@
-import itertools
-
 import random
-import gym
 import numpy as np
 import torch
 from scipy.special import logsumexp
 
-from envs.base_env import BaseEnv
-
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-class ZurcherEnv(BaseEnv):
+class ZurcherEnv():
     def __init__(self, theta, beta, horizon, xmax, type):
         self.theta = theta
         self.beta = beta
