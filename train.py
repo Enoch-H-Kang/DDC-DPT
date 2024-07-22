@@ -52,7 +52,7 @@ def add_model_args(parser):
     parser.add_argument("--head", type=int, required=False,
                         default=1, help="Number of heads")
     parser.add_argument("--layer", type=int, required=False,
-                        default=12, help="Number of layers")
+                        default=8, help="Number of layers")
     parser.add_argument("--lr", type=float, required=False,
                         default=1e-3, help="Learning Rate")
     parser.add_argument("--dropout", type=float,
@@ -62,7 +62,7 @@ def add_model_args(parser):
 
 def add_train_args(parser):
     parser.add_argument("--num_epochs", type=int, required=False,
-                        default=50000, help="Number of epochs")
+                        default=5000, help="Number of epochs")
 
 
 def add_eval_args(parser):
@@ -240,7 +240,10 @@ def build_Zurcher_data_filename(env, config, mode):
     Builds the filename for the Zurcher data.
     Mode is either 0: train, 1: test, 2: eval.
     """
-    filename_template = 'datasets/trajs_{}.pkl'
+    if mode != 4:
+        filename_template = 'datasets/trajs_{}.pkl'
+    else: 
+        filename_template = '{}'
     filename = env
     if mode != 2:
         filename += '_bustotal' + str(config['bustotal'])
@@ -363,6 +366,7 @@ if __name__ == '__main__':
             env, dataset_config, mode=1)
 
         filename = build_Zurcher_model_filename(env, model_config)
+        fig_filename = build_Zurcher_data_filename(env, dataset_config, mode=4)
 
     else:
         raise NotImplementedError
@@ -389,7 +393,7 @@ if __name__ == '__main__':
         'shuffle': True,
     }
 
-    log_filename = f'figs/loss/{filename}_logs.txt'
+    log_filename = f'figs/loss/{fig_filename}_logs.txt'
     with open(log_filename, 'w') as f:
         pass
     def printw(string):
@@ -421,6 +425,11 @@ if __name__ == '__main__':
     test_full_loss = []
     test_Q_MSE_loss = []
     test_full_Q_MSE_loss = []
+    
+    best_epoch = -1
+    best_Q_MSE_loss = float('inf')
+    best_normalized_true_Qs = None
+    best_normalized_full_pred_q_values = None
 
     printw("Num train batches: " + str(len(train_loader)))
     printw("Num test batches: " + str(len(test_loader)))
@@ -460,12 +469,11 @@ if __name__ == '__main__':
                 #prediction depending on the whole context, not partial context
                 full_pred_q_values = pred_q_values[:,-1,:] #dimension is (batch_size, action_dim)
             
-                ####### Action cross entropy loss
-                #When testing, we measure how well the model predicts the true action probs
-                
+                ####### Action CrossEntropy loss                
                 cross_entropy_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped)
                 epoch_CrossEntropy_loss += cross_entropy_loss.item()/horizon
                 
+                ####### (Full context) Action CrossEntropy loss
                 full_cross_entropy_loss = CrossEntropy_loss_fn(full_pred_q_values, true_actions)
                 epoch_full_CrossEntropy_loss += full_cross_entropy_loss.item()
                 
@@ -478,14 +486,20 @@ if __name__ == '__main__':
                 min_q_values = torch.min(full_pred_q_values, dim=1, keepdim=True)[0]
                 normalized_full_pred_q_values = full_pred_q_values - min_q_values
 
-                if i == 0:                    
+                if i == 0: #i=0 means the first batch                   
                     print(normalized_true_Qs)
                     print(normalized_full_pred_q_values)
                 
                 
                 Q_MSE_loss = MSE_loss_fn(normalized_true_Qs, normalized_full_pred_q_values)
                 epoch_Q_MSE_loss += Q_MSE_loss.item()
-                
+
+            if epoch_Q_MSE_loss < best_Q_MSE_loss:
+                best_Q_MSE_loss = epoch_Q_MSE_loss
+                best_normalized_true_Qs = normalized_true_Qs
+                best_normalized_full_pred_q_values = normalized_full_pred_q_values
+                best_epoch = epoch + 1    
+
         test_loss.append(epoch_CrossEntropy_loss / len(test_dataset))
         test_full_loss.append(epoch_full_CrossEntropy_loss / len(test_dataset))
         test_Q_MSE_loss.append(epoch_Q_MSE_loss / len(test_dataset))
@@ -533,7 +547,7 @@ if __name__ == '__main__':
         # LOGGING
         if (epoch + 1) % 10000 == 0:
             torch.save(model.state_dict(),
-                       f'models/{filename}_epoch{epoch+1}.pt')
+                       f'models/{fig_filename}_epoch{epoch+1}.pt')
 
         # PLOTTING
         if (epoch + 1) % 5 == 0:
@@ -550,7 +564,7 @@ if __name__ == '__main__':
             plt.plot(train_loss[1:], label="Train Loss")
             plt.plot(test_loss[1:], label="Test Loss")
             plt.legend()
-            plt.savefig(f"figs/loss/{filename}_CrossEntropy_loss.png")
+            plt.savefig(f"figs/loss/{fig_filename}_CrossEntropy_loss.png")
             plt.clf()
             
             plt.figure()
@@ -559,9 +573,15 @@ if __name__ == '__main__':
             plt.ylabel('Q MSE Loss')
             plt.plot(test_Q_MSE_loss[1:], label="Test Q MSE loss")
             plt.legend()
-            plt.savefig(f"figs/loss/{filename}_Q_MSE_loss.png")
+            plt.savefig(f"figs/loss/{fig_filename}_Q_MSE_loss.png")
             plt.clf()
             
 
     torch.save(model.state_dict(), f'models/{filename}.pt')
+    
+    printw(f"Best epoch: {best_epoch}")
+    printw(f"Best Q MSE loss: {best_Q_MSE_loss}")
+    printw(f"Normalized true Qs: {best_normalized_true_Qs}")
+    printw(f"Normalized full predicted Q values: {best_normalized_full_pred_q_values}")
+    
     print("Done.")

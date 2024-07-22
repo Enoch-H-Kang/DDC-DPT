@@ -135,7 +135,7 @@ def add_dataset_args(parser):
 
     parser.add_argument("--beta", type=float, required=False,
                         default=0.95, help="Beta")
-    parser.add_argument("--theta", type=str_to_float_list, required=False, default=[1, 2, 9], help="Theta values as a list of floats")
+    parser.add_argument("--theta", type=str_to_float_list, required=False, default="[1, 5, 1]", help="Theta values as a list of floats")
     
     parser.add_argument("--H", type=int, required=False,
                         default=100, help="Context horizon")

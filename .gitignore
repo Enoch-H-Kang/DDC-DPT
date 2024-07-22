@@ -3,3 +3,12 @@
 /models/
 /train_output.log
 /collect_data_IRL_output.log
+train_output.log
+datasets/
+figs
+models/
+logs/
+/logs/
+collect_data_IRL_output.log
+main_output.log
+pipeline_output.log
