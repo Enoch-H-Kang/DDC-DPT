@@ -18,9 +18,13 @@ class ZurcherEnv():
         self.type = type #Type can be 0, 1, 2... numTypes-1
         self.current_step = 0
         self.EP, self.Vtil = self.calculate_EP_Vtil()
+        self.U = self._get_util()
         
+    def _get_util(self):
+        '''
+        Input: None
         
-    def get_util(self):
+        '''
         theta1 = self.theta[0]
         theta2 = self.theta[1]
         theta3 = self.theta[2]
@@ -33,34 +37,40 @@ class ZurcherEnv():
         # the second column is the cost of replacement, and the third column is the cost of mileage
         return U
     
-    def vfi(self):
-        U = self.get_util()
+    def vfi(self, tol=1e-8):
+        '''
+        Q-Value iteration. 
+        Input: None
+        Output: Approximation of Q function. 
+        '''
+        U = self.U
         gamma = np.euler_gamma
-        Vtil = np.zeros((len(self.states), 2)) #row: state, column: action
+        Q = np.zeros((len(self.states), 2)) #row: state, column: action
         dist = 1
         iter = 0
-        while dist > 1e-8:
-            V = gamma + logsumexp(Vtil, axis=1)
+        while dist > tol:
+            V = gamma + logsumexp(Q, axis=1)
             # Ensure expV corresponds to V but shifts the last element for replacement decision logic
             expV = np.append(V[1:], V[-1])  # As mileage does not increase after it reaches max, the last element is repeated
-            Vtil1 = np.zeros_like(Vtil)  # initialize Vtil1
+            Q1 = np.zeros_like(Q)  # initialize Vtil1
             # Compute value function for maintenance (not replacing)
-            Vtil1[:, 0] = U[:, 0] + self.beta * expV  # action-specific value function of not replacing
+            Q1[:, 0] = U[:, 0] + self.beta * expV  # action-specific value function of not replacing
             # Compute value function for replacement
-            Vtil1[:, 1] = U[:, 1]+ self.type*U[:, 2] + self.beta * expV[0]  # action-specific value function of replacing
+            Q1[:, 1] = U[:, 1]+ self.type*U[:, 2] + self.beta * expV[0]  # action-specific value function of replacing
         
-            
-            dist = np.linalg.norm(Vtil1 - Vtil)
-            Vtil = Vtil1
+            dist = np.linalg.norm(Q1 - Q)
             iter += 1
 
-        return Vtil, expV
+        return Q
     
     def calculate_EP_Vtil(self):
-        Vtil = self.vfi()[0]
-        EP1 = np.exp(Vtil[:, 1]) / (np.exp(Vtil[:, 0]) + np.exp(Vtil[:, 1])) 
+        '''
+        Returns EP=Expert Policy
+        '''
+        Q = self.vfi()
+        EP1 = np.exp(Q[:, 1]) / (np.exp(Q[:, 0]) + np.exp(Q[:, 1])) 
         EP = np.array([1-EP1, EP1]).T.tolist()
-        return EP, Vtil
+        return EP, Q
 
     def sample_state(self):
         return np.random.randint(0, self.xmax+1)
