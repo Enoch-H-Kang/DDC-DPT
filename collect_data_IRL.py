@@ -5,14 +5,41 @@ from tqdm import tqdm
 import random
 import numpy as np
 from scipy.special import logsumexp
+import utils
 
 
-
-class ZurcherEnv():
-    def __init__(self, theta, beta, horizon, xmax, type):
-        self.theta = theta
+class Environment(object):
+    def __init__(self, H, beta):
+        self.H = H
         self.beta = beta
-        self.horizon = horizon
+
+    def reset(self):
+        self.current_step = 0
+        self.state = 0
+        return self.state
+    
+
+    def build_filepaths(self):
+        """
+        Builds the filename for the Zurcher data.
+        Mode is either 0: train, 1: test, 2: eval.
+        """
+        filename_template = 'datasets/trajs_{}.pkl'
+        filename = (f"{self.env}{'_bustotal' + str(self.bustotal)}"
+                    f"_beta{self.beta}_theta{self.theta}"
+                    f"_numTypes{self.numTypes}_H{self.H}_{self.rollin_type}")
+        
+        train_filepath += '_train'
+        test_filepath += '_test'
+        eval_filepath += '_eval'
+            
+        return filename_template.format(filename)
+
+class ZurcherEnv(Environment):
+    def __init__(self, theta, beta, horizon, xmax, type):
+        super(ZurcherEnv, self).__init__(horizon, beta)
+        self.env_name = 'Zurcher'        
+        self.theta = theta
         self.xmax = xmax
         self.states = np.arange(self.xmax+1)
         self.type = type #Type can be 0, 1, 2... numTypes-1
@@ -80,11 +107,6 @@ class ZurcherEnv():
         randchoice = random.choice([[0, 1], [1, 0]])
         return randchoice
 
-    def reset(self):
-        self.current_step = 0
-        self.state = 0
-        return self.state
-
     def transit(self, state, action_prob):
         #action_prob is an two-dimensional array of probs, where the first element is
         # the prob of action 0 and the second element is the prob of action 1
@@ -101,62 +123,15 @@ class ZurcherEnv():
 
         return next_state, action
 
-
     def get_obs(self):
         return self.state.copy()
 
     def opt_action(self, state):
         return self.EP[state]
 
-def build_Zurcher_data_filename(env, config, mode):
-    """
-    Builds the filename for the Zurcher data.
-    Mode is either 0: train, 1: test, 2: eval.
-    """
-    filename_template = 'datasets/trajs_{}.pkl'
-    filename = env
-    if mode != 2:
-        filename += '_bustotal' + str(config['bustotal'])
-    filename += '_beta' + str(config['beta'])
-    filename += '_theta' + str(config['theta'])    
-    filename += '_numTypes' + str(config['numTypes'])    
-    filename += '_H' + str(config['horizon'])
-    filename += '_' + config['rollin_type']
-    #filename += '_extrapolation' + str(config['extrapolation'])
-    if mode == 0:
-        filename += '_train'
-    elif mode == 1:
-        filename += '_test'
-    elif mode == 2:
-        filename += '_n_eval' + str(config['n_eval'])
-        filename += '_eval'
-        
-    return filename_template.format(filename)
 
-def str_to_float_list(arg):
-    return [float(x) for x in arg.strip('[]').split(',')]
 
-def add_dataset_args(parser):
-    
-    parser.add_argument("--env", type=str, required=True, help="Environment")
-    
-    parser.add_argument("--bustotal", type=int, required=False,
-                        default=100, help="Total number of buses")
 
-    parser.add_argument("--beta", type=float, required=False,
-                        default=0.95, help="Beta")
-    parser.add_argument("--theta", type=str_to_float_list, required=False, default="[1, 5, 1]", help="Theta values as a list of floats")
-    
-    parser.add_argument("--H", type=int, required=False,
-                        default=100, help="Context horizon")
-    
-    parser.add_argument("--maxMileage", type=int, required=False,
-                        default=200, help="Max mileage")
-    parser.add_argument("--numTypes", type=int, required=False,
-                        default=10, help="Number of bus types")
-    parser.add_argument("--extrapolation", type=str, required=False,
-                        default='False', help="Extrapolation")
-    
 def rollin_mdp(env, rollin_type):
     states = []
     actions = []
@@ -164,7 +139,7 @@ def rollin_mdp(env, rollin_type):
     #rewards = []
 
     state = env.reset()
-    for _ in range(env.horizon):
+    for _ in range(env.H):
         if rollin_type == 'uniform':
             state = env.sample_state()
             action = env.sample_action()
@@ -194,8 +169,8 @@ def rollin_mdp(env, rollin_type):
 
     return states, actions, next_states
 
-def generate_Zurcher_histories(buses, theta, beta, horizon, xmax, rollin_type, **kwargs):
-    envs = [ZurcherEnv(theta, beta, horizon, xmax, busType) for busType in buses]
+def generate_Zurcher_histories(buses, theta, beta, H, xmax, rollin_type, **kwargs):
+    envs = [ZurcherEnv(theta, beta, H, xmax, busType) for busType in buses]
     
     trajs = []
     for env in tqdm(envs):
@@ -228,68 +203,54 @@ def generate_Zurcher_histories(buses, theta, beta, horizon, xmax, rollin_type, *
     return trajs
 
 
+def save_data(train_trajs, test_trajs, eval_trajs, 
+              config, train_filepath, test_filepath, eval_filepath):
+    if not os.path.exists('datasets'):
+        os.makedirs('datasets', exist_ok=True)
 
-if __name__ == '__main__':
-    #python3 collect_data.py --env Zurcher --bustotal 100 --beta 0.95 --theta [1,2,9] --H 100 --maxMileage 200 --numTypes 4 --extrapolation False
-    np.random.seed(0)
-    random.seed(0)
+    with open(train_filepath, 'wb') as file:
+        pickle.dump(train_trajs, file)
+    with open(test_filepath, 'wb') as file:
+        pickle.dump(test_trajs, file)
+    with open(eval_filepath, 'wb') as file:
+        pickle.dump(eval_trajs, file)
 
-    parser = argparse.ArgumentParser() #creates an ArgumentParser object
-    add_dataset_args(parser) #define what command-line arguments your script can accept
-    args = vars(parser.parse_args()) #you parse the command line. 
-                                     #This converts the command-line input into a dictionary of options that you can use in your script.
-    print("Args: ", args)
+    print(f"Saved to {train_filepath}.")
+    print(f"Saved to {test_filepath}.")
+    print(f"Saved to {eval_filepath}.")
 
-    env = args['env']
-    beta = args['beta']
-    theta = args['theta']
-    horizon = args['H']
-    bustotal = args['bustotal']
-    xmax = args['maxMileage']
-    numTypes = args['numTypes']
-    extrapolation = args['extrapolation']
-    
-    n_eval = 100
 
-    config = {
-        'horizon': horizon,
-        'n_eval': n_eval,
-    }
 
-    # Main data collection part
-    
+def generate(config):
+    np.random.seed()
+    random.seed()
+
+    env = config['env']
+    beta = config['beta']
+    theta = config['theta']
+    H = config['H']
+    trajectories = config['generation']['trajectories']
+    xmax = config['env_params']['maxMileage']
+    numTypes = config['env_params']['numTypes']
+    n_eval = config['generation']['eval_trajectories']
+
     if env == 'Zurcher':
-
-        config.update({'bustotal': bustotal, 'maxMileage': xmax,'theta': theta, 'beta': beta, 'xmax': xmax, 
-                       'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'expert'})
-        #We use uniform for RL objective. For IRL objective, we use expert.
+        config.update({'rollin_type': 'expert'})
         
-        bus_types = np.random.choice(numTypes, bustotal) #for n_envs number of environments, randomly choose a bus type from numTypes
-        train_test_split = int(.8 * bustotal) #Calculates index that splits train/test data
+        bus_types = np.random.choice(numTypes, trajectories)
+        train_test_split = int(.8 * trajectories)
         train_buses = bus_types[:train_test_split] 
         test_buses = bus_types[train_test_split:]
+        eval_buses = np.random.choice(numTypes, n_eval)
 
-        
-        
-        if extrapolation == 'False':
-            eval_buses = np.random.choice(numTypes, n_eval)
-            
-        else:
-            raise NotImplementedError
-        
+
         train_trajs = generate_Zurcher_histories(train_buses, **config)
         test_trajs = generate_Zurcher_histories(test_buses, **config)
         eval_trajs = generate_Zurcher_histories(eval_buses, **config)
-
-        train_filepath = build_Zurcher_data_filename(
-            env, config, mode=0)
-        test_filepath = build_Zurcher_data_filename(
-            env, config, mode=1)
-        eval_filepath = build_Zurcher_data_filename(env, config, mode=2)
-
     else:
         raise NotImplementedError
-
+    
+    train_filepath, test_filepath, eval_filepath = env.generate_filepaths
 
     if not os.path.exists('datasets'):
         os.makedirs('datasets', exist_ok=True)
