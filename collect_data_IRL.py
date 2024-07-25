@@ -6,46 +6,56 @@ import random
 import numpy as np
 from scipy.special import logsumexp
 import utils
-
+import json
 
 class Environment(object):
-    def __init__(self, H, beta):
+    def __init__(self, env, num_trajs, H, beta, theta, rollin_type):
         self.H = H
         self.beta = beta
+        self.num_trajs = num_trajs
+        self.env = env
+        self.theta = theta
+        
+        self.rollin_type = rollin_type
+        self.current_step = 0
 
     def reset(self):
         self.current_step = 0
         self.state = 0
         return self.state
-    
 
-    def build_filepaths(self):
+class ZurcherEnv(Environment):
+    def __init__(self, type, **config):
+        super().__init__(
+            env=config['env'],
+            num_trajs=config['num_trajs'],
+            H=config['H'],
+            beta=config['beta'],
+            theta=config['theta'],
+            rollin_type=config['rollin_type']
+        )
+        self.env_name = 'Zurcher'        
+        self.xmax = config['maxMileage']
+        self.states = np.arange(self.xmax+1)
+        self.numTypes = config['numTypes']
+        self.type = type
+        self.current_step = 0
+        self.EP, self.Q = self.calculate_EP_Q()
+        self.U = self._get_util()
+    
+    def build_filepaths(self, mode):
         """
         Builds the filename for the Zurcher data.
-        Mode is either 0: train, 1: test, 2: eval.
+        Mode is either 'train', 'test', or 'eval'.
         """
         filename_template = 'datasets/trajs_{}.pkl'
-        filename = (f"{self.env}{'_bustotal' + str(self.bustotal)}"
+        filename = (f"{self.env}_num_trajs{self.num_trajs}"
                     f"_beta{self.beta}_theta{self.theta}"
                     f"_numTypes{self.numTypes}_H{self.H}_{self.rollin_type}")
         
-        train_filepath += '_train'
-        test_filepath += '_test'
-        eval_filepath += '_eval'
-            
+        filename += f'_{mode}'
+        
         return filename_template.format(filename)
-
-class ZurcherEnv(Environment):
-    def __init__(self, theta, beta, horizon, xmax, type):
-        super(ZurcherEnv, self).__init__(horizon, beta)
-        self.env_name = 'Zurcher'        
-        self.theta = theta
-        self.xmax = xmax
-        self.states = np.arange(self.xmax+1)
-        self.type = type #Type can be 0, 1, 2... numTypes-1
-        self.current_step = 0
-        self.EP, self.Vtil = self.calculate_EP_Vtil()
-        self.U = self._get_util()
         
     def _get_util(self):
         '''
@@ -59,7 +69,7 @@ class ZurcherEnv(Environment):
         u2 = -theta2 * np.ones(self.states.shape)  # an array of length s with each element being -theta[1]
         u3 = -theta3 * np.ones(self.states.shape)  # an array of length s with each element being -theta[2]
         U = np.column_stack((u1, u2, u3))
-        # an example of a row of U is [-5, -9, -4.5], 
+        # an example of a row of U is [-1, -5, -1], 
         # where the first column is the cost of period maintenance at mileage 5, 
         # the second column is the cost of replacement, and the third column is the cost of mileage
         return U
@@ -79,7 +89,7 @@ class ZurcherEnv(Environment):
             V = gamma + logsumexp(Q, axis=1)
             # Ensure expV corresponds to V but shifts the last element for replacement decision logic
             expV = np.append(V[1:], V[-1])  # As mileage does not increase after it reaches max, the last element is repeated
-            Q1 = np.zeros_like(Q)  # initialize Vtil1
+            Q1 = np.zeros_like(Q)  # initialize Q
             # Compute value function for maintenance (not replacing)
             Q1[:, 0] = U[:, 0] + self.beta * expV  # action-specific value function of not replacing
             # Compute value function for replacement
@@ -90,7 +100,7 @@ class ZurcherEnv(Environment):
 
         return Q
     
-    def calculate_EP_Vtil(self):
+    def calculate_EP_Q(self):
         '''
         Returns EP=Expert Policy
         '''
@@ -169,8 +179,11 @@ def rollin_mdp(env, rollin_type):
 
     return states, actions, next_states
 
-def generate_Zurcher_histories(buses, theta, beta, H, xmax, rollin_type, **kwargs):
-    envs = [ZurcherEnv(theta, beta, H, xmax, busType) for busType in buses]
+def generate_Zurcher_histories(config):
+    num_Types = config['numTypes']
+    num_trajs = config['num_trajs']
+    Types = np.random.choice(range(num_Types), num_trajs)
+    envs = [ZurcherEnv(Type, config) for Type in Types]
     
     trajs = []
     for env in tqdm(envs):
@@ -178,12 +191,12 @@ def generate_Zurcher_histories(buses, theta, beta, H, xmax, rollin_type, **kwarg
             context_states,
             context_actions,
             context_next_states,
-        ) = rollin_mdp(env, rollin_type=rollin_type)
+        ) = rollin_mdp(env, rollin_type=config['rollin_type'])
         
-        query_state = context_next_states[-1] #query_state is the state after the last context state
+        query_state = context_next_states[-1] #query_state is set to be the state after the last context state
         query_true_EP = env.opt_action(query_state) #True optimal choice prob vector at the query state
         query_action = np.random.choice([0, 1], p=query_true_EP) #The target action chosen according to true optimal choice prob 
-        query_true_Q = env.Vtil[query_state] #Q value at the query state
+        query_true_Q = env.Q[query_state] #Q value at the query state
 
         
         
@@ -222,46 +235,47 @@ def save_data(train_trajs, test_trajs, eval_trajs,
 
 
 def generate(config):
-    np.random.seed()
-    random.seed()
+    np.random.seed(config['seed'])
+    random.seed(config['seed'])
 
     env = config['env']
-    beta = config['beta']
-    theta = config['theta']
-    H = config['H']
-    trajectories = config['generation']['trajectories']
-    xmax = config['env_params']['maxMileage']
-    numTypes = config['env_params']['numTypes']
-    n_eval = config['generation']['eval_trajectories']
-
-    if env == 'Zurcher':
-        config.update({'rollin_type': 'expert'})
-        
-        bus_types = np.random.choice(numTypes, trajectories)
-        train_test_split = int(.8 * trajectories)
-        train_buses = bus_types[:train_test_split] 
-        test_buses = bus_types[train_test_split:]
-        eval_buses = np.random.choice(numTypes, n_eval)
-
-
-        train_trajs = generate_Zurcher_histories(train_buses, **config)
-        test_trajs = generate_Zurcher_histories(test_buses, **config)
-        eval_trajs = generate_Zurcher_histories(eval_buses, **config)
-    else:
-        raise NotImplementedError
+    if env != 'Zurcher':
+        raise NotImplementedError("Only Zurcher environment is implemented")
     
-    train_filepath, test_filepath, eval_filepath = env.generate_filepaths
+    num_train_trajs = int(0.8 * config['num_trajs'])
+    config_train = {**config, 'num_trajs': num_train_trajs}
+    config_test = {**config, 'num_trajs': config['num_trajs'] - num_train_trajs}
+    
+
+    train_trajs = generate_Zurcher_histories(config_train)
+    test_trajs = generate_Zurcher_histories(config_test)
+   
+
+    env_instance = ZurcherEnv(**config)
+    train_filepath = env_instance.build_filepaths('train')
+    test_filepath = env_instance.build_filepaths('test')
+    
 
     if not os.path.exists('datasets'):
         os.makedirs('datasets', exist_ok=True)
+
     with open(train_filepath, 'wb') as file:
         pickle.dump(train_trajs, file)
     with open(test_filepath, 'wb') as file:
         pickle.dump(test_trajs, file)
-    with open(eval_filepath, 'wb') as file:
-        pickle.dump(eval_trajs, file)
+    
 
     print(f"Saved to {train_filepath}.")
     print(f"Saved to {test_filepath}.")
-    print(f"Saved to {eval_filepath}.")
+   
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", type=str, required=True)
+    args = parser.parse_args()
 
+    with open(args.config, "r") as f:
+        config = json.load(f)
+
+    generate(config)
+ 
+    
