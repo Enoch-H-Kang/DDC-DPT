@@ -22,7 +22,7 @@
     "maxMileage": 10,
     "numTypes": 1,
     "rollin_type": "expert",
-    "theta": "[1, 5, 1]"
+    "theta": [1, 5, 1]
   },
   "experiments": [
     {

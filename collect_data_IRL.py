@@ -42,6 +42,7 @@ class ZurcherEnv(Environment):
         self.current_step = 0
         self.EP, self.Q = self.calculate_EP_Q()
         self.U = self._get_util()
+        self.count = 0
     
     def build_filepaths(self, mode):
         """
@@ -80,7 +81,7 @@ class ZurcherEnv(Environment):
         Input: None
         Output: Approximation of Q function. 
         '''
-        U = self.U
+        U = self._get_util()
         gamma = np.euler_gamma
         Q = np.zeros((len(self.states), 2)) #row: state, column: action
         dist = 1
@@ -96,8 +97,8 @@ class ZurcherEnv(Environment):
             Q1[:, 1] = U[:, 1]+ self.type*U[:, 2] + self.beta * expV[0]  # action-specific value function of replacing
         
             dist = np.linalg.norm(Q1 - Q)
+            Q=Q1
             iter += 1
-
         return Q
     
     def calculate_EP_Q(self):
@@ -146,7 +147,6 @@ def rollin_mdp(env, rollin_type):
     states = []
     actions = []
     next_states = []
-    #rewards = []
 
     state = env.reset()
     for _ in range(env.H):
@@ -176,14 +176,16 @@ def rollin_mdp(env, rollin_type):
     #construct a concatanated matrix that consists of (state, action, next_state)
     #print(np.column_stack((states, actions, next_states)))
     #exit(0)
-
+    
     return states, actions, next_states
 
 def generate_Zurcher_histories(config):
+    
     num_Types = config['numTypes']
     num_trajs = config['num_trajs']
+    
     Types = np.random.choice(range(num_Types), num_trajs)
-    envs = [ZurcherEnv(Type, config) for Type in Types]
+    envs = [ZurcherEnv(type = Type, **config) for Type in Types]
     
     trajs = []
     for env in tqdm(envs):
@@ -239,19 +241,18 @@ def generate(config):
     random.seed(config['seed'])
 
     env = config['env']
-    if env != 'Zurcher':
+    if env != 'zurcher':
         raise NotImplementedError("Only Zurcher environment is implemented")
     
     num_train_trajs = int(0.8 * config['num_trajs'])
     config_train = {**config, 'num_trajs': num_train_trajs}
     config_test = {**config, 'num_trajs': config['num_trajs'] - num_train_trajs}
     
-
     train_trajs = generate_Zurcher_histories(config_train)
     test_trajs = generate_Zurcher_histories(config_test)
    
 
-    env_instance = ZurcherEnv(**config)
+    env_instance = ZurcherEnv(type = 0, **config)
     train_filepath = env_instance.build_filepaths('train')
     test_filepath = env_instance.build_filepaths('test')
     

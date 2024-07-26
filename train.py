@@ -25,7 +25,7 @@ class Dataset(torch.utils.data.Dataset):
 
     def __init__(self, path, config):
         self.shuffle = config['shuffle']
-        self.horizon = config['horizon']
+        self.horizon = config['H']
         self.store_gpu = config['store_gpu']
         self.config = config
 
@@ -69,19 +69,19 @@ class Dataset(torch.utils.data.Dataset):
         query_true_Qs = np.array(query_true_Qs)
 
         self.dataset = {
-            'query_states': self.convert_to_tensor(query_states, store_gpu=self.store_gpu),
-            'query_actions': self.convert_to_tensor(query_actions, store_gpu=self.store_gpu),
-            'context_states': self.convert_to_tensor(context_states, store_gpu=self.store_gpu),
-            'context_actions': self.convert_to_tensor(context_actions, store_gpu=self.store_gpu),
-            'context_next_states': self.convert_to_tensor(context_next_states, store_gpu=self.store_gpu),
-            'query_true_EPs': self.convert_to_tensor(query_true_EPs, store_gpu=self.store_gpu),
-            'query_true_Qs': self.convert_to_tensor(query_true_Qs, store_gpu=self.store_gpu),
+            'query_states': Dataset.convert_to_tensor(query_states, store_gpu=self.store_gpu),
+            'query_actions': Dataset.convert_to_tensor(query_actions, store_gpu=self.store_gpu),
+            'context_states': Dataset.convert_to_tensor(context_states, store_gpu=self.store_gpu),
+            'context_actions': Dataset.convert_to_tensor(context_actions, store_gpu=self.store_gpu),
+            'context_next_states': Dataset.convert_to_tensor(context_next_states, store_gpu=self.store_gpu),
+            'query_true_EPs': Dataset.convert_to_tensor(query_true_EPs, store_gpu=self.store_gpu),
+            'query_true_Qs': Dataset.convert_to_tensor(query_true_Qs, store_gpu=self.store_gpu),
         }
         
         self.zeros = np.zeros(
             config['maxMileage'] + 1
         )
-        self.zeros = self.convert_to_tensor(self.zeros, store_gpu=self.store_gpu)
+        self.zeros = Dataset.convert_to_tensor(self.zeros, store_gpu=self.store_gpu)
 
 
     def __len__(self):
@@ -123,7 +123,7 @@ class Transformer(nn.Module):
 
         self.config = config
         self.test = config['test']
-        self.horizon = self.config['horizon']
+        self.H = self.config['H']
         self.n_embd = self.config['n_embd']
         self.n_layer = self.config['n_layer']
         self.n_head = self.config['n_head']
@@ -132,7 +132,7 @@ class Transformer(nn.Module):
         self.dropout = self.config['dropout']
 
         config = GPT2Config(
-            n_positions=4 * (1 + self.horizon),
+            n_positions=4 * (1 + self.H),
             n_embd=self.n_embd,
             n_layer=self.n_layer,
             n_head=4,
@@ -202,9 +202,23 @@ def build_model_filename(config):
                 f"_H{config['H']}_seed{config['seed']}")
     return filename
 
+def build_log_filename(config):
+    """
+    Builds the filename for the log file.
+    """
+    filename = (f"zurcher_num_trajs{config['num_trajs']}"
+                f"_beta{config['beta']}_theta{config['theta']}"
+                f"_numTypes{config['numTypes']}_H{config['H']}_{config['rollin_type']}")
+    return filename + ".log"
+
 def printw(message, config):
     print(message)
-    with open(f"logs/{build_data_filename(config)}.log", "a") as log_file:
+    log_dir = "logs"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    log_filename = build_log_filename(config)
+    log_path = os.path.join(log_dir, log_filename)
+    with open(log_path, "a") as log_file:
         print(message, file=log_file)
 
 # Make sure to create the logs directory
@@ -230,7 +244,7 @@ def train(config):
 
     # Prepare dataset
     dataset_config = {
-        'horizon': config['H'],
+        'H': config['H'],
         'num_trajs': config['num_trajs'],
         'maxMileage': config['maxMileage'],
         'theta': config['theta'],
@@ -262,7 +276,7 @@ def train(config):
         'dropout': config['dropout'],
         'test': False,
         'store_gpu': True,
-        'horizon': config['H']
+        'H': config['H']
     }
     model = Transformer(model_config).to(device)
 
@@ -285,7 +299,7 @@ def train(config):
     
     for epoch in tqdm(range(config['num_epochs']), desc="Training Progress"):
         # EVALUATION
-        printw(f"Epoch: {epoch + 1}")
+        printw(f"Epoch: {epoch + 1}", config)
         start_time = time.time()
         with torch.no_grad():
             epoch_CrossEntropy_loss = 0.0
