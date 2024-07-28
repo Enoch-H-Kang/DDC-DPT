@@ -28,3 +28,17 @@ kill -9 1767977
 
 #Check all the processes running behind
 ps aux | grep train.py
+
+
+
+############### Screen + parallel processing #############
+
+#Create a new screen with screen -S mysession
+#Detach from the screen with Ctrl+A D
+#Reattach to the screen with screen -r mysession
+#Kill the screen with exit
+#List all screens with screen -ls
+#Kill all screens with screen -X quit
+
+#Run this code with 
+python3 run_parallel_pipeline.py > main_output.log 2>&1 &

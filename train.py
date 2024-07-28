@@ -1,95 +1,31 @@
-import torch.multiprocessing as mp
-if mp.get_start_method(allow_none=True) is None:
-    mp.set_start_method('spawn', force=True)  # or 'forkserver'
+import torch
 import argparse
 import os
 import time
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-import torch
 import pickle
 import numpy as np
 import random
 import torch.nn as nn
-import transformers
-transformers.set_seed(0)
 from transformers import GPT2Config, GPT2Model
+import json
+import utils
+import sys
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 
 
-def str_to_float_list(arg):
-    return [float(x) for x in arg.strip('[]').split(',')]
-
-def add_dataset_args(parser):
-    
-    parser.add_argument("--env", type=str, required=True, help="Environment")
-    
-    parser.add_argument("--bustotal", type=int, required=False,
-                        default=100, help="Total number of buses")
-
-    parser.add_argument("--beta", type=float, required=False,
-                        default=0.95, help="Beta")
-    parser.add_argument("--theta", type=str_to_float_list, required=False, default="[1, 5, 1]", help="Theta values as a list of floats")
-    
-    parser.add_argument("--H", type=int, required=False,
-                        default=100, help="Context horizon")
-    
-    parser.add_argument("--maxMileage", type=int, required=False,
-                        default=10, help="Max mileage")
-    parser.add_argument("--numTypes", type=int, required=False,
-                        default=10, help="Number of bus types")
-    parser.add_argument("--extrapolation", type=str, required=False,
-                        default='False', help="Extrapolation")
-    
-
-
-def add_model_args(parser):
-    parser.add_argument("--embd", type=int, required=False,
-                        default=128, help="Embedding size")
-    parser.add_argument("--head", type=int, required=False,
-                        default=1, help="Number of heads")
-    parser.add_argument("--layer", type=int, required=False,
-                        default=8, help="Number of layers")
-    parser.add_argument("--lr", type=float, required=False,
-                        default=1e-3, help="Learning Rate")
-    parser.add_argument("--dropout", type=float,
-                        required=False, default=0, help="Dropout")
-    parser.add_argument('--shuffle', default=False, action='store_true')
-
-
-def add_train_args(parser):
-    parser.add_argument("--num_epochs", type=int, required=False,
-                        default=5000, help="Number of epochs")
-
-
-def add_eval_args(parser):
-    parser.add_argument("--epoch", type=int, required=False,
-                        default=-1, help="Epoch to evaluate")
-    parser.add_argument("--hor", type=int, required=False,
-                        default=-1, help="Episode horizon (for mdp)")
-    parser.add_argument("--n_eval", type=int, required=False,
-                        default=100, help="Number of eval trajectories")
-
-
-
-
-
-def convert_to_tensor(x, store_gpu=True):
-    if store_gpu:
-        return torch.tensor(np.asarray(x)).float().to(device)
-    else:
-        return torch.tensor(np.asarray(x)).float()
-
 
 class Dataset(torch.utils.data.Dataset):
     """Dataset class."""
+    
 
     def __init__(self, path, config):
         self.shuffle = config['shuffle']
-        self.horizon = config['horizon']
+        self.horizon = config['H']
         self.store_gpu = config['store_gpu']
         self.config = config
 
@@ -133,27 +69,27 @@ class Dataset(torch.utils.data.Dataset):
         query_true_Qs = np.array(query_true_Qs)
 
         self.dataset = {
-            'query_states': convert_to_tensor(query_states, store_gpu=self.store_gpu),
-            'query_actions': convert_to_tensor(query_actions, store_gpu=self.store_gpu),
-            'context_states': convert_to_tensor(context_states, store_gpu=self.store_gpu),
-            'context_actions': convert_to_tensor(context_actions, store_gpu=self.store_gpu),
-            'context_next_states': convert_to_tensor(context_next_states, store_gpu=self.store_gpu),
-            'query_true_EPs': convert_to_tensor(query_true_EPs, store_gpu=self.store_gpu),
-            'query_true_Qs': convert_to_tensor(query_true_Qs, store_gpu=self.store_gpu),
+            'query_states': Dataset.convert_to_tensor(query_states, store_gpu=self.store_gpu),
+            'query_actions': Dataset.convert_to_tensor(query_actions, store_gpu=self.store_gpu),
+            'context_states': Dataset.convert_to_tensor(context_states, store_gpu=self.store_gpu),
+            'context_actions': Dataset.convert_to_tensor(context_actions, store_gpu=self.store_gpu),
+            'context_next_states': Dataset.convert_to_tensor(context_next_states, store_gpu=self.store_gpu),
+            'query_true_EPs': Dataset.convert_to_tensor(query_true_EPs, store_gpu=self.store_gpu),
+            'query_true_Qs': Dataset.convert_to_tensor(query_true_Qs, store_gpu=self.store_gpu),
         }
         
         self.zeros = np.zeros(
             config['maxMileage'] + 1
         )
-        self.zeros = convert_to_tensor(self.zeros, store_gpu=self.store_gpu)
+        self.zeros = Dataset.convert_to_tensor(self.zeros, store_gpu=self.store_gpu)
 
 
     def __len__(self):
-        'Denotes the total number of samples'
+        #'Denotes the total number of samples'
         return len(self.dataset['query_states'])
 
     def __getitem__(self, index):
-        'Generates one sample of data'
+        #'Generates one sample of data'. DataLoader constructs a batch using this.
         res = {
             'context_states': self.dataset['context_states'][index],
             'context_actions': self.dataset['context_actions'][index],
@@ -172,6 +108,11 @@ class Dataset(torch.utils.data.Dataset):
             res['context_next_states'] = res['context_next_states'][perm]
 
         return res
+    def convert_to_tensor(x, store_gpu=True):
+        if store_gpu:
+            return torch.tensor(np.asarray(x)).float().to(device)
+        else:
+            return torch.tensor(np.asarray(x)).float()
 
 
 class Transformer(nn.Module):
@@ -182,7 +123,7 @@ class Transformer(nn.Module):
 
         self.config = config
         self.test = config['test']
-        self.horizon = self.config['horizon']
+        self.H = self.config['H']
         self.n_embd = self.config['n_embd']
         self.n_layer = self.config['n_layer']
         self.n_head = self.config['n_head']
@@ -191,7 +132,7 @@ class Transformer(nn.Module):
         self.dropout = self.config['dropout']
 
         config = GPT2Config(
-            n_positions=4 * (1 + self.horizon),
+            n_positions=4 * (1 + self.H),
             n_embd=self.n_embd,
             n_layer=self.n_layer,
             n_head=4,
@@ -235,208 +176,130 @@ class Transformer(nn.Module):
 
 
 
-def build_Zurcher_data_filename(env, config, mode):
+
+def build_data_filename(config, mode):
     """
-    Builds the filename for the Zurcher data.
-    Mode is either 0: train, 1: test, 2: eval.
+    Builds the filename for the data.
+    Mode is either 'train', 'test', or 'eval'.
     """
-    if mode != 4:
-        filename_template = 'datasets/trajs_{}.pkl'
-    else: 
-        filename_template = '{}'
-    filename = env
-    if mode != 2:
-        filename += '_bustotal' + str(config['bustotal'])
-    filename += '_beta' + str(config['beta'])
-    filename += '_theta' + str(config['theta'])    
-    filename += '_numTypes' + str(config['numTypes'])    
-    filename += '_H' + str(config['horizon'])
-    filename += '_' + config['rollin_type']
-    #filename += '_extrapolation' + str(config['extrapolation'])
-    if mode == 0:
-        filename += '_train'
-    elif mode == 1:
-        filename += '_test'
-    elif mode == 2:
-        filename += '_n_eval' + str(config['n_eval'])
-        filename += '_eval'
-        
+    filename_template = 'datasets/trajs_{}.pkl'
+    filename = (f"{config['env']}_num_trajs{config['num_trajs']}"
+                f"_beta{config['beta']}_theta{config['theta']}"
+                f"_numTypes{config['numTypes']}_H{config['H']}_{config['rollin_type']}")
+    
+    filename += f'_{mode}'
+    
     return filename_template.format(filename)
 
 
-
-def build_Zurcher_model_filename(env, config):
+def build_model_filename(config):
     """
-    Builds the filename for the Zurcher model.
+    Builds the filename for the model.
     """
-    filename = env
-    filename += '_shuf' + str(config['shuffle'])
-    filename += '_lr' + str(config['lr'])
-    filename += '_do' + str(config['dropout'])
-    filename += '_embd' + str(config['n_embd'])
-    filename += '_layer' + str(config['n_layer'])
-    filename += '_head' + str(config['n_head'])
-    #filename += '_Bustotal' + str(config['Bustotal'])
-    #filename += '_beta' + str(config['beta'])
-    #filename += '_theta' + str(config['theta'])
-    #filename += '_numTypes' + str(config['numTypes'])
-    filename += '_H' + str(config['horizon'])
-    filename += '_seed' + str(config['seed'])
+    filename = (f"{config['env']}_shuf{config['shuffle']}_lr{config['lr']}"
+                f"_do{config['dropout']}_embd{config['n_embd']}"
+                f"_layer{config['n_layer']}_head{config['n_head']}"
+                f"_H{config['H']}_seed{config['seed']}")
     return filename
 
+def build_log_filename(config):
+    """
+    Builds the filename for the log file.
+    """
+    filename = (f"zurcher_num_trajs{config['num_trajs']}"
+                f"_beta{config['beta']}_theta{config['theta']}"
+                f"_numTypes{config['numTypes']}_H{config['H']}_{config['rollin_type']}")
+    return filename + ".log"
+
+def printw(message, config):
+    print(message)
+    log_dir = "logs"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    log_filename = build_log_filename(config)
+    log_path = os.path.join(log_dir, log_filename)
+    with open(log_path, "a") as log_file:
+        print(message, file=log_file)
+
+# Make sure to create the logs directory
 
 
-###########################################  Main  ###########################################
-
-
-if __name__ == '__main__':
+def train(config):
     if not os.path.exists('figs/loss'):
         os.makedirs('figs/loss', exist_ok=True)
     if not os.path.exists('models'):
         os.makedirs('models', exist_ok=True)
+    if not os.path.exists('logs'):
+        os.makedirs('logs', exist_ok=True)
 
-    parser = argparse.ArgumentParser()
-    add_dataset_args(parser)
-    add_model_args(parser)
-    add_train_args(parser)
-
-    parser.add_argument('--seed', type=int, default=0)
-
-    args = vars(parser.parse_args())
-    print("Args: ", args)
-
-    env = args['env']
-    bustotal = args['bustotal']
-    theta = args['theta']
-    beta = args['beta']
-    horizon = args['H']
-    xmax = args['maxMileage']
-    state_dim = xmax
-    action_dim = 2
-    numTypes = args['numTypes']
-    extrapolation = args['extrapolation']
-    
-    n_embd = args['embd']
-    n_head = args['head']
-    n_layer = args['layer']
-    lr = args['lr']
-    shuffle = args['shuffle']
-    dropout = args['dropout']
-    num_epochs = args['num_epochs']
-    seed = args['seed']
-    
-    tmp_seed = seed
-    if seed == -1:
-        tmp_seed = 0
-
-
-    torch.manual_seed(tmp_seed)
+    # Set random seeds
+    torch.manual_seed(config['seed'])
     if torch.cuda.is_available():
-        torch.cuda.manual_seed(tmp_seed)
-        torch.cuda.manual_seed_all(tmp_seed)
+        torch.cuda.manual_seed(config['seed'])
+        torch.cuda.manual_seed_all(config['seed'])
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
-    np.random.seed(tmp_seed)
-    random.seed(tmp_seed)
+    np.random.seed(config['seed'])
+    random.seed(config['seed'])
 
-   
+    # Prepare dataset
     dataset_config = {
-        'horizon': horizon,
+        'H': config['H'],
+        'num_trajs': config['num_trajs'],
+        'maxMileage': config['maxMileage'],
+        'theta': config['theta'],
+        'beta': config['beta'],
+        'numTypes': config['numTypes'],
+        'rollin_type': 'expert',
+        'store_gpu': True,
+        'shuffle': config['shuffle'],
+        'env': config['env']
     }
+
+    path_train = build_data_filename(dataset_config, mode='train')
+    path_test = build_data_filename(dataset_config, mode='test')
+
+    train_dataset = Dataset(path_train, dataset_config)
+    test_dataset = Dataset(path_test, dataset_config)
+
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=config['shuffle'])
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=config['batch_size'], shuffle=config['shuffle'])
+
+    # Prepare model
     model_config = {
-        'shuffle': shuffle,
-        'lr': lr,
-        'dropout': dropout,
-        'n_embd': n_embd,
-        'n_layer': n_layer,
-        'n_head': n_head,
-        'horizon': horizon,
-        'seed': seed,
-    }
-    if env.startswith('Zurcher'):
-        state_dim = 1
-        action_dim = 2
-
-        dataset_config.update({'bustotal': bustotal, 'maxMileage': xmax,'theta': theta, 'beta': beta, 'xmax': xmax, 
-                               'numTypes': numTypes, 'extrapolation': extrapolation,'rollin_type': 'expert'})
-        
-        path_train = build_Zurcher_data_filename(
-            env, dataset_config, mode=0)
-        path_test = build_Zurcher_data_filename(
-            env, dataset_config, mode=1)
-
-        filename = build_Zurcher_model_filename(env, model_config)
-        fig_filename = build_Zurcher_data_filename(env, dataset_config, mode=4)
-
-    else:
-        raise NotImplementedError
-
-    config = {
-        'horizon': horizon,
-        #'bustotal': bustotal,
-        #'bus_types': numTypes,
-        #'theta': theta,
-        #'beta': beta,
-        'maxMileage': xmax,
-        'n_layer': n_layer,
-        'n_embd': n_embd,
-        'n_head': n_head,
-        'shuffle': shuffle,
-        'dropout': dropout,
+        'lr': config['lr'],
+        'n_layer': config['n_layer'],
+        'n_embd': config['n_embd'],
+        'n_head': config['n_head'],
+        'shuffle': config['shuffle'],
+        'seed': config['seed'],
+        'dropout': config['dropout'],
         'test': False,
         'store_gpu': True,
+        'H': config['H']
     }
-    model = Transformer(config).to(device)
+    model = Transformer(model_config).to(device)
 
-    params = {
-        'batch_size': 64,
-        'shuffle': True,
-    }
-
-    log_filename = f'figs/loss/{fig_filename}_logs.txt'
-    with open(log_filename, 'w') as f:
-        pass
-    def printw(string):
-        """
-        A drop-in replacement for print that also writes to a log file.
-        """
-        # Use the standard print function to print to the console
-        print(string)
-
-        # Write the same output to the log file
-        with open(log_filename, 'a') as f:
-            print(string, file=f)
-
-
-
-    train_dataset = Dataset(path_train, config)
-    test_dataset = Dataset(path_test, config)
-
-    train_loader = torch.utils.data.DataLoader(train_dataset, **params)
-    test_loader = torch.utils.data.DataLoader(test_dataset, **params)
-
-    optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=config['lr'], weight_decay=1e-4)
     CrossEntropy_loss_fn = torch.nn.CrossEntropyLoss(reduction='sum')
     MSE_loss_fn = torch.nn.MSELoss(reduction='sum')
 
-    
+    # Training loop
     train_loss = []
     test_loss = []
     test_full_loss = []
     test_Q_MSE_loss = []
-    test_full_Q_MSE_loss = []
     
+    #Storing the best training epoch and its corresponding best Q MSE loss/Q values
     best_epoch = -1
     best_Q_MSE_loss = float('inf')
-    best_normalized_true_Qs = None
-    best_normalized_full_pred_q_values = None
+    best_normalized_true_Qs = torch.tensor([])
+    best_normalized_full_pred_q_values = torch.tensor([])
 
-    printw("Num train batches: " + str(len(train_loader)))
-    printw("Num test batches: " + str(len(test_loader)))
- 
-    for epoch in tqdm(range(num_epochs), desc="Training Progress"):
+    
+    for epoch in tqdm(range(config['num_epochs']), desc="Training Progress"):
         # EVALUATION
-        printw(f"Epoch: {epoch + 1}")
+        printw(f"Epoch: {epoch + 1}", config)
         start_time = time.time()
         with torch.no_grad():
             epoch_CrossEntropy_loss = 0.0
@@ -471,7 +334,7 @@ if __name__ == '__main__':
             
                 ####### Action CrossEntropy loss                
                 cross_entropy_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped)
-                epoch_CrossEntropy_loss += cross_entropy_loss.item()/horizon
+                epoch_CrossEntropy_loss += cross_entropy_loss.item()/config['H']
                 
                 ####### (Full context) Action CrossEntropy loss
                 full_cross_entropy_loss = CrossEntropy_loss_fn(full_pred_q_values, true_actions)
@@ -505,12 +368,11 @@ if __name__ == '__main__':
         test_Q_MSE_loss.append(epoch_Q_MSE_loss / len(test_dataset))
         
         end_time = time.time()
-        printw(f"\tCross entropy test loss: {test_loss[-1]}")
-        printw(f"\tMSE of Q-value: {test_Q_MSE_loss[-1]}")
-        printw(f"\tEval time: {end_time - start_time}")
-
-
-        # TRAINING
+        printw(f"\tCross entropy test loss: {test_loss[-1]}", config)
+        printw(f"\tMSE of Q-value: {test_Q_MSE_loss[-1]}", config)
+        printw(f"\tEval time: {end_time - start_time}", config)
+        
+        # Training
         epoch_train_loss = 0.0
         start_time = time.time()
 
@@ -536,52 +398,64 @@ if __name__ == '__main__':
             
             loss.backward()
             optimizer.step()
-            epoch_train_loss += loss.item() / horizon
+            epoch_train_loss += loss.item() / config['H']
 
         train_loss.append(epoch_train_loss / len(train_dataset))
         end_time = time.time()
-        printw(f"\tTrain loss: {train_loss[-1]}")
-        printw(f"\tTrain time: {end_time - start_time}")
+        printw(f"\tTrain loss: {train_loss[-1]}", config)
+        printw(f"\tTrain time: {end_time - start_time}", config)
 
 
-        # LOGGING
+        # Logging and plotting
+        
         if (epoch + 1) % 10000 == 0:
             torch.save(model.state_dict(),
-                       f'models/{fig_filename}_epoch{epoch+1}.pt')
+                       f'models/{build_model_filename(config)}_epoch{epoch+1}.pt')
 
-        # PLOTTING
         if (epoch + 1) % 5 == 0:
-            printw(f"Epoch: {epoch + 1}")
-            printw(f"Test Q value MSE Loss:        {test_Q_MSE_loss[-1]}")
-            printw(f"Test action cross entropy Loss:        {test_loss[-1]}")
-            printw(f"Train action cross entropy Loss:       {train_loss[-1]}")
-            printw("\n")
-
-            plt.figure()
+            plt.figure(figsize=(12, 8))
+            plt.subplot(2, 1, 1) #subplot in a 2x1 grid, and selects the first (top) subplot
             plt.yscale('log')
             plt.xlabel('epoch')
             plt.ylabel('Cross-Entropy Loss')
             plt.plot(train_loss[1:], label="Train Loss")
             plt.plot(test_loss[1:], label="Test Loss")
+            plt.plot(test_full_loss[1:], label="Full Context Test Loss")
             plt.legend()
-            plt.savefig(f"figs/loss/{fig_filename}_CrossEntropy_loss.png")
-            plt.clf()
             
-            plt.figure()
+            plt.subplot(2, 1, 2) #subplot in a 2x1 grid, and selects the second (bottom) subplot
             plt.yscale('log')
             plt.xlabel('epoch')
             plt.ylabel('Q MSE Loss')
             plt.plot(test_Q_MSE_loss[1:], label="Test Q MSE loss")
             plt.legend()
-            plt.savefig(f"figs/loss/{fig_filename}_Q_MSE_loss.png")
-            plt.clf()
             
+            plt.tight_layout()
+            plt.savefig(f"figs/loss/{build_model_filename(config)}_losses.png")
+            plt.close()
 
-    torch.save(model.state_dict(), f'models/{filename}.pt')
+    torch.save(model.state_dict(), f'models/{build_model_filename(config)}.pt')
     
-    printw(f"Best epoch: {best_epoch}")
-    printw(f"Best Q MSE loss: {best_Q_MSE_loss}")
-    printw(f"Normalized true Qs: {best_normalized_true_Qs}")
-    printw(f"Normalized full predicted Q values: {best_normalized_full_pred_q_values}")
+    printw(f"\nTraining completed.", config)
+    printw(f"Best epoch: {best_epoch}", config)
+    printw(f"Best Q MSE loss: {best_Q_MSE_loss}", config)
     
-    print("Done.")
+    if best_epoch > 0:
+        printw(f"Sample of normalized true Qs: {best_normalized_true_Qs[:10]}", config)
+        printw(f"Sample of normalized full predicted Q values: {best_normalized_full_pred_q_values[:10]}", config)
+    else:
+        printw("No best Q values were recorded during training.", config)
+    
+    printw("Done.", config)
+
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", type=str, required=True, help="Path to the configuration file")
+    args = parser.parse_args()
+
+    with open(args.config, 'r') as f:
+        config = json.load(f)
+
+    train(config)
