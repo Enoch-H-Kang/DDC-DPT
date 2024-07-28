@@ -20,7 +20,7 @@
 ,
   "zurcher_config": {
     "maxMileage": 10,
-    "numTypes": 1,
+    "numTypes": 4,
     "rollin_type": "expert",
     "theta": [1, 5, 1]
   },
@@ -30,6 +30,13 @@
     },
     {
       "num_trajs": 10000
+    },
+    {
+      "num_trajs": 15000
+    }
+    ,
+    {
+      "num_trajs": 20000
     }
   ]
 }
