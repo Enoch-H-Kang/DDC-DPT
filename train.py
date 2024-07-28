@@ -431,10 +431,10 @@ def train(config):
             plt.legend()
             
             plt.tight_layout()
-            plt.savefig(f"figs/loss/{build_model_filename(config)}_losses.png")
+            plt.savefig(f"figs/loss/{build_log_filename(config)}_losses.png")
             plt.close()
 
-    torch.save(model.state_dict(), f'models/{build_model_filename(config)}.pt')
+    torch.save(model.state_dict(), f'models/{build_log_filename(config)}.pt')
     
     printw(f"\nTraining completed.", config)
     printw(f"Best epoch: {best_epoch}", config)
