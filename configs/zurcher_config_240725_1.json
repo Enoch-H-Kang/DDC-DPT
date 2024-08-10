@@ -14,7 +14,7 @@
   "dropout": 0,
   "test": false,
   "store_gpu": true,
-  "num_epochs": 5000,
+  "num_epochs": 1000,
   "batch_size": 64
 }
 ,
@@ -26,10 +26,7 @@
   },
   "experiments": [
     {
-      "num_trajs": 5000
-    },
-    {
-      "num_trajs": 10000
+      "num_trajs": 500
     }
   ]
 }

@@ -12,6 +12,8 @@ from transformers import GPT2Config, GPT2Model
 import json
 import utils
 import sys
+import torch.nn.functional as F
+
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -43,8 +45,12 @@ class Dataset(torch.utils.data.Dataset):
         context_next_states = []
         query_states = []
         query_actions = []
+        query_next_states = []
+        query_next_actions = []
         query_true_EPs = []
+        query_next_true_EPs = []
         query_true_Qs = []
+        query_next_true_Qs = []
 
         for traj in self.trajs:
             context_states.append(traj['context_states'])
@@ -53,8 +59,12 @@ class Dataset(torch.utils.data.Dataset):
 
             query_states.append(traj['query_state'])
             query_actions.append(traj['query_action'])
+            query_next_states.append(traj['query_next_state'])
+            query_next_actions.append(traj['query_next_action'])
             query_true_EPs.append(traj['query_true_EP'])
+            query_next_true_EPs.append(traj['query_next_true_EP'])
             query_true_Qs.append(traj['query_true_Q'])  
+            query_next_true_Qs.append(traj['query_next_true_Q'])
 
         context_states = np.array(context_states)
         context_actions = np.array(context_actions)
@@ -64,18 +74,26 @@ class Dataset(torch.utils.data.Dataset):
         #    context_rewards = context_rewards[:, :, None]
         query_states = np.array(query_states) #its dimension is (num_samples, state_dim)
         query_actions = np.array(query_actions)
+        query_next_states = np.array(query_next_states)
+        query_next_actions = np.array(query_next_actions)
         
         query_true_EPs = np.array(query_true_EPs)
+        query_next_true_EPs = np.array(query_next_true_EPs)
         query_true_Qs = np.array(query_true_Qs)
+        query_next_true_Qs = np.array(query_next_true_Qs)
 
         self.dataset = {
             'query_states': Dataset.convert_to_tensor(query_states, store_gpu=self.store_gpu),
+            'query_next_states': Dataset.convert_to_tensor(query_next_states, store_gpu=self.store_gpu),
             'query_actions': Dataset.convert_to_tensor(query_actions, store_gpu=self.store_gpu),
+            'query_next_actions': Dataset.convert_to_tensor(query_next_actions, store_gpu=self.store_gpu),
             'context_states': Dataset.convert_to_tensor(context_states, store_gpu=self.store_gpu),
             'context_actions': Dataset.convert_to_tensor(context_actions, store_gpu=self.store_gpu),
             'context_next_states': Dataset.convert_to_tensor(context_next_states, store_gpu=self.store_gpu),
             'query_true_EPs': Dataset.convert_to_tensor(query_true_EPs, store_gpu=self.store_gpu),
+            'query_next_true_EPs': Dataset.convert_to_tensor(query_next_true_EPs, store_gpu=self.store_gpu),
             'query_true_Qs': Dataset.convert_to_tensor(query_true_Qs, store_gpu=self.store_gpu),
+            'query_next_true_Qs': Dataset.convert_to_tensor(query_next_true_Qs, store_gpu=self.store_gpu)
         }
         
         self.zeros = np.zeros(
@@ -95,9 +113,13 @@ class Dataset(torch.utils.data.Dataset):
             'context_actions': self.dataset['context_actions'][index],
             'context_next_states': self.dataset['context_next_states'][index],
             'query_states': self.dataset['query_states'][index],
+            'query_next_states': self.dataset['query_next_states'][index],
             'query_actions': self.dataset['query_actions'][index],
+            'query_next_actions': self.dataset['query_next_actions'][index],
             'query_true_EPs': self.dataset['query_true_EPs'][index],
+            'query_next_true_EPs': self.dataset['query_next_true_EPs'][index],
             'query_true_Qs': self.dataset['query_true_Qs'][index],
+            'query_next_true_Qs': self.dataset['query_next_true_Qs'][index],
             'zeros': self.zeros
         }
 
@@ -147,13 +169,15 @@ class Transformer(nn.Module):
             2 * self.state_dim + self.action_dim, self.n_embd)
         
         self.pred_q_values = nn.Linear(self.n_embd, 2)
+        self.pred_r_values = nn.Linear(self.n_embd, 2)
 
     def forward(self, x):
         query_states = x['query_states'][:, None] # (batch_size, 1, state_dim). #None and unsqueeze are equivalent
+        query_next_states = x['query_next_states'][:, None] # (batch_size, 1, state_dim)
+        
         zeros = x['zeros'][:, None] # (batch_size, 1, state_dim+1)
-        
         state_seq = torch.cat([query_states, x['context_states']], dim=1) # (batch_size, 1+horizon, state_dim)
-        
+        state_seq_with_next = torch.cat([query_next_states, x['context_states']], dim=1) # (batch_size, 1+horizon, state_dim)
         action_seq = torch.cat(
             [zeros[:, :, 1], x['context_actions']], dim=1) # (batch_size, 1+horizon, action_dim)
         next_state_seq = torch.cat(
@@ -161,18 +185,30 @@ class Transformer(nn.Module):
         
         
         state_seq = state_seq.unsqueeze(2) # (batch_size, 1+horizon, 1, state_dim)
+        state_seq_with_next = state_seq_with_next.unsqueeze(2) # (batch_size, 1+horizon, 1, state_dim)
         action_seq = action_seq.unsqueeze(2) # (batch_size, 1+horizon, 1, action_dim)
         next_state_seq = next_state_seq.unsqueeze(2) # (batch_size, 1+horizon, 1, state_dim)
        
 
         seq = torch.cat(
             [state_seq, action_seq, next_state_seq], dim=2) 
+        seq_next = torch.cat(
+            [state_seq_with_next, action_seq, next_state_seq], dim=2)
+        
         stacked_inputs = self.embed_transition(seq)
+        stacked_next_inputs = self.embed_transition(seq_next)
+
         transformer_outputs = self.transformer(inputs_embeds=stacked_inputs)
+        transformer_next_outputs = self.transformer(inputs_embeds=stacked_next_inputs)
+
         preds = self.pred_q_values(transformer_outputs['last_hidden_state'])
+        preds_r = self.pred_r_values(transformer_outputs['last_hidden_state'])
+        
+        preds_next = self.pred_q_values(transformer_next_outputs['last_hidden_state'])
+
         if self.test:
             return preds[:, -1, :]
-        return preds[:, 1:, :]
+        return preds[:, 1:, :], preds_next[:, 1:, :], preds_r[:, 1:, :] #The first horizon input is spared for the query state
 
 
 
@@ -283,6 +319,7 @@ def train(config):
     optimizer = torch.optim.AdamW(model.parameters(), lr=config['lr'], weight_decay=1e-4)
     CrossEntropy_loss_fn = torch.nn.CrossEntropyLoss(reduction='sum')
     MSE_loss_fn = torch.nn.MSELoss(reduction='sum')
+    MAE_loss_fn = torch.nn.L1Loss(reduction='sum')
 
     # Training loop
     train_loss = []
@@ -312,7 +349,7 @@ def train(config):
                 
                 #query_action is one-hot encoded action for each query state
                 true_actions = batch['query_actions'].long() #dimension is (batch_size)
-                pred_q_values = model(batch) #dimension is (batch_size, horizon, action_dim)
+                pred_q_values, pred_q_values_next, pred_r_values = model(batch) #dimension is (batch_size, horizon, action_dim)
                 
                 true_actions_unsqueezed = true_actions.unsqueeze(
                 1).repeat(1, pred_q_values.shape[1]) #dimension is (batch_size, horizon)
@@ -381,20 +418,55 @@ def train(config):
             batch = {k: v.to(device) for k, v in batch.items()}
             
             #GPT2 implements "causal masking", i.e., output at period k can only depend on inputs at period 0, ..., k
-            pred_q_values = model(batch) #dimension is (batch_size, horizon, action_dim)
+            pred_q_values, pred_q_values_next, pred_r_values = model(batch) #dimension is (batch_size, horizon, action_dim)
             
             true_actions = batch['query_actions'].long() #dimension is (batch_size)
+            #in torch, .long() converts the tensor to int64. CrossEntropyLoss requires the target to be int64.
+
             true_actions = true_actions.unsqueeze(
                 1).repeat(1, pred_q_values.shape[1]) #dimension is (batch_size, horizon)
             true_actions_reshaped = true_actions.reshape(-1)  #dimension is (batch_size*horizon,)
-            
             pred_q_values_reshaped = pred_q_values.reshape(-1, pred_q_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
-            #pred_actions_reshaped = torch.softmax(pred_q_values_reshaped, dim=1) 
-            
+            pred_r_values_reshaped = pred_r_values.reshape(-1, pred_r_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
+
+            ### Q(s,a) and r(s,a) for the true actions
+            chosen_q_values_reshaped = pred_q_values_reshaped[
+                torch.arange(pred_q_values_reshaped.size(0)), true_actions_reshaped
+            ]
+            chosen_r_values_reshaped = pred_r_values_reshaped[
+                torch.arange(pred_r_values_reshaped.size(0)), true_actions_reshaped
+            ]
+
+            ### Q(s',a') and p(s',a') 
+            pred_q_values_nextstate_reshaped = pred_q_values_next.reshape(-1, pred_q_values_next.shape[-1]) #dimension is (batch_size*horizon, action_dim)
+            prob_nextstate = F.softmax(pred_q_values_nextstate_reshaped, dim=1) #dimension is (batch_size*horizon, action_dim)
+            ## get a' 
+            query_next_actions = batch['query_next_actions'].long() #dimension is (batch_size)
+            query_next_actions = query_next_actions.unsqueeze(
+                1).repeat(1, pred_q_values_next.shape[1]) #dimension is (batch_size, horizon)
+            query_next_actions_reshaped = query_next_actions.reshape(-1) #dimension is (batch_size*horizon,)
+            #Q(s',a') 
+            chosen_q_values_nextstate_reshaped = pred_q_values_nextstate_reshaped[
+                torch.arange(pred_q_values_nextstate_reshaped.size(0)), query_next_actions_reshaped
+            ] #dimension is (batch_size*horizon,)
+            #p(s',a')
+            chosen_prob_nextstate_reshaped = prob_nextstate[
+                torch.arange(prob_nextstate.size(0)), query_next_actions_reshaped
+            ] #dimension is (batch_size*horizon,)
+    
+            #CrossEntropy loss of p(s,a)
+            ce_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #The computed loss is a kind of regret of cross entropy loss until horizon 
+
+            #computation of bellman error of the batch (Q(s,a)-r(s,a)-beta*(Q(s',a')-log(p(s',a'))))
+            bellman_loss = MAE_loss_fn(
+                chosen_q_values_reshaped, chosen_r_values_reshaped + config['beta'] * (chosen_q_values_nextstate_reshaped - torch.log(chosen_prob_nextstate_reshaped))
+            )
+
+            #boundary condition loss (r(s,0)=0)
+            boundary_loss = MSE_loss_fn(pred_r_values_reshaped[:, 0], torch.zeros_like(pred_r_values_reshaped[:, 0]))
+
+            loss = ce_loss + bellman_loss + boundary_loss
             optimizer.zero_grad() #clear previous gradients
-            
-            #The computed loss is a kind of regret of cross entropy loss until horizon 
-            loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped)
             
             loss.backward()
             optimizer.step()

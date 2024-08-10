@@ -26,7 +26,7 @@ def run_training():
 
     # Experiments
     experiments = [
-        {"num_trajs": 5000}
+        {"num_trajs": 500}
     ]
 
     for exp in experiments:

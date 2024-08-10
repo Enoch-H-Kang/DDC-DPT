@@ -149,7 +149,7 @@ def rollin_mdp(env, rollin_type):
     next_states = []
 
     state = env.reset()
-    for _ in range(env.H):
+    for _ in range(env.H+1): #I added 1 to have two query states (index H and H+1). Added one is for the first query
         if rollin_type == 'uniform':
             state = env.sample_state()
             action = env.sample_action()
@@ -169,9 +169,9 @@ def rollin_mdp(env, rollin_type):
         next_states.append(next_state)
         state = next_state
 
-    states = np.array(states)
-    actions = np.array(actions)
-    next_states = np.array(next_states)
+    states = np.array(states) #index 0 to H-1 are context states, index H is the first query state
+    actions = np.array(actions) #index 0 to H-1 are context actions, index H is the first query action
+    next_states = np.array(next_states) #index H-1 is the first query state, index H is the second query state
     
     #construct a concatanated matrix that consists of (state, action, next_state)
     #print(np.column_stack((states, actions, next_states)))
@@ -194,23 +194,31 @@ def generate_Zurcher_histories(config):
             context_actions,
             context_next_states,
         ) = rollin_mdp(env, rollin_type=config['rollin_type'])
-        
-        query_state = context_next_states[-1] #query_state is set to be the state after the last context state
+
+        query_state = context_states[-1] #first query state, this is equivalent to context_next_states[-2]
+        query_action = context_actions[-1] #first query action
+        query_next_state = context_next_states[-1] #second query state
         query_true_EP = env.opt_action(query_state) #True optimal choice prob vector at the query state
-        query_action = np.random.choice([0, 1], p=query_true_EP) #The target action chosen according to true optimal choice prob 
+        query_next_true_EP = env.opt_action(query_next_state) #True EP at the query state
+        query_next_action = np.random.choice([0, 1], p=query_next_true_EP) #The target action chosen according to true optimal choice prob 
         query_true_Q = env.Q[query_state] #Q value at the query state
+        query_next_true_Q = env.Q[query_next_state]
 
         
         
         traj = {
             'query_state': query_state,
             'query_action': query_action,
-            'context_states': context_states,
-            'context_actions': context_actions,
-            'context_next_states': context_next_states,
+            'query_next_state': query_next_state,
+            'query_next_action': query_next_action,
+            'context_states': context_states[:-1], #context states are the states from 0 to H-1
+            'context_actions': context_actions[:-1], #context actions are the actions from 0 to H-1
+            'context_next_states': context_next_states[:-1], #context next states are the states from 1 to H
             'busType': env.type,
-            'query_true_EP': query_true_EP, #True EP at the query state, of dimension 2
-            'query_true_Q': query_true_Q, #True Q at the query state, of dimension 2
+            'query_true_EP': query_true_EP, #True EP at the query state 1, of dimension 2
+            'query_next_true_EP': query_next_true_EP, #True EP at the query state 2, of dimension 2
+            'query_true_Q': query_true_Q, #True Q at the query state 1, of dimension 2
+            'query_next_true_Q': query_next_true_Q, #True Q at the query state 2, of dimension 2
         }
 
         trajs.append(traj)
