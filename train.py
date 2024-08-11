@@ -463,7 +463,7 @@ def train(config):
             )
 
             #boundary condition loss (r(s,0)=0)
-            boundary_loss = MSE_loss_fn(pred_r_values_reshaped[:, 0], torch.zeros_like(pred_r_values_reshaped[:, 0]))
+            boundary_loss = MSE_loss_fn(pred_r_values_reshaped[:, 1], (-5)*torch.zeros_like(pred_r_values_reshaped[:, 1]))
 
             loss = ce_loss + bellman_loss + boundary_loss
             optimizer.zero_grad() #clear previous gradients
