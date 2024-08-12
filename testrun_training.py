@@ -20,13 +20,16 @@ def run_training():
         "dropout": 0,
         "test": False,
         "store_gpu": True,
-        "num_epochs": 5,
-        "batch_size": 64
+        "num_epochs": 500,
+        "batch_size": 64,
+        "loss_ratio": 10,
+        "infR": True,
+
     }
 
     # Experiments
     experiments = [
-        {"num_trajs": 5000}
+        {"num_trajs": 500}
     ]
 
     for exp in experiments:

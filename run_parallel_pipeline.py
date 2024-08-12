@@ -6,7 +6,7 @@
 #Kill all screens with screen -X quit
 
 #Run this code with 
-# python3 run_parallel_pipeline.py --config configs/zurcher_config_240725_1.json > main_output.log 2>&1 &
+# python3 run_parallel_pipeline.py --config configs/zurcher_config_240811.json > main_output.log 2>&1 &
 
 import torch
 import argparse
@@ -15,29 +15,32 @@ import collect_data_IRL
 import train
 import ray
 
-@ray.remote(num_gpus=1)
+@ray.remote(num_gpus=0.5)
 def run_data_generation_and_training(config):
-    # Check for available GPU
+    import os
+    
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA is not available. Please ensure you have a CUDA-compatible GPU.")
     
-    # Get the current available GPU
+    # Increase GPU memory allocation
+    torch.cuda.set_per_process_memory_fraction(0.25, device=None)
+    
     available_gpu = torch.cuda.current_device()
 
-    # Create a string of all experiment_config elements
     exp_config_str = ", ".join([f"{k}={v}" for k, v in config.items() if k not in ['global_config', 'training_config', 'zurcher_config']])
 
-    # Log the start of data generation
-    with open("main_output.log", "a") as log:
-        log.write(f"Experiment config ({exp_config_str}): Starting data generation\n")
+    def log_message(message):
+        with open("main_output.log", "a") as log:
+            log.write(f"PID {os.getpid()} - GPU {available_gpu} - {message}\n")
 
-    # Data generation
+    log_message(f"Experiment config ({exp_config_str}): Starting data generation")
+    log_message(f"Using GPU: {torch.cuda.get_device_name(available_gpu)}")
+    log_message(f"Allocated GPU memory: {torch.cuda.memory_allocated(available_gpu) / 1e9:.2f} GB")
+
     collect_data_IRL.generate(config)
     
-    # Log the completion of data generation and start of training
-    with open("main_output.log", "a") as log:
-        log.write(f"Experiment config ({exp_config_str}): Completed data generation\n")
-        log.write(f"Experiment config ({exp_config_str}): Starting training\n")
+    log_message(f"Experiment config ({exp_config_str}): Completed data generation")
+    log_message(f"Experiment config ({exp_config_str}): Starting training")
     
     # Training
     train.train(config)
