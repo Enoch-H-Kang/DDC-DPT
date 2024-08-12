@@ -256,13 +256,24 @@ def generate(config):
     config_train = {**config, 'num_trajs': num_train_trajs}
     config_test = {**config, 'num_trajs': config['num_trajs'] - num_train_trajs}
     
+    env_instance = ZurcherEnv(type = 0, **config)
+    train_filepath = env_instance.build_filepaths('train')
+    test_filepath = env_instance.build_filepaths('test')
+
+    if os.path.exists(train_filepath) and os.path.exists(test_filepath):
+        print(f"Data files already exist for the current configuration:")
+        print(f"Train file: {train_filepath}")
+        print(f"Test file: {test_filepath}")
+        print("Skipping data generation.")
+        return
+
+    print("Generating new data...")
     train_trajs = generate_Zurcher_histories(config_train)
     test_trajs = generate_Zurcher_histories(config_test)
    
 
-    env_instance = ZurcherEnv(type = 0, **config)
-    train_filepath = env_instance.build_filepaths('train')
-    test_filepath = env_instance.build_filepaths('test')
+    
+    
     
 
     if not os.path.exists('datasets'):

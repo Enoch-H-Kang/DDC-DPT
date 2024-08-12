@@ -244,7 +244,9 @@ def build_log_filename(config):
     """
     filename = (f"zurcher_num_trajs{config['num_trajs']}"
                 f"_beta{config['beta']}_theta{config['theta']}"
-                f"_numTypes{config['numTypes']}_H{config['H']}_{config['rollin_type']}")
+                f"_numTypes{config['numTypes']}_H{config['H']}_{config['rollin_type']}"
+                f"_loss_ratio{config['loss_ratio']}"
+                f"_infR{config['infR']}")
     return filename + ".log"
 
 def printw(message, config):
@@ -312,7 +314,9 @@ def train(config):
         'dropout': config['dropout'],
         'test': False,
         'store_gpu': True,
-        'H': config['H']
+        'H': config['H'],
+        'loss_ratio': config['loss_ratio'],
+        'infR': config['infR']
     }
     model = Transformer(model_config).to(device)
 
@@ -323,6 +327,8 @@ def train(config):
 
     # Training loop
     train_loss = []
+    train_be_loss = []
+    train_ce_loss = []
     test_loss = []
     test_full_loss = []
     test_Q_MSE_loss = []
@@ -387,8 +393,10 @@ def train(config):
                 normalized_full_pred_q_values = full_pred_q_values - min_q_values
 
                 if i == 0: #i=0 means the first batch                   
-                    print(normalized_true_Qs)
-                    print(normalized_full_pred_q_values)
+                    #print(normalized_true_Qs)
+                    printw(f"True Q values: {query_true_Qs}", config)
+                    #print(normalized_full_pred_q_values)
+                    printw(f"Predicted Q values: {full_pred_q_values}", config)
                 
                 
                 Q_MSE_loss = MSE_loss_fn(normalized_true_Qs, normalized_full_pred_q_values)
@@ -411,11 +419,16 @@ def train(config):
         
         # Training
         epoch_train_loss = 0.0
+        epoch_train_be_loss = 0.0
+        epoch_train_ce_loss = 0.0
         start_time = time.time()
 
         for i, batch in enumerate(train_loader):
             print(f"Batch {i} of {len(train_loader)}", end='\r')
             batch = {k: v.to(device) for k, v in batch.items()}
+
+            ##(s,a,s',a') pair printout for sanity check
+            
             
             #GPT2 implements "causal masking", i.e., output at period k can only depend on inputs at period 0, ..., k
             pred_q_values, pred_q_values_next, pred_r_values = model(batch) #dimension is (batch_size, horizon, action_dim)
@@ -429,7 +442,7 @@ def train(config):
             pred_q_values_reshaped = pred_q_values.reshape(-1, pred_q_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
             pred_r_values_reshaped = pred_r_values.reshape(-1, pred_r_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
 
-            ### Q(s,a) and r(s,a) for the true actions
+            ### Q(s,a) and r(s,a) for each batch
             chosen_q_values_reshaped = pred_q_values_reshaped[
                 torch.arange(pred_q_values_reshaped.size(0)), true_actions_reshaped
             ]
@@ -437,7 +450,9 @@ def train(config):
                 torch.arange(pred_r_values_reshaped.size(0)), true_actions_reshaped
             ]
 
-            ### Q(s',a') and p(s',a') 
+            
+
+            ### Q(s',a') and p(s',a') for each batch
             pred_q_values_nextstate_reshaped = pred_q_values_next.reshape(-1, pred_q_values_next.shape[-1]) #dimension is (batch_size*horizon, action_dim)
             prob_nextstate = F.softmax(pred_q_values_nextstate_reshaped, dim=1) #dimension is (batch_size*horizon, action_dim)
             ## get a' 
@@ -457,24 +472,41 @@ def train(config):
             #CrossEntropy loss of p(s,a)
             ce_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #The computed loss is a kind of regret of cross entropy loss until horizon 
 
-            #computation of bellman error of the batch (Q(s,a)-r(s,a)-beta*(Q(s',a')-log(p(s',a'))))
-            bellman_loss = MAE_loss_fn(
-                chosen_q_values_reshaped, chosen_r_values_reshaped + config['beta'] * (chosen_q_values_nextstate_reshaped - torch.log(chosen_prob_nextstate_reshaped))
-            )
+            if config['infR']: # Direct inference of r function
+                #computation of bellman error of the batch (Q(s,a)-r(s,a)-beta*(Q(s',a')-log(p(s',a'))))
+                bellman_loss = MAE_loss_fn(
+                    chosen_q_values_reshaped, chosen_r_values_reshaped + config['beta'] * (chosen_q_values_nextstate_reshaped + np.euler_gamma-  torch.log(chosen_prob_nextstate_reshaped))
+                )
+                #boundary condition loss (r(s,0)=0)+
+                boundary_loss = MAE_loss_fn(pred_r_values_reshaped[:, 1], (-5)*torch.ones_like(pred_r_values_reshaped[:, 1]))
+                loss = ce_loss + config['loss_ratio']*(bellman_loss + boundary_loss)
+            else: # BE is applied only for regularization
+                #Bellman error for batch size*horizon
+                bellman_error = chosen_q_values_reshaped + 5 - config['beta'] * (chosen_q_values_nextstate_reshaped + np.euler_gamma - torch.log(chosen_prob_nextstate_reshaped))
+                #Exclude the action 0 from computing the Bellman error. Only count action 1's Bellman error for the loss
+                bellman_error_0 = torch.where(true_actions_reshaped == 0, 0, bellman_error)
+                bellman_loss = MAE_loss_fn(bellman_error_0, torch.zeros_like(bellman_error_0))
+                loss = ce_loss + config['loss_ratio']*bellman_loss
+            
+            
 
-            #boundary condition loss (r(s,0)=0)
-            boundary_loss = MSE_loss_fn(pred_r_values_reshaped[:, 1], (-5)*torch.zeros_like(pred_r_values_reshaped[:, 1]))
-
-            loss = ce_loss + bellman_loss + boundary_loss
+            
             optimizer.zero_grad() #clear previous gradients
             
             loss.backward()
             optimizer.step()
             epoch_train_loss += loss.item() / config['H']
+            epoch_train_be_loss += bellman_loss.item() / config['H']
+            epoch_train_ce_loss += ce_loss.item() / config['H']
 
         train_loss.append(epoch_train_loss / len(train_dataset))
+        train_be_loss.append(epoch_train_be_loss / len(train_dataset))
+        train_ce_loss.append(epoch_train_ce_loss / len(train_dataset))
         end_time = time.time()
         printw(f"\tTrain loss: {train_loss[-1]}", config)
+        printw(f"\tBE loss: {train_be_loss[-1]}", config)
+        printw(f"\tCE loss: {train_ce_loss[-1]}", config)
+
         printw(f"\tTrain time: {end_time - start_time}", config)
 
 
@@ -482,15 +514,17 @@ def train(config):
         
         if (epoch + 1) % 10000 == 0:
             torch.save(model.state_dict(),
-                       f'models/{build_model_filename(config)}_epoch{epoch+1}.pt')
+                       f'models/{build_log_filename(config)}_epoch{epoch+1}.pt')
 
         if (epoch + 1) % 5 == 0:
             plt.figure(figsize=(12, 8))
             plt.subplot(2, 1, 1) #subplot in a 2x1 grid, and selects the first (top) subplot
             plt.yscale('log')
             plt.xlabel('epoch')
-            plt.ylabel('Cross-Entropy Loss')
+            plt.ylabel('Loss')
             plt.plot(train_loss[1:], label="Train Loss")
+            plt.plot(train_be_loss[1:], label="Bellman Error Loss")
+            plt.plot(train_ce_loss[1:], label="Cross-Entropy Loss")
             plt.plot(test_loss[1:], label="Test Loss")
             plt.plot(test_full_loss[1:], label="Full Context Test Loss")
             plt.legend()
