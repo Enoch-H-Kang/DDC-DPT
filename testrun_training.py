@@ -8,7 +8,7 @@ def run_training():
         "beta": 0.95,
         "H": 100,
         "maxMileage": 10,
-        "numTypes": 1,
+        "numTypes": 4,
         "rollin_type": "expert",
         "theta": [1, 5, 1],
         "seed": 1,
@@ -23,13 +23,13 @@ def run_training():
         "num_epochs": 500,
         "batch_size": 64,
         "loss_ratio": 10,
-        "infR": False,
+        "infR": True,
 
     }
 
     # Experiments
     experiments = [
-        {"num_trajs": 500}
+        {"num_trajs": 10000}
     ]
 
     for exp in experiments:

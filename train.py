@@ -51,6 +51,7 @@ class Dataset(torch.utils.data.Dataset):
         query_next_true_EPs = []
         query_true_Qs = []
         query_next_true_Qs = []
+        busTypes = []
 
         for traj in self.trajs:
             context_states.append(traj['context_states'])
@@ -65,6 +66,8 @@ class Dataset(torch.utils.data.Dataset):
             query_next_true_EPs.append(traj['query_next_true_EP'])
             query_true_Qs.append(traj['query_true_Q'])  
             query_next_true_Qs.append(traj['query_next_true_Q'])
+            busTypes.append(traj['busType'])
+
 
         context_states = np.array(context_states)
         context_actions = np.array(context_actions)
@@ -93,7 +96,8 @@ class Dataset(torch.utils.data.Dataset):
             'query_true_EPs': Dataset.convert_to_tensor(query_true_EPs, store_gpu=self.store_gpu),
             'query_next_true_EPs': Dataset.convert_to_tensor(query_next_true_EPs, store_gpu=self.store_gpu),
             'query_true_Qs': Dataset.convert_to_tensor(query_true_Qs, store_gpu=self.store_gpu),
-            'query_next_true_Qs': Dataset.convert_to_tensor(query_next_true_Qs, store_gpu=self.store_gpu)
+            'query_next_true_Qs': Dataset.convert_to_tensor(query_next_true_Qs, store_gpu=self.store_gpu),
+            'busTypes': Dataset.convert_to_tensor(busTypes, store_gpu=self.store_gpu)
         }
         
         self.zeros = np.zeros(
@@ -120,7 +124,8 @@ class Dataset(torch.utils.data.Dataset):
             'query_next_true_EPs': self.dataset['query_next_true_EPs'][index],
             'query_true_Qs': self.dataset['query_true_Qs'][index],
             'query_next_true_Qs': self.dataset['query_next_true_Qs'][index],
-            'zeros': self.zeros
+            'zeros': self.zeros,
+            'busTypes': self.dataset['busTypes'][index]
         }
 
         if self.shuffle:
@@ -472,9 +477,10 @@ def train(config):
     
             #CrossEntropy loss of p(s,a)
             ce_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #The computed loss is a kind of regret of cross entropy loss until horizon 
-            types = batch['busType'] #dimension is (batch_size)
+            types = batch['busTypes'] #dimension is (batch_size)
             theta = config['theta']
-            pivot_rewards = theta[2]*types+theta[1]
+            pivot_rewards = (-1)*(theta[2]*types+theta[1]) #dimension is (batch_size,)
+            
             pivot_rewards = pivot_rewards.unsqueeze(1).repeat(1, pred_q_values_next.shape[1]) #dimension is (batch_size, horizon)
             pivot_rewards_reshaped = pivot_rewards.reshape(-1) #dimension is (batch_size*horizon,)
             
@@ -485,11 +491,11 @@ def train(config):
                 ))
                 #boundary condition loss (r(s,0)=0)+
                 
-                boundary_loss = MAE_loss_fn(pred_r_values_reshaped[:, 1], (-5)*torch.ones_like(pred_r_values_reshaped[:, 1]))
+                boundary_loss = MAE_loss_fn(pred_r_values_reshaped[:, 1], pivot_rewards_reshaped)
                 loss = ce_loss + config['loss_ratio']*(value_loss + boundary_loss)
             else: # Regularization
                 #Bellman error for batch size*horizon
-                td_error = chosen_q_values_reshaped + 5 - config['beta'] * (chosen_q_values_nextstate_reshaped + np.euler_gamma - torch.log(chosen_prob_nextstate_reshaped))
+                td_error = chosen_q_values_reshaped + pivot_rewards_reshaped - config['beta'] * (chosen_q_values_nextstate_reshaped + np.euler_gamma - torch.log(chosen_prob_nextstate_reshaped))
                 #Exclude the action 0 from computing the Bellman error. Only count action 1's Bellman error for the loss
                 td_error_0 = torch.where(true_actions_reshaped == 0, 0, td_error)
                 #bellman_loss = MAE_loss_fn(bellman_error_0, torch.zeros_like(bellman_error_0))

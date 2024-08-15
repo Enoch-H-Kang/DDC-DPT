@@ -2,3 +2,6 @@
 /figs
 /models/
 /train_output.log
+/logs
+main_output.log
+pipeline_output.log
