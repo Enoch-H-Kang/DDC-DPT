@@ -6,7 +6,7 @@
 #Kill all screens with screen -X quit
 
 #Run this code with 
-# python3 run_parallel_pipeline.py --config configs/zurcher_config_240811.json > main_output.log 2>&1 &
+# python3 run_parallel_pipeline.py --config configs/zurcher_config_240813.json > main_output.log 2>&1 &
 
 import torch
 import argparse
