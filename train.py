@@ -495,7 +495,7 @@ def train(config):
                 loss = ce_loss + config['loss_ratio']*(value_loss + boundary_loss)
             else: # Regularization
                 #Bellman error for batch size*horizon
-                td_error = chosen_q_values_reshaped + pivot_rewards_reshaped - config['beta'] * (chosen_q_values_nextstate_reshaped + np.euler_gamma - torch.log(chosen_prob_nextstate_reshaped))
+                td_error = chosen_q_values_reshaped - pivot_rewards_reshaped - config['beta'] * (chosen_q_values_nextstate_reshaped + np.euler_gamma - torch.log(chosen_prob_nextstate_reshaped))
                 #Exclude the action 0 from computing the Bellman error. Only count action 1's Bellman error for the loss
                 td_error_0 = torch.where(true_actions_reshaped == 0, 0, td_error)
                 #bellman_loss = MAE_loss_fn(bellman_error_0, torch.zeros_like(bellman_error_0))
