@@ -23,7 +23,7 @@ def run_training():
         "num_epochs": 500,
         "batch_size": 64,
         "loss_ratio": 10,
-        "infR": True,
+        "infR": False,
 
     }
 
