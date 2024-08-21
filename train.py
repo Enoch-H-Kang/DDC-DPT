@@ -177,7 +177,7 @@ class Transformer(nn.Module):
         self.pred_q_values.bias.data.fill_(-40)
         self.pred_r_values = nn.Linear(self.n_embd, 2)
         self.pred_r_values.bias.data.fill_(-1)
-        self.pred_next_v = nn.Linear(self.n_embd, 1)
+        self.pred_next_v = nn.Linear(self.n_embd, 2) # V(s')|s,a is 2d for each state
         self.pred_next_v.bias.data.fill_(-40)
         
 
@@ -458,9 +458,8 @@ def train(config):
             true_actions_reshaped = true_actions.reshape(-1)  #dimension is (batch_size*horizon,)
             pred_q_values_reshaped = pred_q_values.reshape(-1, pred_q_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
             pred_r_values_reshaped = pred_r_values.reshape(-1, pred_r_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
-            pred_vnext_values_reshaped = pred_vnext_values.reshape(-1, pred_vnext_values.shape[-1]) #dimension is (batch_size*horizon, 1)
-            pred_vnext_values_reshaped = pred_vnext_values_reshaped.squeeze(1) #dimension is (batch_size*horizon,)
-
+            pred_vnext_values_reshaped = pred_vnext_values.reshape(-1, pred_vnext_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
+           
             ### Q(s,a) and r(s,a) for each batch
             chosen_q_values_reshaped = pred_q_values_reshaped[
                 torch.arange(pred_q_values_reshaped.size(0)), true_actions_reshaped
@@ -468,8 +467,10 @@ def train(config):
             chosen_r_values_reshaped = pred_r_values_reshaped[
                 torch.arange(pred_r_values_reshaped.size(0)), true_actions_reshaped
             ]
-
-            
+            chosen_vnext_values_reshaped = pred_vnext_values_reshaped[
+                torch.arange(pred_vnext_values_reshaped.size(0)), true_actions_reshaped
+            ]
+            #dimension of chosen_q_values_reshaped is (batch_size*horizon,)
 
             ### Q(s',a') and p(s',a') for each batch
             pred_q_values_nextstate_reshaped = pred_q_values_next.reshape(-1, pred_q_values_next.shape[-1]) #dimension is (batch_size*horizon, action_dim)
@@ -495,7 +496,7 @@ def train(config):
             pivot_rewards = pivot_rewards.unsqueeze(1).repeat(1, pred_q_values_next.shape[1]) #dimension is (batch_size, horizon)
             pivot_rewards_reshaped = pivot_rewards.reshape(-1) #dimension is (batch_size*horizon,)
             
-            #V(s') = Q(s',a')+gamma-log(p(s',a'))
+            #V(s')|s,a = Q(s',a')-log(p(s',a'))
             vnext_reshaped = chosen_q_values_nextstate_reshaped + np.euler_gamma-  torch.log(chosen_prob_nextstate_reshaped)
             #dimension is (batch_size*horizon,)
             
@@ -521,11 +522,12 @@ def train(config):
                 
             ### Regularization
             else:
-                vnext_loss = MSE_loss_fn(vnext_reshaped.clone(), pred_vnext_values_reshaped)
+                
+                vnext_loss = MSE_loss_fn(vnext_reshaped.clone(), chosen_vnext_values_reshaped)
                 
                 td_error = chosen_q_values_reshaped - pivot_rewards_reshaped - config['beta'] * vnext_reshaped
                 #V(s')-E[V(s')]
-                vnext_dev = (vnext_reshaped - pred_vnext_values_reshaped.clone())
+                vnext_dev = (vnext_reshaped - chosen_vnext_values_reshaped.clone())
                 #Bi-conjugate trick to compute the Bellman error
                 be_error_sq = td_error**2 -config['beta']**2 * vnext_dev**2 
                 #Exclude the action 0 from computing the Bellman error. Only count action 1's Bellman error for the loss
@@ -533,8 +535,6 @@ def train(config):
                 be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))  
                 
                 ce_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #The computed loss is a kind of regret of cross entropy loss until horizon 
-                #print("CE loss: ", ce_loss)
-                #print("BE loss: ", be_loss)
                 loss = ce_loss + config['loss_ratio']*be_loss
                 
                 if i %2 == 0: 
