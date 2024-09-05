@@ -81,15 +81,15 @@ class ZurcherEnv(Environment):
         Input: None
         Output: Approximation of Q function. 
         '''
-        U = self._get_util()
+        U = self._get_util() #Dimension is (states, actions)
         gamma = np.euler_gamma
-        Q = np.zeros((len(self.states), 2)) #row: state, column: action
+        Q = np.zeros((len(self.states), 2)) #Dimension is (states, actions)
         dist = 1
         iter = 0
         while dist > tol:
-            V = gamma + logsumexp(Q, axis=1)
+            V = gamma + logsumexp(Q, axis=1) #dimension is (stats,)
             # Ensure expV corresponds to V but shifts the last element for replacement decision logic
-            expV = np.append(V[1:], V[-1])  # As mileage does not increase after it reaches max, the last element is repeated
+            expV = np.append(V[1:], V[-1])  # As mileage does not increase after it reaches max, the last element is repeated. Dimension is (states,)
             Q1 = np.zeros_like(Q)  # initialize Q
             # Compute value function for maintenance (not replacing)
             Q1[:, 0] = U[:, 0] + self.beta * expV  # action-specific value function of not replacing

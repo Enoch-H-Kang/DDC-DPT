@@ -21,15 +21,14 @@
   "zurcher_config": {
     "maxMileage": 10,
     "rollin_type": "expert",
-    "theta": [1, 5, 1],
-    "num_trajs": 5000
+    "theta": [1, 5, 1]
   },
   "experiments": [
     {
-      "loss_ratio": 0.51, "infR": 0, "numTypes": 1
+      "loss_ratio": 50, "infR": 0, "numTypes": 1,  "num_trajs": 5000
     },
     {
-      "loss_ratio": 0.51, "infR": 1, "numTypes": 1
+      "loss_ratio": 50, "infR": 0, "numTypes": 1,  "num_trajs": 10000
     }
   ]
 }

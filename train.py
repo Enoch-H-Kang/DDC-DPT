@@ -174,11 +174,11 @@ class Transformer(nn.Module):
             2 * self.state_dim + self.action_dim, self.n_embd)
         
         self.pred_q_values = nn.Linear(self.n_embd, 2)
-        self.pred_q_values.bias.data.fill_(-40)
+        self.pred_q_values.bias.data.fill_(-35)
         self.pred_r_values = nn.Linear(self.n_embd, 2)
         self.pred_r_values.bias.data.fill_(-1)
-        self.pred_next_v = nn.Linear(self.n_embd, 2) # V(s')|s,a is 2d for each state
-        self.pred_next_v.bias.data.fill_(-40)
+        self.pred_next_v = nn.Linear(self.n_embd, 2) # E[V(s')|s,a] is 2d for each state
+        self.pred_next_v.bias.data.fill_(-35)
         
 
     def forward(self, x):
@@ -222,7 +222,15 @@ class Transformer(nn.Module):
         return preds[:, 1:, :], preds_next[:, 1:, :], preds_r[:, 1:, :], preds_v_next[:, 1:, :] #The first horizon input is spared for the query state
 
 
-
+def loss_ratio(x, start_value, end_value, transition_point=100):
+    if x < 1:
+        return start_value  # For x < 1, return the start value
+    elif 1 <= x <= transition_point:
+        # Linear interpolation between (1, start_value) and (transition_point, end_value)
+        slope = (end_value - start_value) / (transition_point - 1)
+        return start_value + slope * (x - 1)
+    else:  # x > transition_point
+        return end_value
 
 def build_data_filename(config, mode):
     """
@@ -447,9 +455,10 @@ def train(config):
             pred_q_values, pred_q_values_next, pred_r_values, pred_vnext_values = model(batch) #dimension is (batch_size, horizon, action_dim)
             
             true_actions = batch['query_actions'].long() #dimension is (batch_size)
+            batch_size = true_actions.shape[0]
             #in torch, .long() converts the tensor to int64. CrossEntropyLoss requires the target to be int64.
             
-            #count number of elements that satisfies true_actions == 1
+            #count number of batches that satisfies true_actions == 1
             count_nonzero = torch.count_nonzero(true_actions == 1)
             count_nonzero_pos = torch.max(count_nonzero, torch.tensor(1))
 
@@ -460,13 +469,14 @@ def train(config):
             pred_r_values_reshaped = pred_r_values.reshape(-1, pred_r_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
             pred_vnext_values_reshaped = pred_vnext_values.reshape(-1, pred_vnext_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
            
-            ### Q(s,a) and r(s,a) for each batch
+            ### Q(s,a), r(s,a), E[V(s'|s,a)] for each batch
             chosen_q_values_reshaped = pred_q_values_reshaped[
                 torch.arange(pred_q_values_reshaped.size(0)), true_actions_reshaped
             ]
             chosen_r_values_reshaped = pred_r_values_reshaped[
                 torch.arange(pred_r_values_reshaped.size(0)), true_actions_reshaped
             ]
+            #E[V(s'|s,a)]
             chosen_vnext_values_reshaped = pred_vnext_values_reshaped[
                 torch.arange(pred_vnext_values_reshaped.size(0)), true_actions_reshaped
             ]
@@ -474,20 +484,12 @@ def train(config):
 
             ### Q(s',a') and p(s',a') for each batch
             pred_q_values_nextstate_reshaped = pred_q_values_next.reshape(-1, pred_q_values_next.shape[-1]) #dimension is (batch_size*horizon, action_dim)
-            prob_nextstate = F.softmax(pred_q_values_nextstate_reshaped, dim=1) #dimension is (batch_size*horizon, action_dim)
+            logsumexp_nextstate = torch.logsumexp(pred_q_values_nextstate_reshaped, dim=1) #dimension is (batch_size*horizon,)
             ## get a' 
             query_next_actions = batch['query_next_actions'].long() #dimension is (batch_size)
             query_next_actions = query_next_actions.unsqueeze(
                 1).repeat(1, pred_q_values_next.shape[1]) #dimension is (batch_size, horizon)
-            query_next_actions_reshaped = query_next_actions.reshape(-1) #dimension is (batch_size*horizon,)
             #Q(s',a') 
-            chosen_q_values_nextstate_reshaped = pred_q_values_nextstate_reshaped[
-                torch.arange(pred_q_values_nextstate_reshaped.size(0)), query_next_actions_reshaped
-            ] #dimension is (batch_size*horizon,)
-            #p(s',a')
-            chosen_prob_nextstate_reshaped = prob_nextstate[
-                torch.arange(prob_nextstate.size(0)), query_next_actions_reshaped
-            ] #dimension is (batch_size*horizon,)
             
             types = batch['busTypes'] #dimension is (batch_size)
             theta = config['theta']
@@ -496,9 +498,9 @@ def train(config):
             pivot_rewards = pivot_rewards.unsqueeze(1).repeat(1, pred_q_values_next.shape[1]) #dimension is (batch_size, horizon)
             pivot_rewards_reshaped = pivot_rewards.reshape(-1) #dimension is (batch_size*horizon,)
             
-            #V(s')|s,a = Q(s',a')-log(p(s',a'))
-            vnext_reshaped = chosen_q_values_nextstate_reshaped + np.euler_gamma-  torch.log(chosen_prob_nextstate_reshaped)
-            #dimension is (batch_size*horizon,)
+            #V(s') = logsumexp Q(s',a') + gamma. #dimension is (batch_size*horizon,)
+            vnext_reshaped = np.euler_gamma + logsumexp_nextstate
+    
             
             ### Direct inference of r function, then value error minimization
             if config['infR']: 
@@ -522,20 +524,21 @@ def train(config):
                 
             ### Regularization
             else:
-                
                 vnext_loss = MSE_loss_fn(vnext_reshaped.clone(), chosen_vnext_values_reshaped)
                 
                 td_error = chosen_q_values_reshaped - pivot_rewards_reshaped - config['beta'] * vnext_reshaped
                 #V(s')-E[V(s')]
                 vnext_dev = (vnext_reshaped - chosen_vnext_values_reshaped.clone())
                 #Bi-conjugate trick to compute the Bellman error
-                be_error_sq = td_error**2 -config['beta']**2 * vnext_dev**2 
+                be_error_naive = td_error**2 -config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
                 #Exclude the action 0 from computing the Bellman error. Only count action 1's Bellman error for the loss
-                be_error_0 = torch.where(true_actions_reshaped == 0, 0, be_error_sq)
-                be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))  
+                be_error_0 = torch.where(true_actions_reshaped == 0, 0, be_error_naive)
+                #be_loss is normalized by the number of nonzero true-action batch numbers
+                be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))/count_nonzero_pos *batch_size
                 
                 ce_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #The computed loss is a kind of regret of cross entropy loss until horizon 
-                loss = ce_loss + config['loss_ratio']*be_loss
+                     #loss = ce_loss + config['loss_ratio']*be_loss
+                loss = ce_loss + loss_ratio(epoch, 0.5, config['loss_ratio'], 500) *be_loss
                 
                 if i %2 == 0: 
                     #V(s')-E[V(s')] minimization loss
