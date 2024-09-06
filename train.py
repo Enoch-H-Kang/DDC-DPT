@@ -526,8 +526,9 @@ def train(config):
             else:
                 vnext_loss = MSE_loss_fn(vnext_reshaped.clone(), chosen_vnext_values_reshaped)
                 
+                #Non-pivot actions will be removed anyways, so I just add pivot_rewards for all cases here
                 td_error = chosen_q_values_reshaped - pivot_rewards_reshaped - config['beta'] * vnext_reshaped
-                #V(s')-E[V(s')]
+                #V(s')-E[V(s')|s,a]
                 vnext_dev = (vnext_reshaped - chosen_vnext_values_reshaped.clone())
                 #Bi-conjugate trick to compute the Bellman error
                 be_error_naive = td_error**2 -config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
