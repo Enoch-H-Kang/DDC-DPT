@@ -202,10 +202,10 @@ def generate_Zurcher_histories(config):
         next_states_true_Qs = env.Q[next_states] #True Q at the query state 2, of dimension 2
         
         traj = {
-            'states': states, 
-            'actions': actions, #context actions are the actions from 0 to H-1
-            'next_states': next_states, #context next states are the states from 1 to H
-            'busType': env.type,
+            'states': states, #dimension is (H,) (if state dim is not 1, then it is (H, state_dim))
+            'actions': actions, #dimension is (H,)
+            'next_states': next_states, #dimension is (H,)
+            'busType': env.type, #dimension is (1,)
             'states_true_EPs': states_true_EPs, #True EP at the query state 1, of dimension 2
             'next_states_true_EPs': next_states_true_EPs, #True EP at the query state 2, of dimension 2
             'states_true_Qs': states_true_Qs, #True Q at the query state 1, of dimension 2

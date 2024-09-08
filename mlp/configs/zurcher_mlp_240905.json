@@ -1,0 +1,35 @@
+{
+  "global_config": {
+    "env": "zurcher",
+    "beta": 0.95,
+    "H": 100
+  },
+  "training_config": {
+  "lr": 0.001,
+  "h_size": 10,
+  "n_layer": 2,
+  "shuffle": true,
+  "seed": 1,
+  "test": false,
+  "store_gpu": true,
+  "num_epochs": 10000,
+  "batch_size": 64
+}
+,
+  "zurcher_config": {
+    "maxMileage": 10,
+    "rollin_type": "expert",
+    "theta": [1, 5, 1]
+  },
+  "experiments": [
+    {
+      "loss_ratio": 100, "infR": 0, "numTypes": 1,  "num_trajs": 5000
+    },
+    {
+      "loss_ratio": 250, "infR": 0, "numTypes": 1,  "num_trajs": 5000
+    },
+    {
+      "loss_ratio": 500, "infR": 0, "numTypes": 1,  "num_trajs": 5000
+    }
+  ]
+}
