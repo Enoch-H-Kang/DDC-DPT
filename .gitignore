@@ -5,3 +5,6 @@
 /logs
 main_output.log
 pipeline_output.log
+/mlp_exps/logs
+/mlp_exps/models
+/mlp_exps/figs
