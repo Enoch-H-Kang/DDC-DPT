@@ -366,7 +366,7 @@ def train(config):
             #V(s')-E[V(s')|s,a]
             vnext_dev = (vnext_reshaped - chosen_vnext_values_reshaped.clone())
             #Bi-conjugate trick to compute the Bellman error
-            be_error_naive = td_error**2# -config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
+            be_error_naive = td_error**2 -config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
             #Exclude the action 0 from computing the Bellman error. Only count action 1's Bellman error for the loss
             be_error_0 = torch.where(true_actions_reshaped == 0, 0, be_error_naive)
             #be_loss is normalized by the number of nonzero true-action batch numbers
@@ -391,10 +391,9 @@ def train(config):
             
             
             #loss = ce_loss + loss_ratio(epoch, 0, config['loss_ratio'], 500) *be_loss
-            #loss = ce_loss + lambda_dynamic *be_loss
             loss = ce_loss + loss_ratio(epoch, 0, lambda_dynamic, 500) *be_loss
             
-            if False:#i %2 == 0: 
+            if i %2 == 0: 
                 #V(s')-E[V(s')] minimization loss
                 D.backward()
                 vnext_optimizer.step() #we use separate optimizer for vnext
