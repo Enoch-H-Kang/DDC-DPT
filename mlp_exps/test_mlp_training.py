@@ -20,14 +20,14 @@ def run_mlp_training():
         "seed": 1,
         "test": False,
         "store_gpu": True,
-        "num_epochs": 1000,
+        "num_epochs": 20000,
         "layer_norm": False,
-        "loss_ratio": 100          
+        "loss_ratio": 1.111          
     }
 
     # Experiments
     experiments = [
-        {"num_trajs": 5000}
+        {"num_trajs": 10000}
     ]
 
     for exp in experiments:
