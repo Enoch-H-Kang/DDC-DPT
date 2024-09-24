@@ -238,7 +238,10 @@ def train(config):
     best_normalized_true_Qs = torch.tensor([])
     best_normalized_pred_q_values = torch.tensor([])
 
-    
+    alpha = 0.05  # Smoothing factor for moving average
+    mu_ce_loss, var_ce_loss = 0.0, 0.0
+    mu_be_loss, var_be_loss = 0.0, 0.0
+
     for epoch in tqdm(range(config['num_epochs']), desc="Training Progress"):
         # EVALUATION
         printw(f"Epoch: {epoch + 1}", config)
@@ -308,9 +311,6 @@ def train(config):
         
         torch.autograd.set_detect_anomaly(True)
         
-        alpha = 0.05  # Smoothing factor for moving average
-        mu_ce_loss, var_ce_loss = 0.0, 0.0
-        mu_be_loss, var_be_loss = 0.0, 0.0
         
         for i, batch in enumerate(train_loader):
             print(f"Batch {i} of {len(train_loader)}", end='\r')
@@ -387,8 +387,8 @@ def train(config):
             var_be_loss = alpha * (be_loss.item() - mu_be_loss) ** 2 + (1 - alpha) * var_be_loss
             
             ### Compute dynamic lambda (loss_ratio) based on variance
-            lambda_dynamic = (var_ce_loss ** 0.5) / (var_be_loss ** 0.5)
-            
+            #lambda_dynamic = (var_ce_loss ** 0.5) / (var_be_loss ** 0.5)
+            lambda_dynamic = (var_be_loss ** 0.5) / (var_ce_loss ** 0.5) 
             
             #loss = ce_loss + loss_ratio(epoch, 0, config['loss_ratio'], 500) *be_loss
             loss = ce_loss + loss_ratio(epoch, 0, lambda_dynamic, 500) *be_loss
