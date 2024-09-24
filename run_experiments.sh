@@ -7,7 +7,7 @@ timestamp=$(date +"%Y%m%d_%H%M%S")
 screen_name="experiment_run_${timestamp}"
 screen -dmS $screen_name bash -c "
     # Run the Python script
-    python3 run_parallel_pipeline.py --config configs/zurcher_config_240814.json > logs/main_output_${timestamp}.log 2>&1
+    python3 run_parallel_pipeline.py --config configs/zurcher_config_240909.json > logs/main_output_${timestamp}.log 2>&1
     
     # After the script finishes, display the contents of the experiment_pids.log file
     echo 'Experiment PIDs and Configurations:' >> logs/main_output_${timestamp}.log
