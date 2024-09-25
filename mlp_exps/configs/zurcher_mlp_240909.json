@@ -26,10 +26,7 @@
   },
   "experiments": [
     {
-      "loss_ratio": 1.01, "num_trajs": 10000
-    },
-    {
-      "loss_ratio": 1.0, "num_trajs": 5000
+      "loss_ratio": 0.5, "num_trajs": 10000
     }
   ]
 }
