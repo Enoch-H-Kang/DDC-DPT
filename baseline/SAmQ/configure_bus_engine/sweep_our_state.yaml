@@ -1,0 +1,38 @@
+program: main.py
+project: state-aggregation
+method: grid
+name: our+state
+parameters:
+  method: 
+    values:
+      ['our', 'state']
+  base-method:
+    values:
+      ['mle', 'pqr']
+  seed:
+    values:
+      - 0
+      - 1
+      - 10
+  n-steps:
+    values:
+      - 100
+  n-sample:
+    values:
+      #- 1000
+      - 5000
+      #- 1000
+  n-states-aggregated:
+    values:
+      - 5
+      - 10
+      - 50
+      - 100
+      #- 500
+      - 1000
+      #- 1500
+      - 2000
+      #- 2500
+      - 4000
+      #- 5001
+  

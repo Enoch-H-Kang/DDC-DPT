@@ -1,0 +1,35 @@
+program: main.py
+project: state-aggregation
+method: grid
+name: pqr_airline
+parameters:
+  method: 
+    values:
+      ['pqr']
+  seed:
+    values:
+      - 0
+      - 1
+      - 10
+  n-steps:
+    values:
+      - 100
+  n-sample:
+    values:
+      #- 1000
+      - 5000
+      #- 1000
+  env-name:
+    values:
+      - 'airline'
+  n-states-aggregated:
+    values:
+      - 0
+  base-method:
+    values:
+      ['None']
+  carr-id:
+    values:
+      [1,2,3,4,5,6,7,8,9,10,11,12]
+
+

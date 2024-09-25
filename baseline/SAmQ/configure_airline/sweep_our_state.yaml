@@ -1,0 +1,44 @@
+program: main.py
+project: state-aggregation
+method: grid
+name: our+state_airline
+parameters:
+  method: 
+    values:
+      ['our', 'state']
+  seed:
+    values:
+      - 0
+      - 1
+      - 10
+  n-steps:
+    values:
+      - 100
+  n-sample:
+    values:
+      #- 1000
+      - 5000
+      #- 1000
+  env-name:
+    values:
+      - 'airline'
+  n-states-aggregated:
+    values:
+      - 5
+      - 10
+      - 50
+      - 100
+      #- 500
+      - 1000
+      #- 1500
+      - 2000
+      #- 2500
+      - 4000
+      #- 5001
+      #- 1000  
+  base-method:
+    values:
+      ['pqr', 'mle']
+  carr-id:
+    values:
+      [1,2,3,4,5,6,7,8,9,10,11,12]

@@ -1,0 +1,27 @@
+program: main.py
+project: state-aggregation
+method: grid
+name: pqr
+parameters:
+  method: 
+    values:
+      ['pqr']
+  seed:
+    values:
+      - 0
+      - 1
+      - 10
+  n-steps:
+    values:
+      - 100
+  n-sample:
+    values:
+      #- 1000
+      - 5000
+      #- 1000
+  n-states-aggregated:
+    values:
+      - 0
+  base-method:
+    values:
+      ['None']
