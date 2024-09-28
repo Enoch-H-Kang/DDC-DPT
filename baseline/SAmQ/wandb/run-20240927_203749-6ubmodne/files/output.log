@@ -1,0 +1,17 @@
+[20:37:51] Log dir: data/bus_engine/ourdeltaNone/09-27-24_20.37.51_ekke
+[20:37:51] Generate Data - Soft Q
+  0%|                                                                                      | 0/200 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/ehwkang/DDC-DPT/baseline/SAmQ/main.py", line 162, in <module>
+    re_dict = run(parser.parse_args())
+  File "/home/ehwkang/DDC-DPT/baseline/SAmQ/main.py", line 40, in run
+    softq_dict = softq.train(n_epochs=args.n_steps*2, batch_size=args.batch_size, epoch_size=args.epoch_size,
+  File "/home/ehwkang/DDC-DPT/baseline/SAmQ/SAmQ/rl/softQ.py", line 59, in train
+    self.data = traj_online_rl_dataclass(self.env.get_data(epoch_size, 'expert'))
+  File "/home/ehwkang/DDC-DPT/baseline/SAmQ/SAmQ/env/bus_env.py", line 133, in get_data
+    re['r'].append(self.step(temp_a))
+  File "/home/ehwkang/DDC-DPT/baseline/SAmQ/SAmQ/env/bus_env.py", line 125, in step
+    self.s = self.transit_fn(self.s,a)
+  File "/home/ehwkang/DDC-DPT/baseline/SAmQ/SAmQ/env/bus_env.py", line 107, in transit_fn
+    print(f"s_next = {min(s + np.random.randint(1,5), self.xmax)}")
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()

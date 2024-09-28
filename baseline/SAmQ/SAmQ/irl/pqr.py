@@ -96,7 +96,10 @@ class pqr_aggregation():
             if notStop:
                 min_loss =epoch_loss
                 waiting = 0
+                if not os.path.exists(self.path):
+                    os.makedirs(self.path)
                 torch.save(self.q.state_dict(), self.path / 'q_best_model.pth')
+                assert os.path.exists(self.path / 'q_best_model.pth'), "Model file was not saved correctly!"
             else:
                 waiting+=1
             if waiting >patience:
@@ -118,6 +121,7 @@ class pqr_aggregation():
         min_loss = np.inf
         waiting = 0
         lossF = torch.nn.MSELoss()
+        print("Starting training Q_star")
         for epoch in tqdm(range(n_steps)):
             epoch_loss = 0
             count = 0
@@ -153,13 +157,18 @@ class pqr_aggregation():
             train_q_star_dict = {'Mean Training Loss for q_star':epoch_loss.item()/count,
                 'MSE for q_star (unknown in practice)':mse_q_star.item()/count,
                 'MSE for q (unknown in practice)':mse_q/count}
+            
             for k, value in train_q_star_dict.items():
                 writer.add_scalar('train_q/'+k, value, epoch)
             notStop = epoch_loss < min_loss
             if notStop:
                 min_loss =epoch_loss
                 waiting = 0
+                if not os.path.exists(self.path):
+                    os.makedirs(self.path)
+                print("Figuring out where the code stops")
                 torch.save(self.q_star.state_dict(), self.path/'q_star_best_model.pth') 
+                assert os.path.exists(self.path / 'q_star_best_model.pth'), "Model file was not saved correctly!"
             else:
                 waiting+=1
             if waiting >patience:
@@ -213,7 +222,10 @@ class pqr_aggregation():
             if notStop:
                 min_loss =epoch_loss
                 waiting = 0
+                if not os.path.exists(self.path):
+                    os.makedirs(self.path)
                 torch.save(self.r.state_dict(), self.path/'r_best_model.pth')
+                assert os.path.exists(self.path / 'r_best_model.pth'), "Model file was not saved correctly!"
             else:
                 waiting+=1
             if waiting >patience:
