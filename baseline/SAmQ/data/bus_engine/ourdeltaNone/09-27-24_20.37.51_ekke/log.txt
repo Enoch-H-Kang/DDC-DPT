@@ -1,2 +1,0 @@
-[20:37:51] Log dir: data/bus_engine/ourdeltaNone/09-27-24_20.37.51_ekke
-[20:37:51] Generate Data - Soft Q

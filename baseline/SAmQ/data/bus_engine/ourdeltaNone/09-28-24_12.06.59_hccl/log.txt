@@ -1,6 +1,0 @@
-[12:06:59] Log dir: data/bus_engine/ourdeltaNone/09-28-24_12.06.59_hccl
-[12:06:59] Generate Data - Soft Q
-[12:07:36] Final Bellman Error for softQ: 0.30902658626437185. Epochs: 46
-[12:07:36] Generate Data - Saving
-[12:07:38] Number of diferent states:123
-[12:07:38] Run PQR

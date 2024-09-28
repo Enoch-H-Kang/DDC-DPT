@@ -22,11 +22,13 @@
     "maxMileage": 10,
     "rollin_type": "expert",
     "theta": [1, 5, 1],
-    "numTypes": 1
+    "numTypes": 1,
+    "num_dummies": 0,
+    "dummy_dim": 5
   },
   "experiments": [
     {
-      "loss_ratio": 0.5, "num_trajs": 10000
+      "loss_ratio": 0.1, "num_trajs": 20000
     }
   ]
 }

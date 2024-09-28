@@ -12,13 +12,14 @@ def run_Zurcher_data_collection():
         "rollin_type": "expert",
         "theta": [1, 5, 1],
         "seed": 1,
-        "states_TF": [1, 0, 0, 0, 0]
+        "num_dummies": 0,
+        "dummy_dim": 5
         # Add any MLP-specific parameters here
     }
 
     # Experiments
     experiments = [
-        {"num_trajs": 500}
+        {"num_trajs": 100}
         #,{"num_trajs": 5000},
         #{"num_trajs": 10000}
     ]

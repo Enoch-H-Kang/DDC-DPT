@@ -10,6 +10,8 @@ import torch.nn as nn
 import json
 import sys
 from mlp import MLP
+from datetime import datetime
+
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -150,10 +152,14 @@ def build_log_filename(config):
     """
     Builds the filename for the log file.
     """
+    timestamp = datetime.now().strftime('%Y%m%d')
+    
     filename = (f"{config['env']}_num_trajs{config['num_trajs']}"
                 f"_dummies{config['num_dummies']}x{config['dummy_dim']}"
                 f"_beta{config['beta']}_theta{config['theta']}"
                 f"_numTypes{config['numTypes']}_H{config['H']}_{config['rollin_type']}")
+    filename += f'_{timestamp}'
+    
     return filename + ".log"
 
 def printw(message, config):
@@ -368,7 +374,7 @@ def train(config):
             #V(s')-E[V(s')|s,a]
             vnext_dev = (vnext_reshaped - chosen_vnext_values_reshaped.clone())
             #Bi-conjugate trick to compute the Bellman error
-            be_error_naive = td_error**2 -config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
+            be_error_naive = td_error**2-config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
             #Exclude the action 0 from computing the Bellman error. Only count action 1's Bellman error for the loss
             be_error_0 = torch.where(true_actions_reshaped == 0, 0, be_error_naive)
             #be_loss is normalized by the number of nonzero true-action batch numbers
@@ -389,11 +395,11 @@ def train(config):
             var_be_loss = alpha * (be_loss.item() - mu_be_loss) ** 2 + (1 - alpha) * var_be_loss
             
             ### Compute dynamic lambda (loss_ratio) based on variance
-            lambda_dynamic = (var_ce_loss ** 0.5) / (var_be_loss ** 0.5)
-            #lambda_dynamic = (var_be_loss ** 0.5) / (var_ce_loss ** 0.5) 
+            #lambda_dynamic = (var_ce_loss ** 0.5) / (var_be_loss ** 0.5) #S2
+            #lambda_dynamic = (var_be_loss ** 0.5) / (var_ce_loss ** 0.5) #S1, Only when gradient of CE is relatively smaller than gradient of BE, we increase the ratio
             
-            #loss = ce_loss + loss_ratio(epoch, 0, config['loss_ratio'], 500) *be_loss
-            loss = ce_loss + loss_ratio(epoch, 0, lambda_dynamic, 500) *be_loss
+            loss = ce_loss + loss_ratio(epoch, 0, config['loss_ratio'], 2000) *be_loss #S3
+            #loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, lambda_dynamic, 2000) *be_loss
             
             if i %2 == 0: 
                 #V(s')-E[V(s')] minimization loss

@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Ray tmp deletion: rm -rf /tmp/ray
 # Get the current timestamp
 timestamp=$(date +"%Y%m%d_%H%M%S")
 

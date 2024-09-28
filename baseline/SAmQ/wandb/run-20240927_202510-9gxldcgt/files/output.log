@@ -1,5 +1,0 @@
-[20:25:12] Log dir: data/bus_engine/ourdeltaNone/09-27-24_20.25.12_mgto
-[20:25:12] Generate Data - Soft Q
-State before transition: [ 0.  0. -5.]
-State after transition: [ 4.  4. -1.]
-  0%|                                                                                      | 0/200 [00:00<?, ?it/s]

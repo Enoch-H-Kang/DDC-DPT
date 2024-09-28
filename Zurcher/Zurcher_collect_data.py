@@ -132,15 +132,17 @@ class ZurcherEnv(Environment):
         # the prob of action 0 and the second element is the prob of action 1
         action = np.random.choice([0, 1], p=action_prob)
         if action == 0:
-            next_state = min(state + 1, self.xmax)
-            #reward = -self.theta[0] * state - self.type*self.theta[1]
+            #next state is sampled among 1,2,3,4 + current state
+            next_state = min(state + np.random.randint(1, 2), self.xmax)
+            
+        
         elif action == 1:
             next_state = 1
-            #reward = -self.theta[2]
+    
         else: 
             raise ValueError("Invalid action")
         self.state = next_state
-
+        print(f"current state: {state}, action: {action}, next state: {next_state}")
         return next_state, action
 
     def get_obs(self):

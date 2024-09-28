@@ -15,3 +15,5 @@ pipeline_output.log
 /Zurcher/datasets
 /Zurcher/outputs
 /Zurcher/models
+/baseline/SAmQ/data/
+/baseline/SAmQ/wandb/

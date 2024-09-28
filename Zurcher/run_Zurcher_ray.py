@@ -12,10 +12,12 @@ import torch
 import argparse
 import json
 import Zurcher_collect_data, Zurcher_train
+import ray
 
+@ray.remote(num_gpus=0.5)
 def run_data_generation_and_training(config):
     import os
-
+    
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA is not available. Please ensure you have a CUDA-compatible GPU.")
     
@@ -66,11 +68,17 @@ if __name__ == "__main__":
 
     experiments = full_config['experiments']
 
-    # Run each experiment sequentially
+    # Initialize Ray
+    ray.init()
+
+    # Submit tasks to Ray
+    results = []
     for experiment in experiments:
         # Merge configurations for each experiment
         config = {**global_config, **training_config, **zurcher_config, **experiment}
-        result = run_data_generation_and_training(config)
-        print(result)
+        results.append(run_data_generation_and_training.remote(config))
+
+    # Wait for all tasks to complete
+    ray.get(results)
 
     print("All data generation and training processes are complete.")
