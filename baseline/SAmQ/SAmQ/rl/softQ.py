@@ -56,7 +56,7 @@ class soft_q_iteration():
             epoch_loss = 0
             count = 0
             # Each iteration, re generate data. Thus no need for testing.
-            self.data = traj_online_rl_dataclass(self.env.get_data(epoch_size))
+            self.data = traj_online_rl_dataclass(self.env.get_data(epoch_size, 'expert'))
             dataloaders = DataLoader(self.data, batch_size=batch_size, shuffle=True, num_workers=num_workers)
             
             for r, s, a, s_next in dataloaders:

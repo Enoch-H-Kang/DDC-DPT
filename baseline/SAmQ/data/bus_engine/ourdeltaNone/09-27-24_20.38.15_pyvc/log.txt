@@ -1,0 +1,2 @@
+[20:38:15] Log dir: data/bus_engine/ourdeltaNone/09-27-24_20.38.15_pyvc
+[20:38:15] Generate Data - Soft Q

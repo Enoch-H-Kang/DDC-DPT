@@ -1,0 +1,2 @@
+[20:04:03] Log dir: data/bus_engine/ourdeltaNone/09-27-24_20.04.03_zmhi
+[20:04:03] Generate Data - Soft Q

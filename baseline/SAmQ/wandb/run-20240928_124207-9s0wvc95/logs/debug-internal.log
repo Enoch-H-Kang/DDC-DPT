@@ -1,0 +1,188 @@
+2024-09-28 12:42:07,335 INFO    StreamThr :409662 [internal.py:wandb_internal():88] W&B internal server running at pid: 409662, started at: 2024-09-28 12:42:07.334119
+2024-09-28 12:42:07,339 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: status
+2024-09-28 12:42:07,341 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: status
+2024-09-28 12:42:07,344 DEBUG   SenderThread:409662 [sender.py:send():303] send: header
+2024-09-28 12:42:07,344 INFO    WriterThread:409662 [datastore.py:open_for_write():75] open: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/run-9s0wvc95.wandb
+2024-09-28 12:42:07,353 DEBUG   SenderThread:409662 [sender.py:send():303] send: run
+2024-09-28 12:42:07,611 INFO    SenderThread:409662 [dir_watcher.py:__init__():216] watching files in: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files
+2024-09-28 12:42:07,612 INFO    SenderThread:409662 [sender.py:_start_run_threads():928] run started: 9s0wvc95 with start time 1727552527.322784
+2024-09-28 12:42:07,616 DEBUG   SenderThread:409662 [sender.py:send():303] send: summary
+2024-09-28 12:42:07,616 INFO    SenderThread:409662 [sender.py:_save_file():1171] saving file wandb-summary.json with policy end
+2024-09-28 12:42:07,617 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: check_version
+2024-09-28 12:42:07,618 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: check_version
+2024-09-28 12:42:07,733 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: run_start
+2024-09-28 12:42:07,747 DEBUG   HandlerThread:409662 [meta.py:__init__():34] meta init
+2024-09-28 12:42:07,747 DEBUG   HandlerThread:409662 [meta.py:__init__():49] meta init done
+2024-09-28 12:42:07,747 DEBUG   HandlerThread:409662 [meta.py:probe():215] probe
+2024-09-28 12:42:07,754 DEBUG   HandlerThread:409662 [meta.py:_setup_git():205] setup git
+2024-09-28 12:42:07,774 DEBUG   HandlerThread:409662 [meta.py:_setup_git():212] setup git done
+2024-09-28 12:42:07,775 DEBUG   HandlerThread:409662 [meta.py:_save_pip():53] save pip
+2024-09-28 12:42:07,775 DEBUG   HandlerThread:409662 [meta.py:_save_pip():67] save pip done
+2024-09-28 12:42:07,775 DEBUG   HandlerThread:409662 [meta.py:_save_conda():74] save conda
+2024-09-28 12:42:08,616 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_created():275] file/dir created: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/requirements.txt
+2024-09-28 12:42:08,616 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_created():275] file/dir created: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/conda-environment.yaml
+2024-09-28 12:42:08,617 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_created():275] file/dir created: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/wandb-summary.json
+2024-09-28 12:42:09,430 DEBUG   HandlerThread:409662 [meta.py:_save_conda():84] save conda done
+2024-09-28 12:42:09,430 DEBUG   HandlerThread:409662 [meta.py:probe():253] probe done
+2024-09-28 12:42:09,470 DEBUG   SenderThread:409662 [sender.py:send():303] send: files
+2024-09-28 12:42:09,471 INFO    SenderThread:409662 [sender.py:_save_file():1171] saving file wandb-metadata.json with policy now
+2024-09-28 12:42:09,479 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: stop_status
+2024-09-28 12:42:09,480 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: stop_status
+2024-09-28 12:42:09,613 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/conda-environment.yaml
+2024-09-28 12:42:09,613 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_created():275] file/dir created: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/wandb-metadata.json
+2024-09-28 12:42:09,630 DEBUG   SenderThread:409662 [sender.py:send():303] send: telemetry
+2024-09-28 12:42:09,806 INFO    Thread-16 :409662 [upload_job.py:push():143] Uploaded file /tmp/tmpq6fm1b6jwandb/yeaa1a28-wandb-metadata.json
+2024-09-28 12:42:10,613 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_created():275] file/dir created: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:12,614 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:14,615 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:16,616 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:18,617 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:20,618 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:22,619 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:24,620 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:24,793 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: stop_status
+2024-09-28 12:42:24,793 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: stop_status
+2024-09-28 12:42:26,621 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:28,622 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:30,623 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:32,624 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:34,625 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:36,223 DEBUG   SenderThread:409662 [sender.py:send():303] send: stats
+2024-09-28 12:42:36,625 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:37,626 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/config.yaml
+2024-09-28 12:42:38,626 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:40,036 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: stop_status
+2024-09-28 12:42:40,036 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: stop_status
+2024-09-28 12:42:40,627 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:42,628 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:44,629 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:46,630 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:48,631 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:50,632 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:52,632 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:54,633 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:55,214 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: stop_status
+2024-09-28 12:42:55,214 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: stop_status
+2024-09-28 12:42:56,634 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:42:58,635 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:43:00,636 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:43:02,637 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:43:04,638 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:43:06,639 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:43:06,662 DEBUG   SenderThread:409662 [sender.py:send():303] send: stats
+2024-09-28 12:43:08,640 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:43:10,392 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: stop_status
+2024-09-28 12:43:10,392 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: stop_status
+2024-09-28 12:43:10,641 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:43:12,642 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:43:14,643 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:43:15,794 DEBUG   SenderThread:409662 [sender.py:send():303] send: exit
+2024-09-28 12:43:15,794 INFO    SenderThread:409662 [sender.py:send_exit():442] handling exit code: 1
+2024-09-28 12:43:15,794 INFO    SenderThread:409662 [sender.py:send_exit():444] handling runtime: 68
+2024-09-28 12:43:15,795 INFO    SenderThread:409662 [sender.py:_save_file():1171] saving file wandb-summary.json with policy end
+2024-09-28 12:43:15,795 INFO    SenderThread:409662 [sender.py:send_exit():450] send defer
+2024-09-28 12:43:15,795 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: defer
+2024-09-28 12:43:15,795 INFO    HandlerThread:409662 [handler.py:handle_request_defer():161] handle defer: 0
+2024-09-28 12:43:15,796 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: defer
+2024-09-28 12:43:15,796 INFO    SenderThread:409662 [sender.py:send_request_defer():459] handle sender defer: 0
+2024-09-28 12:43:15,796 INFO    SenderThread:409662 [sender.py:transition_state():463] send defer: 1
+2024-09-28 12:43:15,796 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: defer
+2024-09-28 12:43:15,796 INFO    HandlerThread:409662 [handler.py:handle_request_defer():161] handle defer: 1
+2024-09-28 12:43:15,901 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: defer
+2024-09-28 12:43:15,902 INFO    SenderThread:409662 [sender.py:send_request_defer():459] handle sender defer: 1
+2024-09-28 12:43:15,902 INFO    SenderThread:409662 [sender.py:transition_state():463] send defer: 2
+2024-09-28 12:43:15,902 DEBUG   SenderThread:409662 [sender.py:send():303] send: stats
+2024-09-28 12:43:15,903 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: defer
+2024-09-28 12:43:15,903 INFO    HandlerThread:409662 [handler.py:handle_request_defer():161] handle defer: 2
+2024-09-28 12:43:15,903 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: defer
+2024-09-28 12:43:15,903 INFO    SenderThread:409662 [sender.py:send_request_defer():459] handle sender defer: 2
+2024-09-28 12:43:15,903 INFO    SenderThread:409662 [sender.py:transition_state():463] send defer: 3
+2024-09-28 12:43:15,904 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: defer
+2024-09-28 12:43:15,904 INFO    HandlerThread:409662 [handler.py:handle_request_defer():161] handle defer: 3
+2024-09-28 12:43:15,904 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: defer
+2024-09-28 12:43:15,904 INFO    SenderThread:409662 [sender.py:send_request_defer():459] handle sender defer: 3
+2024-09-28 12:43:15,905 INFO    SenderThread:409662 [sender.py:transition_state():463] send defer: 4
+2024-09-28 12:43:15,905 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: defer
+2024-09-28 12:43:15,905 INFO    HandlerThread:409662 [handler.py:handle_request_defer():161] handle defer: 4
+2024-09-28 12:43:15,905 DEBUG   SenderThread:409662 [sender.py:send():303] send: summary
+2024-09-28 12:43:15,906 INFO    SenderThread:409662 [sender.py:_save_file():1171] saving file wandb-summary.json with policy end
+2024-09-28 12:43:15,906 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: defer
+2024-09-28 12:43:15,906 INFO    SenderThread:409662 [sender.py:send_request_defer():459] handle sender defer: 4
+2024-09-28 12:43:15,907 INFO    SenderThread:409662 [sender.py:transition_state():463] send defer: 5
+2024-09-28 12:43:15,907 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: defer
+2024-09-28 12:43:15,907 INFO    HandlerThread:409662 [handler.py:handle_request_defer():161] handle defer: 5
+2024-09-28 12:43:15,907 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: defer
+2024-09-28 12:43:15,907 INFO    SenderThread:409662 [sender.py:send_request_defer():459] handle sender defer: 5
+2024-09-28 12:43:15,907 INFO    SenderThread:409662 [sender.py:transition_state():463] send defer: 6
+2024-09-28 12:43:15,908 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: defer
+2024-09-28 12:43:15,908 INFO    HandlerThread:409662 [handler.py:handle_request_defer():161] handle defer: 6
+2024-09-28 12:43:15,908 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: defer
+2024-09-28 12:43:15,908 INFO    SenderThread:409662 [sender.py:send_request_defer():459] handle sender defer: 6
+2024-09-28 12:43:16,644 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:43:16,644 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/wandb-summary.json
+2024-09-28 12:43:16,795 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: poll_exit
+2024-09-28 12:43:18,281 INFO    SenderThread:409662 [sender.py:transition_state():463] send defer: 7
+2024-09-28 12:43:18,281 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: poll_exit
+2024-09-28 12:43:18,282 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: defer
+2024-09-28 12:43:18,282 INFO    HandlerThread:409662 [handler.py:handle_request_defer():161] handle defer: 7
+2024-09-28 12:43:18,283 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: defer
+2024-09-28 12:43:18,283 INFO    SenderThread:409662 [sender.py:send_request_defer():459] handle sender defer: 7
+2024-09-28 12:43:18,283 INFO    SenderThread:409662 [dir_watcher.py:finish():362] shutting down directory watcher
+2024-09-28 12:43:18,645 INFO    Thread-12 :409662 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:43:18,645 INFO    SenderThread:409662 [dir_watcher.py:finish():392] scan: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files
+2024-09-28 12:43:18,646 INFO    SenderThread:409662 [dir_watcher.py:finish():406] scan save: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log output.log
+2024-09-28 12:43:18,646 INFO    SenderThread:409662 [dir_watcher.py:finish():406] scan save: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/requirements.txt requirements.txt
+2024-09-28 12:43:18,646 INFO    SenderThread:409662 [dir_watcher.py:finish():406] scan save: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/config.yaml config.yaml
+2024-09-28 12:43:18,646 INFO    SenderThread:409662 [dir_watcher.py:finish():406] scan save: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/wandb-summary.json wandb-summary.json
+2024-09-28 12:43:18,647 INFO    SenderThread:409662 [dir_watcher.py:finish():406] scan save: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/conda-environment.yaml conda-environment.yaml
+2024-09-28 12:43:18,652 INFO    SenderThread:409662 [dir_watcher.py:finish():406] scan save: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/wandb-metadata.json wandb-metadata.json
+2024-09-28 12:43:18,653 INFO    SenderThread:409662 [sender.py:transition_state():463] send defer: 8
+2024-09-28 12:43:18,659 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: defer
+2024-09-28 12:43:18,663 INFO    HandlerThread:409662 [handler.py:handle_request_defer():161] handle defer: 8
+2024-09-28 12:43:18,674 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: defer
+2024-09-28 12:43:18,674 INFO    SenderThread:409662 [sender.py:send_request_defer():459] handle sender defer: 8
+2024-09-28 12:43:18,674 INFO    SenderThread:409662 [file_pusher.py:finish():168] shutting down file pusher
+2024-09-28 12:43:18,950 INFO    Thread-19 :409662 [upload_job.py:push():143] Uploaded file /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/config.yaml
+2024-09-28 12:43:18,954 INFO    Thread-20 :409662 [upload_job.py:push():143] Uploaded file /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/wandb-summary.json
+2024-09-28 12:43:18,956 INFO    Thread-18 :409662 [upload_job.py:push():143] Uploaded file /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/requirements.txt
+2024-09-28 12:43:18,972 INFO    Thread-17 :409662 [upload_job.py:push():143] Uploaded file /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/output.log
+2024-09-28 12:43:18,978 INFO    Thread-21 :409662 [upload_job.py:push():143] Uploaded file /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/files/conda-environment.yaml
+2024-09-28 12:43:19,179 INFO    Thread-11 :409662 [sender.py:transition_state():463] send defer: 9
+2024-09-28 12:43:19,180 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: defer
+2024-09-28 12:43:19,180 INFO    HandlerThread:409662 [handler.py:handle_request_defer():161] handle defer: 9
+2024-09-28 12:43:19,180 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: defer
+2024-09-28 12:43:19,180 INFO    SenderThread:409662 [sender.py:send_request_defer():459] handle sender defer: 9
+2024-09-28 12:43:19,180 INFO    SenderThread:409662 [file_pusher.py:join():173] waiting for file pusher
+2024-09-28 12:43:19,181 INFO    SenderThread:409662 [sender.py:transition_state():463] send defer: 10
+2024-09-28 12:43:19,181 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: defer
+2024-09-28 12:43:19,181 INFO    HandlerThread:409662 [handler.py:handle_request_defer():161] handle defer: 10
+2024-09-28 12:43:19,181 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: defer
+2024-09-28 12:43:19,182 INFO    SenderThread:409662 [sender.py:send_request_defer():459] handle sender defer: 10
+2024-09-28 12:43:19,415 INFO    SenderThread:409662 [sender.py:transition_state():463] send defer: 11
+2024-09-28 12:43:19,416 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: defer
+2024-09-28 12:43:19,416 INFO    HandlerThread:409662 [handler.py:handle_request_defer():161] handle defer: 11
+2024-09-28 12:43:19,416 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: defer
+2024-09-28 12:43:19,416 INFO    SenderThread:409662 [sender.py:send_request_defer():459] handle sender defer: 11
+2024-09-28 12:43:19,416 INFO    SenderThread:409662 [sender.py:transition_state():463] send defer: 12
+2024-09-28 12:43:19,417 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: defer
+2024-09-28 12:43:19,417 DEBUG   SenderThread:409662 [sender.py:send():303] send: final
+2024-09-28 12:43:19,417 INFO    HandlerThread:409662 [handler.py:handle_request_defer():161] handle defer: 12
+2024-09-28 12:43:19,418 DEBUG   SenderThread:409662 [sender.py:send():303] send: footer
+2024-09-28 12:43:19,418 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: defer
+2024-09-28 12:43:19,418 INFO    SenderThread:409662 [sender.py:send_request_defer():459] handle sender defer: 12
+2024-09-28 12:43:19,419 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: poll_exit
+2024-09-28 12:43:19,420 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: server_info
+2024-09-28 12:43:19,420 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: poll_exit
+2024-09-28 12:43:19,420 DEBUG   SenderThread:409662 [sender.py:send_request():317] send_request: server_info
+2024-09-28 12:43:19,423 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: get_summary
+2024-09-28 12:43:19,424 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: sampled_history
+2024-09-28 12:43:19,548 INFO    MainThread:409662 [wandb_run.py:_footer_history_summary_info():3377] rendering history
+2024-09-28 12:43:19,548 INFO    MainThread:409662 [wandb_run.py:_footer_history_summary_info():3409] rendering summary
+2024-09-28 12:43:19,548 INFO    MainThread:409662 [wandb_run.py:_footer_sync_info():3333] logging synced files
+2024-09-28 12:43:19,549 DEBUG   HandlerThread:409662 [handler.py:handle_request():138] handle_request: shutdown
+2024-09-28 12:43:19,550 INFO    HandlerThread:409662 [handler.py:finish():814] shutting down handler
+2024-09-28 12:43:20,418 INFO    WriterThread:409662 [datastore.py:close():279] close: /home/ehwkang/DDC-DPT/baseline/SAmQ/wandb/run-20240928_124207-9s0wvc95/run-9s0wvc95.wandb
+2024-09-28 12:43:20,548 INFO    SenderThread:409662 [sender.py:finish():1331] shutting down sender
+2024-09-28 12:43:20,548 INFO    SenderThread:409662 [file_pusher.py:finish():168] shutting down file pusher
+2024-09-28 12:43:20,548 INFO    SenderThread:409662 [file_pusher.py:join():173] waiting for file pusher
+2024-09-28 12:43:20,553 INFO    MainThread:409662 [internal.py:handle_exit():78] Internal process exited

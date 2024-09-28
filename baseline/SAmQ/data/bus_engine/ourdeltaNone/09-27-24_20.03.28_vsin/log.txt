@@ -1,0 +1,2 @@
+[20:03:28] Log dir: data/bus_engine/ourdeltaNone/09-27-24_20.03.28_vsin
+[20:03:28] Generate Data - Soft Q

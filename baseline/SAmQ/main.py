@@ -22,14 +22,16 @@ def run(args):
     torch.set_num_threads(1)
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
+    
     # pick reward
     if args.reward_type == 'linear':
         r_f = linear_reward
 
+    # Choose environment
     if args.env_name == 'bus_engine':
         args.d_s = len(args.theta)
 
-        env = syn_bus_env(n_a=args.n_a, d_s=args.d_s, b=args.b, theta=args.theta, r_f=r_f)
+        env = syn_bus_env(n_a=args.n_a, d_s=args.d_s, b=args.b, theta=args.theta, r_f=r_f, discount=args.discount)
         log_path = Path(args.log_dir) / args.env_name / (args.method+'delta'+str(args.delta))
         log = Log(log_path, vars(args))
         log(f'Log dir: {log.dir}')
@@ -77,13 +79,20 @@ def run(args):
         r_dict = pqr_mod.train_r(n_steps=args.n_steps, batch_size=args.batch_size,writer=writer,num_workers = 0, patience=args.patience)
         re_dict = {**re_dict,**r_dict}
         reward_mse = ((np.array(pqr_mod.linear_fit()) - np.array(args.theta))**2).mean()
+    
+    #SAmQ as a base method
     elif args.method == 'our' or args.method == 'state' or args.method == 'no_aggregate':
         log('Run Aggregation')
+        
+        
         if args.method == 'no_aggregate':
             args.n_states_aggregated = re_dict['Number of states']
         n_states_aggregated = pqr_mod.aggregate(args.delta, args.method,args.n_states_aggregated)
         re_dict['number of states after aggregation'] = n_states_aggregated
         data_class(log.dir / 'data_generation',str(args.delta)+args.method)
+        
+        
+        #base_method
         if args.base_method == 'pqr':
             pqr_mod = pqr_aggregation(data = data_class(log.dir / 'data_generation',str(args.delta)+args.method), discount=args.discount, optimizer=torch.optim.Adam,
                 l_r=args.learning_rate, hidden_size=args.hidden_size, env=env, log=log, aggregate_or_not=True)
@@ -118,6 +127,7 @@ def run(args):
             reward_mse = ((np.array(solver.x) - np.array(args.theta))**2).mean()
         else:
             raise NotImplementedError
+        
     else:
         raise NotImplementedError
     log.close()
