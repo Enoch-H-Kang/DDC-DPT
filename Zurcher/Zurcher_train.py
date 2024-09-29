@@ -9,7 +9,7 @@ import random
 import torch.nn as nn
 import json
 import sys
-from mlp import MLP
+from mlp import MLP, QtoVMLP
 from datetime import datetime
 
 
@@ -225,6 +225,7 @@ def train(config):
         'layer_normalization': config['layer_norm'], #layer normalization
     }
     model = MLP(states_dim, actions_dim, **model_config).to(device)
+    QtoVmodel = QtoVMLP(actions_dim, **model_config).to(device)
 
     q_optimizer = torch.optim.AdamW(model.parameters(), lr=config['lr'], weight_decay=1e-4)
     vnext_optimizer = torch.optim.AdamW(model.parameters(), lr=config['lr'], weight_decay=1e-4)
@@ -261,9 +262,10 @@ def train(config):
             
             for i, batch in enumerate(test_loader):
                 print(f"Batch {i} of {len(test_loader)}", end='\r')
-                batch = {k: v.to(device) for k, v in batch.items()}
-        
-                pred_q_values, pred_q_values_next, pred_vnext_values = model(batch) #dimension is (batch_size, horizon, action_dim)
+                batch = {k: v.to(device) for k, v in batch.items()} #dimension is (batch_size, horizon, state_dim)
+
+                pred_q_values, pred_q_values_next = model(batch) #dimension is (batch_size, horizon, action_dim)
+                pred_vnext_values = QtoVmodel(pred_q_values)
                 
                 true_actions = batch['actions'].long() #dimension is (batch_size, horizon,)
                 true_actions_reshaped = true_actions.reshape(-1) #dimension is (batch_size*horizon,)
@@ -320,11 +322,14 @@ def train(config):
         torch.autograd.set_detect_anomaly(True)
         
         
-        for i, batch in enumerate(train_loader):
+        for i, batch in enumerate(train_loader): #For batch i in the training dataset
             print(f"Batch {i} of {len(train_loader)}", end='\r')
             batch = {k: v.to(device) for k, v in batch.items()}
             
-            pred_q_values, pred_q_values_next, pred_vnext_values = model(batch) #dimension is (batch_size, horizon, action_dim)
+            pred_q_values, pred_q_values_next = model(batch) #dimension is (batch_size, horizon, action_dim)
+            
+           
+            pred_vnext_values = QtoVmodel(pred_q_values.clone().detach()) 
             
             true_actions = batch['actions'].long() #dimension is (batch_size, horizon,)
             batch_size = true_actions.shape[0]
@@ -360,68 +365,62 @@ def train(config):
             pivot_rewards = pivot_rewards.unsqueeze(1).repeat(1, pred_q_values_next.shape[1]) #dimension is (batch_size, horizon)
             pivot_rewards_reshaped = pivot_rewards.reshape(-1) #dimension is (batch_size*horizon,)
             
-    
-            ### CrossEntropy loss            
-            ce_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #shape  is (batch_size*horizon,)
             
-            ### Direct inference of r function, then value error minimization
+            if i %2 == 0: # update model paramters only
                 
-            ### Correction
-            D = MSE_loss_fn(vnext_reshaped.clone(), chosen_vnext_values_reshaped)
-            
-            #Non-pivot actions will be removed anyways, so I just add pivot_rewards for all cases here
-            td_error = chosen_q_values_reshaped - pivot_rewards_reshaped - config['beta'] * vnext_reshaped
-            #V(s')-E[V(s')|s,a]
-            vnext_dev = (vnext_reshaped - chosen_vnext_values_reshaped.clone())
-            #Bi-conjugate trick to compute the Bellman error
-            be_error_naive = td_error**2-config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
-            #Exclude the action 0 from computing the Bellman error. Only count action 1's Bellman error for the loss
-            be_error_0 = torch.where(true_actions_reshaped == 0, 0, be_error_naive)
-            #be_loss is normalized by the number of nonzero true-action batch numbers
-            be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))/count_nonzero_pos *batch_size*config['H']
-            
-            #initialize mu losses and ce losses when i==0
-            if i == 0:
-                mu_ce_loss = ce_loss.item()
-                #var_ce_loss = 0.5
-                mu_be_loss = be_loss.item()
-                #var_be_loss = 0.5
-            
-            ### Update the running means and variances
-            mu_ce_loss = alpha * ce_loss.item() + (1 - alpha) * mu_ce_loss
-            var_ce_loss = alpha * (ce_loss.item() - mu_ce_loss) ** 2 + (1 - alpha) * var_ce_loss
-            
-            mu_be_loss = alpha * be_loss.item() + (1 - alpha) * mu_be_loss
-            var_be_loss = alpha * (be_loss.item() - mu_be_loss) ** 2 + (1 - alpha) * var_be_loss
-            
-            ### Compute dynamic lambda (loss_ratio) based on variance
-            #lambda_dynamic = (var_ce_loss ** 0.5) / (var_be_loss ** 0.5) #S2
-            #lambda_dynamic = (var_be_loss ** 0.5) / (var_ce_loss ** 0.5) #S1, Only when gradient of CE is relatively smaller than gradient of BE, we increase the ratio
-            
-            loss = ce_loss + loss_ratio(epoch, 0, config['loss_ratio'], 2000) *be_loss #S3
-            #loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, lambda_dynamic, 2000) *be_loss
-            
-            if i %2 == 0: 
                 #V(s')-E[V(s')] minimization loss
+                D = MSE_loss_fn(vnext_reshaped.clone().detach(), chosen_vnext_values_reshaped)
                 D.backward()
                 vnext_optimizer.step() #we use separate optimizer for vnext
                 vnext_optimizer.zero_grad() #clear gradients for the batch
                 
-                model.zero_grad() #clear gradients for the batch. This prevents the accumulation of gradients.
-                
-                vnext_optimizer.zero_grad()
-            else:                
+                QtoVmodel.zero_grad() #clear gradients for the batch. This prevents the accumulation of gradients.
+        
+            else:     # QtoVmodel parameters only
+                ce_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #shape  is (batch_size*horizon,)
+                #printw(f"Cross entropy loss: {ce_loss.item()}", config)
                 #td error for batch size*horizon
                 
+                #Non-pivot actions will be removed anyways, so I just add pivot_rewards for all cases here
+                td_error = chosen_q_values_reshaped - pivot_rewards_reshaped - config['beta'] * vnext_reshaped
+                #V(s')-E[V(s')|s,a]
+                vnext_dev = (vnext_reshaped - chosen_vnext_values_reshaped.clone().detach())
+                #Bi-conjugate trick to compute the Bellman error
+                be_error_naive = td_error**2-config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
+                #Exclude the action 0 from computing the Bellman error. Only count action 1's Bellman error for the loss
+                be_error_0 = torch.where(true_actions_reshaped == 0, 0, be_error_naive)
+                #be_loss is normalized by the number of nonzero true-action batch numbers
+                be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))/count_nonzero_pos *batch_size*config['H']
+                
+                #initialize mu losses and ce losses when i==0
+                if i == 0:
+                    mu_ce_loss = ce_loss.item()
+                    #var_ce_loss = 0.5
+                    mu_be_loss = be_loss.item()
+                    #var_be_loss = 0.5
+                
+                ### Update the running means and variances
+                mu_ce_loss = alpha * ce_loss.item() + (1 - alpha) * mu_ce_loss
+                var_ce_loss = alpha * (ce_loss.item() - mu_ce_loss) ** 2 + (1 - alpha) * var_ce_loss
+                
+                mu_be_loss = alpha * be_loss.item() + (1 - alpha) * mu_be_loss
+                var_be_loss = alpha * (be_loss.item() - mu_be_loss) ** 2 + (1 - alpha) * var_be_loss
+                
+                ### Compute dynamic lambda (loss_ratio) based on variance
+                #lambda_dynamic = (var_ce_loss ** 0.5) / (var_be_loss ** 0.5) #S2, 
+                #lambda_dynamic = (var_be_loss ** 0.5) / (var_ce_loss ** 0.5) #S1, Only when gradient of CE is relatively smaller than gradient of BE, we increase the ratio
+                lambda_dynamic = mu_ce_loss / mu_be_loss #S4
+                #loss = ce_loss + loss_ratio(epoch, 0, config['loss_ratio'], 5000) *be_loss #S3
+                #loss = ce_loss + *loss_ratio(epoch, 0, lambda_dynamic, 2000) *be_loss
+                loss = ce_loss + config['loss_ratio']*lambda_dynamic * be_loss
                 loss.backward()
                 q_optimizer.step()
                 q_optimizer.zero_grad() #clear gradients for the batch
                 model.zero_grad()
-            
-            
-            epoch_train_loss += loss.item() / config['H']
-            epoch_train_be_loss += be_loss.item() / config['H']
-            
+                
+                epoch_train_loss += loss.item() / config['H']
+                epoch_train_be_loss += be_loss.item() / config['H']
+                epoch_train_ce_loss += ce_loss.item() / config['H']
 
             
             if i == 0: #i=0 means the first batch
@@ -429,11 +428,6 @@ def train(config):
                 printw(f"Predicted r values: {full_pred_r_values}", config)
             
             
-            
-            
-            
-    
-            epoch_train_ce_loss += ce_loss.item() / config['H']
 
         train_loss.append(epoch_train_loss / len(train_dataset))
         train_be_loss.append(epoch_train_be_loss / len(train_dataset))

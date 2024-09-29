@@ -15,7 +15,7 @@
   "store_gpu": true,
   "layer_norm": false,
   "num_epochs": 20000,
-  "batch_size": 256
+  "batch_size": 16
   }
   ,
   "zurcher_config": {
@@ -28,7 +28,7 @@
   },
   "experiments": [
     {
-      "loss_ratio": 1, "num_trajs": 50000
+      "loss_ratio": 0.01, "num_trajs": 50
     }
   ]
 }
