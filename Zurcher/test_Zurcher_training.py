@@ -25,12 +25,12 @@ def run_training():
         "loss_ratio": 0.5,
         "states_TF": [1,0,0,0,0],
         "num_dummies": 2,
-        "dummy_dim": 3
+        "dummy_dim": 5
     }
 
     # Experiments
     experiments = [
-        {"num_trajs": 10000}
+        {"num_trajs": 50}
     ]
 
     for exp in experiments:

@@ -69,7 +69,6 @@ class MultiHeadedMLPModule(nn.Module):
         output_nonlinearities = self._check_parameter_for_output_layer(
             'output_nonlinearities', output_nonlinearities, n_heads)
         self._layers = nn.ModuleList()
-        
         prev_size = input_dim
         for size in hidden_sizes:
             hidden_layers = nn.Sequential()

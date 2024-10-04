@@ -30,11 +30,11 @@ class ZurcherEnv(Environment):
         )
         self.env_name = 'Zurcher'        
         self.xmax = config['maxMileage']
-        self.states = np.arange(self.xmax+1) #dimension is (states,)
+        self.states = np.arange(self.xmax+1) #dimension is (states,), where states are 0,1,2,...,xmax
         self.numTypes = config['numTypes']
         self.type = type
         self.current_step = 0
-        self.EP, self.Q = self.calculate_EP_Q()
+        self.EP, self.Q, self.expV = self.calculate_EP_Q()
         self.U = self._get_util()
         self.count = 0
         self.num_dummies = config['num_dummies']
@@ -80,39 +80,47 @@ class ZurcherEnv(Environment):
         '''
         U = self._get_util() #Dimension is (states, actions)
         gamma = np.euler_gamma
-        Q = np.zeros((len(self.states), 2)) #Dimension is (states, actions)
+        Q = np.zeros((len(self.states), 2)) #Dimension is (states, actions), which is (xmax+1, 2)
         dist = 1
         iter = 0
         while dist > tol:
-            V = gamma + logsumexp(Q, axis=1) #dimension is (stats,). This is V(s)
+            ##V = gamma + logsumexp(Q, axis=1) #dimension is (stats,), which is (xmax+1,). This is V(s)
+            V = logsumexp(Q, axis=1)
+            #expV0 = np.append(V[1:], V[-1])  # Transition to s+1 with prob 1, last state repeats for boundary
             
-            #expV = np.append(V[1:], V[-1])  # This is E[V(s')|s,a]. Transition to s+1. As mileage does not increase after it reaches max, the last element is repeated. Dimension is (states,)
             
-            expV = np.zeros_like(V) #Dimension is (states,)
-            for i in range(4):
+            
+            
+            expV0 = np.zeros_like(V) #Dimension is (states,)
+            for i in range(4):  #range(4) is [0,1,2,3]
                 Vi = np.append(V[i+1:], [V[-1]] * (i+1))  # Transition to s+i+1 with prob 1/4, last state repeats for boundary
-                expV += Vi / 4
+                expV0 += Vi / 4
             
             Q1 = np.zeros_like(Q)  # initialize Q
+            
             # Compute value function for maintenance (not replacing)
-            Q1[:, 0] = U[:, 0] + self.beta * expV  # stochastic transitiion to state s+1, s+2, s+3, s+4 with prob 1/4 each
+            Q1[:, 0] = U[:, 0] + self.beta * expV0  # stochastic transitiion to state s+1, s+2, s+3, s+4 with prob 1/4 each
+            
             # Compute value function for replacement
-            Q1[:, 1] = U[:, 1]+ self.type*U[:, 2] + self.beta * V[1]  # deterministic transition to state 1
-        
+            expV1 = V[1]*np.ones_like(V) #Dimension is (states,). When replaced, the mileage is 1
+            #Q1[:, 1] = U[:, 1]+ self.type*U[:, 2] + self.beta * expV1  # deterministic transition to state 1. Type is 0 (default setting)
+            Q1[:, 1] = U[:, 1]+ self.type*U[:, 2] + self.beta * expV1
+            expV = np.column_stack((expV0, expV1)) #Dimension is (states, actions)
             dist = np.linalg.norm(Q1 - Q)
             Q=Q1
             iter += 1
-        return Q
+            
+        return Q, expV
     
     def calculate_EP_Q(self):
         '''
         Returns EP=Expert Policy
         '''
-        Q = self.vfi()
+        Q, expV = self.vfi()
         EP1 = np.exp(Q[:, 1]) / (np.exp(Q[:, 0]) + np.exp(Q[:, 1])) 
         EP = np.array([1-EP1, EP1]).T #self.EP's dimension is (states, actions)
         #given states being a vector of states, self.EP[states] is a matrix of optimal choice probability vectors at states with dimension (states, actions)
-        return EP, Q
+        return EP, Q, expV
 
     def sample_state(self):
         return np.random.randint(0, self.xmax+1)
@@ -133,8 +141,8 @@ class ZurcherEnv(Environment):
         action = np.random.choice([0, 1], p=action_prob)
         if action == 0:
             #next state is sampled among 1,2,3,4 + current state
-            next_state = min(state + np.random.randint(1, 2), self.xmax)
-            
+            next_state = min(state + np.random.randint(1, 5), self.xmax) #transit to s+1, s+2, s+3, s+4 with prob 1/4 each, respecting the boundary
+            #next_state = min(state + 1, self.xmax) #transit to s+1 with prob 1
         
         elif action == 1:
             next_state = 1
@@ -142,7 +150,6 @@ class ZurcherEnv(Environment):
         else: 
             raise ValueError("Invalid action")
         self.state = next_state
-        print(f"current state: {state}, action: {action}, next state: {next_state}")
         return next_state, action
 
     def get_obs(self):
@@ -161,7 +168,7 @@ def rollin_mdp(env, n_dummies, dummy_dim, rollin_type):
 
     state = env.reset()
     full_state = np.concatenate(([state],np.random.randint(-dummy_dim,dummy_dim+1,n_dummies)))
-    
+    #full_state is a vector of states and dummies, where the first element is the mileage and the rest are dummies
     for _ in range(env.H): #Remember: I made H+1 to H.
         if rollin_type == 'uniform':
             state = env.sample_state()
@@ -179,19 +186,15 @@ def rollin_mdp(env, n_dummies, dummy_dim, rollin_type):
         
         full_states.append(full_state)
         actions.append(action)
-        full_next_state = np.concatenate(([next_state],np.random.randint(-10,11,n_dummies)))
+        full_next_state = np.concatenate(([next_state],np.random.randint(-dummy_dim,dummy_dim+1,n_dummies)))
         full_next_states.append(full_next_state)
+        
         state = next_state
         full_state = full_next_state
 
     full_states = np.array(full_states) #index 0 to H-1 are context states, index H is the first query state
     actions = np.array(actions) #index 0 to H-1 are context actions, index H is the first query action
     full_next_states = np.array(full_next_states) #index H-1 is the first query state, index H is the second query state
-    
-    #construct a concatanated matrix that consists of (state, action, next_state)
-    #print(np.column_stack((states, actions, next_states)))
-    #exit(0)
-    
     return full_states, actions, full_next_states
 
 def generate_Zurcher_histories(config):
@@ -207,16 +210,18 @@ def generate_Zurcher_histories(config):
     trajs = []
     for env in tqdm(envs):
         (
-            full_states,
-            actions,
-            full_next_states,
+            full_states, #dimension is (H, state_dim)
+            actions, #dimension is (H,)
+            full_next_states, #dimension is (H, state_dim)
         ) = rollin_mdp(env, n_dummies, dummy_dim, rollin_type=config['rollin_type'])
         #revert full_states to states
-        states = full_states[:,0] #states without dummies
-        next_states = full_next_states[:,0] #next_states without dummies
-        
+        states = full_states[:,0] #Recover back states without dummies. Dimension is (H,)
+        next_states = full_next_states[:,0] #Recover back next_states without dummies
+       
         states_true_EPs = env.EP[states] #True EP at the query state 1, of dimension 2
         states_true_Qs = env.Q[states] #True Q at the query state 1, of dimension 2
+        states_true_expVs = env.expV[states] #True E[V(s',a')|s,a] at the query state 1, of dimension 2
+        
         next_states_true_EPs = env.EP[next_states] #True EP at the query state 2, of dimension 2
         next_states_true_Qs = env.Q[next_states] #True Q at the query state 2, of dimension 2
         
@@ -229,6 +234,7 @@ def generate_Zurcher_histories(config):
             'next_states_true_EPs': next_states_true_EPs, #True EP at the query state 2, of dimension 2
             'states_true_Qs': states_true_Qs, #True Q at the query state 1, of dimension 2
             'next_states_true_Qs': next_states_true_Qs, #True Q at the query state 2, of dimension 2
+            'states_true_expVs': states_true_expVs, #True E[V(s',a')|s,a] at the query state 1, of dimension 2
         }
 
         trajs.append(traj)
