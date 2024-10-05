@@ -23,23 +23,24 @@
     "rollin_type": "expert",
     "theta": [1, 5, 1],
     "numTypes": 1,
-    "num_trajs": 500,
-    "dummy_dim": 5,
-    "num_dummies": 2,
-    "loss_ratio": 1
+    "num_trajs": 500
   },
   "experiments": [
     {
-      "ce_bound": 1.01
+      "dummy_dim": 5,
+      "num_dummies": 2
     },
     {
-      "ce_bound": 1.05
+      "dummy_dim": 5,
+      "num_dummies": 5
     },
     {
-      "ce_bound": 1.005
+      "dummy_dim": 5,
+      "num_dummies": 10
     },
     {
-      "ce_bound": 1.001
+      "dummy_dim": 5,
+      "num_dummies": 50
     }
   ]
 }

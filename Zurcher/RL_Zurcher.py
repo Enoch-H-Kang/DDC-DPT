@@ -118,17 +118,6 @@ class Dataset(torch.utils.data.Dataset):
         else:
             return torch.tensor(np.asarray(x)).float()
 
-
-def loss_ratio(x, start_value, end_value, transition_point=100):
-    if x < 1:
-        return start_value  # For x < 1, return the start value
-    elif 1 <= x <= transition_point:
-        # Linear interpolation between (1, start_value) and (transition_point, end_value)
-        slope = (end_value - start_value) / (transition_point - 1)
-        return start_value + slope * (x - 1)
-    else:  # x > transition_point
-        return end_value
-
 def build_data_filename(config, mode):
     """
     Builds the filename for the data.
@@ -161,10 +150,11 @@ def build_log_filename(config):
     """
     timestamp = datetime.now().strftime('%Y%m%d')
     
-    filename = (f"{config['env']}_num_trajs{config['num_trajs']}"
+    filename = (f"RL_"
+                f"{config['env']}_num_trajs{config['num_trajs']}"
                 f"_dummies{config['num_dummies']}x{config['dummy_dim']}"
                 f"_beta{config['beta']}_theta{config['theta']}"
-                f"_H{config['H']}_cebound{config['ce_bound']}"
+                f"_H{config['H']}"
                 f"_batch{config['batch_size']}"
                 )
     filename += f'_{timestamp}'
@@ -239,6 +229,7 @@ def train(config):
     vnext_optimizer = torch.optim.AdamW(model.parameters(), lr=config['lr'], weight_decay=1e-4)
     CrossEntropy_loss_fn = torch.nn.CrossEntropyLoss(reduction='sum')
     MSE_loss_fn = torch.nn.MSELoss(reduction='sum')
+    mean_MSE_loss_fn = torch.nn.MSELoss() #default is mean
     MAE_loss_fn = torch.nn.L1Loss(reduction='sum')
     
     train_loss = []
@@ -246,19 +237,13 @@ def train(config):
     train_ce_loss = []
     train_D_loss = []
     test_Q_MSE_loss = []
-    test_r_MSE_loss = []
-    test_vnext_MSE_loss = []
     
     #Storing the best training epoch and its corresponding best Q MSE loss/Q values
     best_epoch = -1
     best_Q_MSE_loss = 9999
-    best_r_MSE_loss = 9999
     best_normalized_true_Qs = torch.tensor([])
     best_normalized_pred_q_values = torch.tensor([])
 
-    alpha = 0.05  # Smoothing factor for moving average
-    mu_ce_loss, var_ce_loss = 0, 0.5
-    min_ce_loss = 9999
     
     for epoch in tqdm(range(config['num_epochs']), desc="Training Progress"):
         
@@ -267,12 +252,9 @@ def train(config):
         ### EVALUATION ###
         printw(f"Epoch: {epoch + 1}", config)
         start_time = time.time()
+        
         with torch.no_grad():
-            epoch_CrossEntropy_loss = 0.0
             epoch_Q_MSE_loss = 0.0
-            epoch_vnext_MSE_loss = 0.0
-            epoch_test_D_loss = 0.0
-            epoch_r_MSE_loss = 0.0
             
             ##### Test batch loop #####
             
@@ -280,123 +262,40 @@ def train(config):
                 print(f"Batch {i} of {len(test_loader)}", end='\r')
                 batch = {k: v.to(device) for k, v in batch.items()} #dimension is (batch_size, horizon, state_dim)
                 states = batch['states']
-                pred_q_values, pred_q_values_next, pred_vnext_values = model(batch) #dimension is (batch_size, horizon, action_dim)
+                pred_q_values, pred_q_values_next, _ = model(batch) #dimension is (batch_size, horizon, action_dim)
                 
                 true_actions = batch['actions'].long() #dimension is (batch_size, horizon,)
                 true_actions_reshaped = true_actions.reshape(-1) #dimension is (batch_size*horizon,)
                 pred_q_values_reshaped = pred_q_values.reshape(-1, pred_q_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
-                pred_vnext_values_reshaped = pred_vnext_values.reshape(-1, pred_vnext_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
-
-                ### Q(s,a) 
-                chosen_q_values_reshaped = pred_q_values_reshaped[
-                torch.arange(pred_q_values_reshaped.size(0)), true_actions_reshaped
-                ]
-
-                #E[V(s'|s,a)]
-                chosen_vnext_values_reshaped = pred_vnext_values_reshaped[
-                    torch.arange(pred_vnext_values_reshaped.size(0)), true_actions_reshaped
-                ]
-                
-                #V(s') = logsumexp Q(s',a') + gamma
-                pred_q_values_nextstate_reshaped = pred_q_values_next.reshape(-1, pred_q_values_next.shape[-1]) #dimension is (batch_size*horizon, action_dim)
-                logsumexp_nextstate = torch.logsumexp(pred_q_values_nextstate_reshaped, dim=1) #dimension is (batch_size*horizon,)
-                #vnext_reshaped = np.euler_gamma + logsumexp_nextstate
-                vnext_reshaped = logsumexp_nextstate
-                
-                D = MSE_loss_fn(vnext_reshaped.clone().detach(), chosen_vnext_values_reshaped)
-                epoch_test_D_loss += D.item() / config['H'] 
-                
-                ####### Action CrossEntropy loss                
-                test_ce_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped)
-                epoch_CrossEntropy_loss += test_ce_loss.item()/config['H']
-                
-                types = batch['busType'] #dimension is (batch_size,)
-                theta = config['theta']
-                pivot_rewards = (-1)*(theta[2]*types+theta[1]) 
-        
-                pivot_rewards = pivot_rewards.unsqueeze(1).repeat(1, pred_q_values_next.shape[1]) #dimension is (batch_size, horizon)
-                pivot_rewards_reshaped = pivot_rewards.reshape(-1) #dimension is (batch_size*horizon,)
-                    
-                td_error = chosen_q_values_reshaped - pivot_rewards_reshaped - config['beta'] * vnext_reshaped #\delta(s,a) = Q(s,a) - r(s,a) - beta*V(s')
-                #V(s')-E[V(s')|s,a]
-                '''
-                vnext_dev = (vnext_reshaped - chosen_vnext_values_reshaped.clone().detach())
-                #Bi-conjugate trick to compute the Bellman error
-                be_error_naive = td_error**2-config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
-                '''
-                
-                vnext_dev = (vnext_reshaped - chosen_vnext_values_reshaped.clone().detach())
-                #Bi-conjugate trick to compute the Bellman error
-                be_error_naive = td_error**2-config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
-                #We call it naive because we just add pivot r for every actions we see in the batch
-                
-                #Exclude the action 0 from computing the Bellman error, leaving pivot cases only.
-                be_error_0 = torch.where(true_actions_reshaped == 0, 0, be_error_naive) #only consider the Bellman error for action 1
-                #be_loss is normalized by the number of nonzero true-action batch numbers
-                be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))#/count_nonzero_pos *batch_size*config['H']
-                
-                total_test_loss = test_ce_loss + be_loss
-                
-                pred_r_values = pred_q_values - config['beta']*pred_vnext_values #dimension is (batch_size, horizon, action_dim)
-                chosen_pred_r_values = torch.gather(pred_r_values, dim=2, index=true_actions.unsqueeze(-1)).squeeze(-1)
-                #dimension is (batch_size, horizon)
-    
-                true_r_values = batch['states_true_Qs'] - config['beta']*batch['states_true_expVs'] #dimension is (batch_size, horizon, action_dim)
-                chosen_true_r_values = torch.gather(true_r_values, dim=2, index=true_actions.unsqueeze(-1)).squeeze(-1) #dimension is (batch_size, horizon)
-                mean_MSE_loss_fn = torch.nn.MSELoss() 
-                r_MSE_loss = mean_MSE_loss_fn(chosen_pred_r_values, chosen_true_r_values) #by default it gives batch mean (total sum / (batch_size*horizon))
-                epoch_r_MSE_loss += r_MSE_loss.item()    
-
                 
                 ####### Q value MSE loss
-                #Normalized Q values
+                
                 true_Qs_batch = batch['states_true_Qs'] #dimension is (batch_size, horizon, action_dim)
-                true_expVs_batch = batch['states_true_expVs'] #dimension is (batch_size, horizon, action_dim)
+                chosen_true_Qs = torch.gather(true_Qs_batch, dim=2, index=true_actions.unsqueeze(-1)).squeeze(-1) #dimension is (batch_size, horizon)
+                chosen_pred_Qs = torch.gather(pred_q_values, dim=2, index=true_actions.unsqueeze(-1)).squeeze(-1) #dimension is (batch_size, horizon)
+                
+                #Visualize the Q values of the last horizon state
                 last_true_Qs = true_Qs_batch[:,-1,:] #Just consider the last horizon state's Q values. dimensioni is (batch_size, action_dim)
-                min_true_Qs = torch.min(last_true_Qs, dim=1, keepdim=True)[0]
-                normalized_true_Qs = last_true_Qs - min_true_Qs
-
                 last_states = states[:,-1,0].unsqueeze(1) #dimension is (batch_size, state_dim)
                 #I only want the first element of the state, which is the mileage
-                
                 last_true_Qs_with_states = torch.cat((last_states, last_true_Qs), dim=1) #dimension is (batch_size, state_dim+action_dim) 
-                
                 last_pred_q_values = pred_q_values[:,-1,:] #dimension is (batch_size, action_dim)
-                min_q_values = torch.min(last_pred_q_values, dim=1, keepdim=True)[0]
-                normalized_last_pred_q_values = last_pred_q_values - min_q_values
                 last_pred_q_values_with_states = torch.cat((last_states, last_pred_q_values), dim=1) #dimension is (batch_size, state_dim+action_dim)
                 
-                ###### vnext MSE loss
-                last_true_expVs = true_expVs_batch[:,-1,:] #Just consider the last horizon state's Q values. dimensioni is (batch_size, action_dim)
-                last_true_expVs_with_states = torch.cat((last_states, last_true_expVs), dim=1) #dimension is (batch_size, state_dim+action_dim)
-                last_pred_vnext_values = pred_vnext_values[:,-1,:] #dimension is (batch_size, action_dim)
-                last_pred_vnext_values_with_states = torch.cat((last_states, last_pred_vnext_values), dim=1) #dimension is (batch_size, state_dim+action_dim)
-                
                 if i == 0: #i=0 means the first batch                   
-                    #print(normalized_true_Qs)
                     printw(f"True Q values: {last_true_Qs_with_states[:10]}", config)
-                    #print(normalized_last_pred_q_values)
                     printw(f"Predicted Q values: {last_pred_q_values_with_states[:10]}", config)
-                    #printw(f"True E[V(s',a')]: {last_true_expVs_with_states[:10]}", config)
-                    #printw(f"Predicted E[V(s',a')]: {last_pred_vnext_values_with_states[:10]}", config)
                 
-                  
-                
-                Q_MSE_loss = MSE_loss_fn(normalized_true_Qs, normalized_last_pred_q_values)
+                Q_MSE_loss = mean_MSE_loss_fn(chosen_true_Qs, chosen_pred_Qs) #it gives batch mean (total sum / (batch_size*horizon))
                 epoch_Q_MSE_loss += Q_MSE_loss.item()
-                
-                vnext_MSE_loss = MSE_loss_fn(last_true_expVs, last_pred_vnext_values)
-                epoch_vnext_MSE_loss += vnext_MSE_loss.item()
-            
+      
             ##### Finish of the batch loop for a single epoch #####
             ##### Back to epoch level #####
             # Note that epoch MSE losses are sum of all test batch means in the epoch
              
-            if epoch_r_MSE_loss/len(test_dataset) < best_r_MSE_loss: #epoch_r_MSE_loss is sum of all test batch means in the epoch
-    
-                best_r_MSE_loss = epoch_r_MSE_loss/len(test_dataset) #len(test_dataset) is the number of batches in the test dataset
-                best_epoch = epoch          
-                best_Q_MSE_loss = epoch_Q_MSE_loss
+            if epoch_Q_MSE_loss/len(test_dataset) < best_Q_MSE_loss: #epoch_Q_MSE_loss is sum of all test batch means in the epoch
+                        
+                best_Q_MSE_loss = epoch_Q_MSE_loss/len(test_dataset)
                 best_normalized_true_Qs = last_true_Qs #Last batch's true Q values
                 best_normalized_pred_q_values = last_pred_q_values #Last batch's predicted Q values
                 
@@ -405,14 +304,11 @@ def train(config):
         ############# Finish of an epoch's evaluation ############
         
         #test_loss.append(epoch_CrossEntropy_loss / len(test_dataset))
-        test_r_MSE_loss.append(epoch_r_MSE_loss / len(test_dataset))
         test_Q_MSE_loss.append(epoch_Q_MSE_loss / len(test_dataset)) #len(test_dataset) is the number of batches in the test dataset
-        test_vnext_MSE_loss.append(epoch_vnext_MSE_loss / len(test_dataset))
         
         end_time = time.time()
         #printw(f"\tCross entropy test loss: {test_loss[-1]}", config)
         printw(f"\tMSE of normalized Q-value: {test_Q_MSE_loss[-1]}", config)
-        printw(f"\tMSE of r(s,a): {test_r_MSE_loss[-1]}", config)
         #printw(f"\tMSE of V(s',a'): {test_vnext_MSE_loss[-1]}", config)
         printw(f"\tEval time: {end_time - start_time}", config)
         
@@ -434,7 +330,18 @@ def train(config):
             
             pred_q_values, pred_q_values_next, pred_vnext_values = model(batch) #dimension is (batch_size, horizon, action_dim)
             
+            states = batch['states'] #dimension is (batch_size, horizon, state_dim)
             true_actions = batch['actions'].long() #dimension is (batch_size, horizon,)
+            types = batch['busType'] #dimension is (batch_size,)
+            types_expanded = types.unsqueeze(1).expand(-1, true_actions.shape[1])
+            theta = config['theta']
+            state_mileages = states[:,:,0] #dimension is (batch_size, horizon)
+            
+            rewards = torch.zeros_like(true_actions, dtype=torch.float) #dimension is (batch_size, horizon)
+            rewards[true_actions == 0] = -1 * theta[0]*state_mileages[true_actions == 0] 
+            rewards[true_actions == 1] = -1 * (theta[2] * types_expanded[true_actions == 1] + theta[1])
+            rewards_reshaped = rewards.reshape(-1) #dimension is (batch_size*horizon,)
+        
             #in torch, .long() converts the tensor to int64. CrossEntropyLoss requires the target to be int64.
             
             #count number of batches that satisfies true_actions == 1
@@ -479,56 +386,18 @@ def train(config):
                 
                 #First, compute td error for (s,a) pairs that appear in the data. 
                 #Non-pivot actions will be removed anyways, so I just add pivot_rewards for all cases here
-                
-                types = batch['busType'] #dimension is (batch_size,)
-                theta = config['theta']
-                pivot_rewards = (-1)*(theta[2]*types+theta[1]) 
-        
-                pivot_rewards = pivot_rewards.unsqueeze(1).repeat(1, pred_q_values_next.shape[1]) #dimension is (batch_size, horizon)
-                pivot_rewards_reshaped = pivot_rewards.reshape(-1) #dimension is (batch_size*horizon,)
-                    
-                td_error = chosen_q_values_reshaped - pivot_rewards_reshaped - config['beta'] * vnext_reshaped #\delta(s,a) = Q(s,a) - r(s,a) - beta*V(s')
+
+                td_error = chosen_q_values_reshaped - rewards_reshaped - config['beta'] * vnext_reshaped #\delta(s,a) = Q(s,a) - r(s,a) - beta*V(s')
                 #V(s')-E[V(s')|s,a]
-                '''
+              
                 vnext_dev = (vnext_reshaped - chosen_vnext_values_reshaped.clone().detach())
                 #Bi-conjugate trick to compute the Bellman error
-                be_error_naive = td_error**2-config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
-                '''
-                
-                vnext_dev = (vnext_reshaped - chosen_vnext_values_reshaped.clone().detach())
-                #Bi-conjugate trick to compute the Bellman error
-                be_error_naive = td_error**2-config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
+                be_error = td_error**2-config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
                 #We call it naive because we just add pivot r for every actions we see in the batch
-                
-                #Exclude the action 0 from computing the Bellman error, leaving pivot cases only.
-                be_error_0 = torch.where(true_actions_reshaped == 0, 0, be_error_naive) #only consider the Bellman error for action 1
-                #be_loss is normalized by the number of nonzero true-action batch numbers
-                be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))#/count_nonzero_pos *batch_size*config['H']
+                be_loss = MAE_loss_fn(be_error, torch.zeros_like(be_error))#/count_nonzero_pos *batch_size*config['H']
                 #count_nonzero_pos is the number of nonzero true-actions in batch_size*horizon
-                
-                ### Update the running means and variances
-                mu_ce_loss = alpha * ce_loss.item() + (1 - alpha) * mu_ce_loss
-                var_ce_loss = alpha * (ce_loss.item() - mu_ce_loss) ** 2 + (1 - alpha) * var_ce_loss
-                
-                #mu_be_loss = alpha * be_loss.item() + (1 - alpha) * mu_be_loss
-                #var_be_loss = alpha * (be_loss.item() - mu_be_loss) ** 2 + (1 - alpha) * var_be_loss
-                
-                ### Compute dynamic lambda (loss_ratio) based on variance
-                #lambda_dynamic = (var_ce_loss ** 0.5) / (var_be_loss ** 0.5) #S2, Smaller gradient of BE, we increase the ratio of BE for loss
-                #lambda_dynamic = (var_be_loss ** 0.5) / (var_ce_loss ** 0.5) #S1, Only when gradient of CE is relatively smaller than gradient of BE, we increase the ratio
-                #lambda_dynamic = mu_ce_loss / mu_be_loss #S4
-                #loss = ce_loss + loss_ratio(epoch, 0, config['loss_ratio'], 5000) *be_loss #S3
-                #loss = ce_loss + config['loss_ratio']*lambda_dynamic * be_loss
-                #loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, lambda_dynamic, 2000) *be_loss
-                
-                #upper and lower bound lambda_dymaic by 0.1 and 10 for stability
-                if ce_loss < min_ce_loss:
-                    min_ce_loss = ce_loss
-                #loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, lambda_dynamic, 2000) * be_loss #Worked pretty well!
-                if mu_ce_loss > min_ce_loss*config['ce_bound']:
-                    loss = ce_loss + 0.2*config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
-                else:
-                    loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
+        
+                loss = ce_loss + be_loss
                 loss.backward()
                 q_optimizer.step()
                 q_optimizer.zero_grad() #clear gradients for the batch
@@ -541,23 +410,7 @@ def train(config):
                 
                 print(f"Epoch_train_loss: {epoch_train_loss}", end='\r')
 
-            
-            if i == 0: #i=0 means the first batch
-                pred_r_values_print = pred_q_values[:,-1,:] - config['beta']*pred_vnext_values[:,-1,:] #for print
-                states = batch['states']
-                last_states = states[:,-1,0].unsqueeze(1)#dimension is (batch_size, state_dim)
-                pred_r_values_with_states = torch.cat((last_states, pred_r_values_print), dim=1) #dimension is (batch_size, state_dim+action_dim)
-                printw(f"Predicted r values: {pred_r_values_with_states[:10]}", config)
-            
-            pred_r_values = pred_q_values - config['beta']*pred_vnext_values #dimension is (batch_size, horizon, action_dim)
-            chosen_pred_r_values = torch.gather(pred_r_values, dim=2, index=true_actions.unsqueeze(-1)).squeeze(-1)
-            #dimension is (batch_size, horizon)
- 
-            true_r_values = batch['states_true_Qs'] - config['beta']*batch['states_true_expVs'] #dimension is (batch_size, horizon, action_dim)
-            chosen_true_r_values = torch.gather(true_r_values, dim=2, index=true_actions.unsqueeze(-1)).squeeze(-1) #dimension is (batch_size, horizon)
-            mean_MSE_loss_fn = torch.nn.MSELoss() 
-            r_MSE_loss = mean_MSE_loss_fn(chosen_pred_r_values, chosen_true_r_values) #by default it gives batch mean (total sum / (batch_size*horizon))
-          
+    
         
             
             
@@ -584,7 +437,7 @@ def train(config):
                 plt.figure(figsize=(12, 12))  # Increase the height to fit all plots
     
                 # Plotting total train loss
-                plt.subplot(6, 1, 1) # Adjust to 6x1 grid
+                plt.subplot(4, 1, 1) # Adjust to 6x1 grid
                 plt.yscale('log')
                 plt.xlabel('epoch')
                 plt.ylabel('Total Train Loss')
@@ -592,7 +445,7 @@ def train(config):
                 plt.legend()
 
                 # Plotting BE loss
-                plt.subplot(6, 1, 2) # Second plot in a 6x1 grid
+                plt.subplot(4, 1, 2) # Second plot in a 6x1 grid
                 plt.yscale('log')
                 plt.xlabel('epoch')
                 plt.ylabel('BE Loss')
@@ -600,7 +453,7 @@ def train(config):
                 plt.legend()
 
                 # Plotting CE loss
-                plt.subplot(6, 1, 3) # Third plot in a 6x1 grid
+                plt.subplot(4, 1, 3) # Third plot in a 6x1 grid
                 plt.yscale('log')
                 plt.xlabel('epoch')
                 plt.ylabel('CE Loss')
@@ -608,28 +461,12 @@ def train(config):
                 plt.legend()
 
                 # Plotting Q MSE loss
-                plt.subplot(6, 1, 4) # Fourth plot in a 6x1 grid
+                plt.subplot(4, 1, 4) # Fourth plot in a 6x1 grid
                 plt.yscale('log')
                 plt.xlabel('epoch')
                 plt.ylabel('Q MSE Loss')
                 plt.plot(test_Q_MSE_loss[1:], label="Test Q MSE Loss", color='green')
                 plt.legend()
-                
-                # Plotting r MSE loss 
-                plt.subplot(6, 1, 5) # Fifth plot in a 6x1 grid
-                plt.yscale('log')
-                plt.xlabel('epoch')
-                plt.ylabel('R MSE Loss')
-                plt.plot(test_r_MSE_loss[1:], label="R MSE Loss", color='purple')
-                plt.legend()
-                
-                plt.subplot(6, 1, 6) # Sixth plot in a 6x1 grid
-                plt.yscale('log')
-                plt.xlabel('epoch')
-                plt.ylabel('D Loss')
-                plt.plot(train_D_loss[1:], label="D Loss", color='orange')
-                plt.legend()
-                
                 
                 plt.tight_layout()
                 plt.savefig(f"figs/loss/{build_log_filename(config)}_losses.png")
@@ -640,7 +477,6 @@ def train(config):
     printw(f"\nTraining completed.", config)
     printw(f"Best epoch: {best_epoch}", config)
     printw(f"Best Q MSE loss: {best_Q_MSE_loss}", config)
-    printw(f"Best R MSE loss: {best_r_MSE_loss}", config)
     
     if best_epoch > 0:
         printw(f"Sample of true Qs: {best_normalized_true_Qs[:10]}", config)
