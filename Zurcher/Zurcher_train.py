@@ -472,8 +472,8 @@ def train(config):
                 vnext_reshaped = logsumexp_nextstate
             
                 
-                if i %2 == 0: # update model paramters only
-                    
+                if i %3 == 0: # update D only
+
                     #V(s')-E[V(s')] minimization loss
                     D = MSE_loss_fn(vnext_reshaped.clone().detach(), chosen_vnext_values_reshaped)
                     D.backward()
@@ -530,15 +530,21 @@ def train(config):
                     #loss = ce_loss + loss_ratio(epoch, 0, config['loss_ratio'], 5000) *be_loss #S3
                     #loss = ce_loss + config['loss_ratio']*lambda_dynamic * be_loss
                     #loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, lambda_dynamic, 2000) *be_loss
-                    
+                    '''
                     #upper and lower bound lambda_dymaic by 0.1 and 10 for stability
                     if ce_loss < min_ce_loss:
                         min_ce_loss = ce_loss
                     #loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, lambda_dynamic, 2000) * be_loss #Worked pretty well!
                     if mu_ce_loss > min_ce_loss*config['ce_bound']:
-                        loss = ce_loss + 0.2*config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
+                        loss = ce_loss# + 0.2*config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
                     else:
                         loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
+                    '''
+                    if i %3 == 1:
+                        loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
+                    else: # if i %3 == 2
+                        loss = ce_loss
+
                     loss.backward()
                     q_optimizer.step()
                     q_optimizer.zero_grad() #clear gradients for the batch
