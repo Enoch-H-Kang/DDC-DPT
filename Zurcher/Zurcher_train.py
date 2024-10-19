@@ -129,6 +129,18 @@ def loss_ratio(x, start_value, end_value, transition_point=100):
     else:  # x > transition_point
         return end_value
 
+def loss_ratio3(x): #x is the epoch number
+    if x < 1:
+        return 1/5000  # For x < 1, return the start value
+    else:  
+        return 1/5000*x
+    
+def loss_ratio2(x): #x is the epoch number
+    if x < 1:
+        return 10000  # For x < 1, return the start value
+    else:  
+        return 10000/x
+
 def build_data_filename(config, mode):
     """
     Builds the filename for the data.
@@ -267,8 +279,6 @@ def train(config):
         best_normalized_pred_q_values = torch.tensor([])
 
         alpha = 0.05  # Smoothing factor for moving average
-        mu_ce_loss, var_ce_loss = 0, 0.5
-        min_ce_loss = 9999
         
         for epoch in tqdm(range(config['num_epochs']), desc="Training Progress"):
             
@@ -471,8 +481,12 @@ def train(config):
                 #vnext_reshaped = np.euler_gamma + logsumexp_nextstate
                 vnext_reshaped = logsumexp_nextstate
             
+                if config['proj'] == 'true':
+                    div = 3
+                else:
+                    div = 2
                 
-                if i %3 == 0: # update D only
+                if i % div == 0: # update D only, div=3 means update D every 3 batches
 
                     #V(s')-E[V(s')] minimization loss
                     D = MSE_loss_fn(vnext_reshaped.clone().detach(), chosen_vnext_values_reshaped)
@@ -516,35 +530,25 @@ def train(config):
                     be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))#/count_nonzero_pos *batch_size*config['H']
                     #count_nonzero_pos is the number of nonzero true-actions in batch_size*horizon
                     
-                    ### Update the running means and variances
-                    mu_ce_loss = alpha * ce_loss.item() + (1 - alpha) * mu_ce_loss
-                    var_ce_loss = alpha * (ce_loss.item() - mu_ce_loss) ** 2 + (1 - alpha) * var_ce_loss
+                    if config['proj'] == True: #i.e. div=3
+                        if i % 3 == 1:
+                            loss = ce_loss + loss_ratio3(epoch)* be_loss
+                        else: # if i %3 == 2
+                            loss = ce_loss
+                    else: #i.e. div=2
+                        loss =  ce_loss + loss_ratio3(epoch) *be_loss    
                     
-                    #mu_be_loss = alpha * be_loss.item() + (1 - alpha) * mu_be_loss
-                    #var_be_loss = alpha * (be_loss.item() - mu_be_loss) ** 2 + (1 - alpha) * var_be_loss
-                    
-                    ### Compute dynamic lambda (loss_ratio) based on variance
-                    #lambda_dynamic = (var_ce_loss ** 0.5) / (var_be_loss ** 0.5) #S2, Smaller gradient of BE, we increase the ratio of BE for loss
-                    #lambda_dynamic = (var_be_loss ** 0.5) / (var_ce_loss ** 0.5) #S1, Only when gradient of CE is relatively smaller than gradient of BE, we increase the ratio
-                    #lambda_dynamic = mu_ce_loss / mu_be_loss #S4
-                    #loss = ce_loss + loss_ratio(epoch, 0, config['loss_ratio'], 5000) *be_loss #S3
-                    #loss = ce_loss + config['loss_ratio']*lambda_dynamic * be_loss
-                    #loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, lambda_dynamic, 2000) *be_loss
-                    '''
-                    #upper and lower bound lambda_dymaic by 0.1 and 10 for stability
-                    if ce_loss < min_ce_loss:
-                        min_ce_loss = ce_loss
-                    #loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, lambda_dynamic, 2000) * be_loss #Worked pretty well!
-                    if mu_ce_loss > min_ce_loss*config['ce_bound']:
-                        loss = ce_loss# + 0.2*config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
-                    else:
-                        loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
-                    '''
+                    ####################A working version####################
+                    ''' 
                     if i %3 == 1:
                         loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
                     else: # if i %3 == 2
                         loss = ce_loss
-
+                    '''
+                    ###################End of working version####################
+                     
+                    
+                         
                     loss.backward()
                     q_optimizer.step()
                     q_optimizer.zero_grad() #clear gradients for the batch
