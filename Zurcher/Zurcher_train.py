@@ -531,22 +531,17 @@ def train(config):
                     #count_nonzero_pos is the number of nonzero true-actions in batch_size*horizon
                     
                     if config['proj'] == True: #i.e. div=3
-                        if i % 3 == 1:
-                            loss = ce_loss + loss_ratio3(epoch)* be_loss
+                        #if i % 3 == 1:
+                        #    loss = ce_loss + loss_ratio3(epoch)* be_loss
+                        #else: # if i %3 == 2
+                        #    loss = ce_loss
+                        if i %3 == 1:
+                            loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
                         else: # if i %3 == 2
                             loss = ce_loss
                     else: #i.e. div=2
-                        loss =  ce_loss + loss_ratio3(epoch) *be_loss    
-                    
-                    ####################A working version####################
-                    ''' 
-                    if i %3 == 1:
-                        loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
-                    else: # if i %3 == 2
-                        loss = ce_loss
-                    '''
-                    ###################End of working version####################
-                     
+                        loss =  ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss  
+                 
                     
                          
                     loss.backward()
