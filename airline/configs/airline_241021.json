@@ -16,7 +16,8 @@
   "num_epochs": 10000,
   "batch_size": 32,
   "repetitions": 5,
-  "proj": true
+  "proj": true,
+  "div": 8
   }
   ,
   "airline_config": {

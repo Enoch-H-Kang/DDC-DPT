@@ -119,7 +119,7 @@ def loss_ratio2(x): #x is the epoch number
 def build_data_filename(config, mode):
     """
     Builds the filename for the airline data.
-    Mode is either 'train' or 'test'.
+    Mode is either 'train', 'test', or 'hard_test'.
     """
     filename_template = 'datasets/airline_carr_id_{}_{}.pkl'
     filename = filename_template.format(config['carr_id'], mode)
@@ -194,12 +194,15 @@ def train(config):
 
     path_train = build_data_filename(dataset_config, mode='train')
     path_test = build_data_filename(dataset_config, mode='test')
+    path_hard_test = build_data_filename(dataset_config, mode='hard_test')
 
     train_dataset = Dataset(path_train, dataset_config)
     test_dataset = Dataset(path_test, dataset_config)
+    hard_test_dataset = Dataset(path_hard_test, dataset_config)
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=config['shuffle'])
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=config['batch_size'], shuffle=config['shuffle'])
+    hard_test_loader = torch.utils.data.DataLoader(hard_test_dataset, batch_size=config['batch_size'], shuffle=config['shuffle'])
     
     states_dim = 11 
     actions_dim = 2
@@ -247,7 +250,8 @@ def train(config):
            
                 ##### Test batch loop #####
                 
-                for i, batch in enumerate(test_loader):
+                #for i, batch in enumerate(test_loader):
+                for i, batch in enumerate(hard_test_loader):
                     
                     print(f"Batch {i} of {len(test_loader)}", end='\r')
                     batch = {k: v.to(device) for k, v in batch.items()} #dimension is (batch_size, horizon, state_dim)
@@ -458,26 +462,26 @@ def train(config):
                 plt.figure(figsize=(12, 12))  # Increase the height to fit all plots
     
                 # Plotting total train loss
-                plt.subplot(4, 1, 1) # Adjust to 6x1 grid
-                plt.yscale('log')
-                plt.xlabel('epoch')
-                plt.ylabel('Total Train Loss')
-                plt.plot(train_loss[1:], label="Total Train Loss")
-                plt.legend()
-
                 # Plotting BE loss
-                plt.subplot(4, 1, 2) # Second plot in a 6x1 grid
+                plt.subplot(4, 1, 1) # Second plot in a 6x1 grid
                 plt.yscale('log')
                 plt.xlabel('epoch')
                 plt.ylabel('BE Loss')
                 plt.plot(train_be_loss[1:], label="Bellman Error Loss", color='red')
+                plt.legend()
+               
+                plt.subplot(4, 1, 2) # Adjust to 6x1 grid
+                plt.yscale('log')
+                plt.xlabel('epoch')
+                plt.ylabel('Test CE Loss')
+                plt.plot(test_ce_loss[1:], label="Total Train Loss")
                 plt.legend()
 
                 # Plotting CE loss
                 plt.subplot(4, 1, 3) # Third plot in a 6x1 grid
                 plt.yscale('log')
                 plt.xlabel('epoch')
-                plt.ylabel('CE Loss')
+                plt.ylabel('Train CE Loss')
                 plt.plot(train_ce_loss[1:], label="Cross-Entropy Loss", color='blue')
                 plt.legend()
                 

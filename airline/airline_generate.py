@@ -17,12 +17,14 @@ class AirlineEnv:
         rawData13 = pd.read_csv(os.path.join(data_path, 'airline13.csv'))
         rawData14 = pd.read_csv(os.path.join(data_path, 'airline14.csv'))
         rawData15 = pd.read_csv(os.path.join(data_path, 'airline15.csv'))
+        rawData15_hard = pd.read_csv(os.path.join(data_path, 'airline15_hard.csv'))
         
         # Filter data by carrier ID
         if carr_id != 100:
             rawData13 = rawData13[rawData13['CarrID'] == carr_id]
             rawData14 = rawData14[rawData14['CarrID'] == carr_id]
             rawData15 = rawData15[rawData15['CarrID'] == carr_id]
+            rawData15_hard = rawData15_hard[rawData15_hard['CarrID'] == carr_id]
         
         # Define state variables by dropping unnecessary columns
         self.s13 = rawData13.drop(columns=['csa_code_origin', 'csa_code_dest', 'CarrID', 
@@ -47,11 +49,18 @@ class AirlineEnv:
                                            'capacity_t', 
                                            #'pop_origin', 'pop_dest', 
                                            'capacity_tplus1', 'seg_entry_tplus1']).to_numpy()
-        
+        self.s15_hard = rawData15_hard.drop(columns=['csa_code_origin', 'csa_code_dest','CarrID', 
+                                           'Segid', 'yearq', 'Unnamed: 0',
+                                           'fstseats', 'busseats', 'ecoseats', 'scheduled_aircraft_max_take_off_weight',
+                                           'scheduled_flights', 'scheduled_aircraft_hold_volume', 'scheduled_aircraft_range_stat_miles',
+                                           'capacity_t', 
+                                           #'pop_origin', 'pop_dest', 
+                                           'capacity_tplus1', 'seg_entry_tplus1']).to_numpy()
         # Define actions
         self.a13 = rawData13[['seg_entry_tplus1']].astype(int).to_numpy()
         self.a14 = rawData14[['seg_entry_tplus1']].astype(int).to_numpy()
         self.a15 = rawData15[['seg_entry_tplus1']].astype(int).to_numpy()
+        self.a15_hard = rawData15_hard[['seg_entry_tplus1']].astype(int).to_numpy()
         
         # Stack states and actions to create training and test sets
         
@@ -86,10 +95,19 @@ def generate_airline_histories(carr_id, mode='train'):
             'actions': actions,
             'next_states': next_states,
         }
-    else:  # mode == 'test'
+    elif mode == 'test':
         states = np.expand_dims(env.s15, axis=1)  # shape is (n, 1, 10)
         actions = np.expand_dims(env.a15, axis=1)  # shape is (n, 1, 1)
         next_states = np.zeros_like(states)  # shape is (n, 1, 10)
+        trajs = {
+            'states': states,
+            'actions': actions,
+            'next_states': next_states,
+        }
+    else: #mode == 'hard_test'
+        states = np.expand_dims(env.s15_hard, axis=1)  # shape is (n, 1, 10)
+        actions = np.expand_dims(env.a15_hard, axis=1)
+        next_states = np.zeros_like(states)
         trajs = {
             'states': states,
             'actions': actions,
@@ -111,11 +129,13 @@ def generate():
         
         trajs_train = generate_airline_histories(carr_id, mode='train')
         trajs_test = generate_airline_histories(carr_id, mode='test')
+        trajs_hard_test = generate_airline_histories(carr_id, mode='hard_test')
         
         if not os.path.exists('datasets'):
             os.makedirs('datasets', exist_ok=True)
         train_filepath = build_filepaths(carr_id,'train')
         test_filepath = build_filepaths(carr_id,'test')
+        test_hard_filepath = build_filepaths(carr_id,'hard_test')
         
         with open(train_filepath, 'wb') as file:
             pickle.dump(trajs_train, file)
@@ -124,6 +144,10 @@ def generate():
         with open(test_filepath, 'wb') as file:
             pickle.dump(trajs_test, file)
         print(f"Saved to {test_filepath}.")
+        
+        with open(test_hard_filepath, 'wb') as file:
+            pickle.dump(trajs_hard_test, file)
+        print(f"Saved to {test_hard_filepath}.")
 
 
 if __name__ == "__main__":

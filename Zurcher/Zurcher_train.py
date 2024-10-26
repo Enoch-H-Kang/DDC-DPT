@@ -176,7 +176,7 @@ def build_log_filename(config):
     filename = (f"{config['env']}_num_trajs{config['num_trajs']}"
                 f"_dummies{config['num_dummies']}x{config['dummy_dim']}"
                 f"_beta{config['beta']}_theta{config['theta']}"
-                f"_H{config['H']}_cebound{config['ce_bound']}"
+                f"_H{config['H']}"
                 f"_batch{config['batch_size']}"
                 )
     filename += f'_{timestamp}'
@@ -530,11 +530,7 @@ def train(config):
                     be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))#/count_nonzero_pos *batch_size*config['H']
                     #count_nonzero_pos is the number of nonzero true-actions in batch_size*horizon
                     
-                    if config['proj'] == True: #i.e. div=3
-                        #if i % 3 == 1:
-                        #    loss = ce_loss + loss_ratio3(epoch)* be_loss
-                        #else: # if i %3 == 2
-                        #    loss = ce_loss
+                    if config['proj'] == True: #i.e. div \ge 3
                         if i %3 == 1:
                             loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
                         else: # if i %3 == 2
