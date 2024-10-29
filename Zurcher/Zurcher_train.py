@@ -178,6 +178,7 @@ def build_log_filename(config):
                 f"_beta{config['beta']}_theta{config['theta']}"
                 f"_H{config['H']}"
                 f"_batch{config['batch_size']}"
+                f"_div{config['div']}"
                 )
     filename += f'_{timestamp}'
     
@@ -480,13 +481,10 @@ def train(config):
                 logsumexp_nextstate = torch.logsumexp(pred_q_values_nextstate_reshaped, dim=1) #dimension is (batch_size*horizon,)
                 #vnext_reshaped = np.euler_gamma + logsumexp_nextstate
                 vnext_reshaped = logsumexp_nextstate
-            
-                if config['proj'] == 'true':
-                    div = 3
-                else:
-                    div = 2
+
+                div = config['div']
                 
-                if i % div == 0: # update D only, div=3 means update D every 3 batches
+                if i % div == 0: # update D only, update D every div batches
 
                     #V(s')-E[V(s')] minimization loss
                     D = MSE_loss_fn(vnext_reshaped.clone().detach(), chosen_vnext_values_reshaped)
@@ -496,7 +494,7 @@ def train(config):
                     epoch_train_D_loss += D.item() / config['H'] #per-sample loss
                     model.zero_grad() #clear gradients for the batch. This prevents the accumulation of gradients.
             
-                else:     # QtoVmodel parameters only
+                else:  # i % div \ge 1
                     ce_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #shape  is (batch_size*horizon,)
                     #printw(f"Cross entropy loss: {ce_loss.item()}", config)
                     #td error for batch size*horizon
@@ -530,13 +528,15 @@ def train(config):
                     be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))#/count_nonzero_pos *batch_size*config['H']
                     #count_nonzero_pos is the number of nonzero true-actions in batch_size*horizon
                     
-                    if config['proj'] == True: #i.e. div \ge 3
-                        if i %3 == 1:
-                            loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
-                        else: # if i %3 == 2
-                            loss = ce_loss
-                    else: #i.e. div=2
-                        loss =  ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss  
+                    #if config['proj'] == True: #i.e. div \ge 3
+                    
+                    if i % div == 1:
+                        loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
+                    else: # if i % div \ge 2
+                        loss = ce_loss
+                    
+                    #else: #i.e. div=2
+                    #   loss =  ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss  
                  
                     
                          

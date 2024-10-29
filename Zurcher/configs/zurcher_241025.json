@@ -17,7 +17,8 @@
   "num_epochs": 10000,
   "batch_size": 32,
   "repetitions": 5,
-  "proj": true
+  "proj": true,
+  "div": 3
   }
   ,
   "zurcher_config": {
@@ -26,23 +27,24 @@
     "theta": [1, 5, 1],
     "numTypes": 1,
     "loss_ratio": 1,
-    "ce_bound": 1.01
+    "dummy_dim": 10, 
+    "num_trajs": 1000
   },
   "experiments": [
     {
-      "num_trajs": 1000, "dummy_dim": 5, "num_dummies": 2
+      "num_dummies": 2
     },
     {
-      "num_trajs": 1000, "dummy_dim": 5, "num_dummies": 5
+      "num_dummies": 5
     },
     {
-      "num_trajs": 1000, "dummy_dim": 5, "num_dummies": 10
+      "num_dummies": 20
     },
     {
-      "num_trajs": 1000, "dummy_dim": 5, "num_dummies": 20
+      "num_dummies": 50
     },
     {
-      "num_trajs": 1000, "dummy_dim": 5, "num_dummies": 50
+      "num_dummies": 100
     }
   ]
 }
