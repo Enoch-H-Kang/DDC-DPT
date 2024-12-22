@@ -15,18 +15,20 @@
   "store_gpu": true,
   "layer_norm": false,
   "num_epochs": 20000,
-  "batch_size": 64
+  "batch_size": 256
   }
   ,
   "zurcher_config": {
     "maxMileage": 10,
     "rollin_type": "expert",
     "theta": [1, 5, 1],
-    "numTypes": 1
+    "numTypes": 1,
+    "num_dummies": 0,
+    "dummy_dim": 5
   },
   "experiments": [
     {
-      "loss_ratio": 0.01, "num_trajs": 50
+      "loss_ratio": 1, "num_trajs": 50000
     }
   ]
 }

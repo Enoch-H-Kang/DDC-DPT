@@ -9,3 +9,11 @@ pipeline_output.log
 /mlp_exps/models
 /mlp_exps/figs
 /mlp_exps/datasets
+/Zurcher/logs
+/Zurcher/models
+/Zurcher/figs
+/Zurcher/datasets
+/Zurcher/outputs
+/Zurcher/models
+/baseline/SAmQ/data/
+/baseline/SAmQ/wandb/
