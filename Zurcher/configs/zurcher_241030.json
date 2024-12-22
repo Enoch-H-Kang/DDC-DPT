@@ -7,7 +7,7 @@
   ,
   "training_config": {
   "lr": 0.001,
-  "h_size": 10,
+  "h_size": 50,
   "n_layer": 2,
   "shuffle": false,
   "seed": 1,

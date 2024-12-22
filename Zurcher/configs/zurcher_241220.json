@@ -7,7 +7,7 @@
   ,
   "training_config": {
   "lr": 0.001,
-  "h_size": 10,
+  "h_size": 50,
   "n_layer": 2,
   "shuffle": false,
   "seed": 1,
@@ -17,8 +17,7 @@
   "num_epochs": 10000,
   "batch_size": 32,
   "repetitions": 5,
-  "proj": true,
-  "div": 3
+  "proj": true
   }
   ,
   "zurcher_config": {
@@ -28,23 +27,31 @@
     "numTypes": 1,
     "loss_ratio": 1,
     "dummy_dim": 10, 
-    "num_trajs": 5000
+    "num_dummies": 0
   },
   "experiments": [
     {
-      "num_dummies": 2
+      "num_trajs": 50
     },
     {
-      "num_dummies": 5
+      "num_trajs": 100
     },
     {
-      "num_dummies": 20
+      "num_trajs": 250
     },
     {
-      "num_dummies": 50
+      "num_trajs": 500
     },
     {
-      "num_dummies": 100
+      "num_trajs": 1000
+    }
+    ,
+    {
+      "num_trajs": 2500
+    }
+    ,
+    {
+      "num_trajs": 5000
     }
   ]
 }

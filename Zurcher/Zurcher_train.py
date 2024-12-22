@@ -119,27 +119,11 @@ class Dataset(torch.utils.data.Dataset):
             return torch.tensor(np.asarray(x)).float()
 
 
-def loss_ratio(x, start_value, end_value, transition_point=100):
+def loss_ratio(x, start_value):
     if x < 1:
-        return start_value  # For x < 1, return the start value
-    elif 1 <= x <= transition_point:
-        # Linear interpolation between (1, start_value) and (transition_point, end_value)
-        slope = (end_value - start_value) / (transition_point - 1)
-        return start_value + slope * (x - 1)
-    else:  # x > transition_point
-        return end_value
-
-def loss_ratio3(x): #x is the epoch number
-    if x < 1:
-        return 1/5000  # For x < 1, return the start value
-    else:  
-        return 1/5000*x
-    
-def loss_ratio2(x): #x is the epoch number
-    if x < 1:
-        return 10000  # For x < 1, return the start value
-    else:  
-        return 10000/x
+        return start_value  
+    else: 
+        return start_value/x
 
 def build_data_filename(config, mode):
     """
@@ -178,7 +162,6 @@ def build_log_filename(config):
                 f"_beta{config['beta']}_theta{config['theta']}"
                 f"_H{config['H']}"
                 f"_batch{config['batch_size']}"
-                f"_div{config['div']}"
                 )
     filename += f'_{timestamp}'
     
@@ -481,10 +464,8 @@ def train(config):
                 logsumexp_nextstate = torch.logsumexp(pred_q_values_nextstate_reshaped, dim=1) #dimension is (batch_size*horizon,)
                 #vnext_reshaped = np.euler_gamma + logsumexp_nextstate
                 vnext_reshaped = logsumexp_nextstate
-
-                div = config['div']
                 
-                if i % div == 0: # update D only, update D every div batches
+                if i % 2 == 0: # update xi only, update xi every 2 batches
 
                     #V(s')-E[V(s')] minimization loss
                     D = MSE_loss_fn(vnext_reshaped.clone().detach(), chosen_vnext_values_reshaped)
@@ -494,7 +475,7 @@ def train(config):
                     epoch_train_D_loss += D.item() / config['H'] #per-sample loss
                     model.zero_grad() #clear gradients for the batch. This prevents the accumulation of gradients.
             
-                else:  # i % div \ge 1
+                else:  # update Q only, update Q every 2 batches
                     ce_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #shape  is (batch_size*horizon,)
                     #printw(f"Cross entropy loss: {ce_loss.item()}", config)
                     #td error for batch size*horizon
@@ -528,18 +509,9 @@ def train(config):
                     be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))#/count_nonzero_pos *batch_size*config['H']
                     #count_nonzero_pos is the number of nonzero true-actions in batch_size*horizon
                     
-                    #if config['proj'] == True: #i.e. div \ge 3
-                    
-                    if i % div == 1:
-                        loss = ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss
-                    else: # if i % div \ge 2
-                        loss = ce_loss
-                    
-                    #else: #i.e. div=2
-                    #   loss =  ce_loss + config['loss_ratio']*loss_ratio(epoch, 0, 1, 5000) * be_loss  
-                 
-                    
-                         
+                    #loss = config['loss_ratio']*loss_ratio(epoch, 1000) * ce_loss + be_loss
+                    loss = ce_loss + be_loss
+   
                     loss.backward()
                     q_optimizer.step()
                     q_optimizer.zero_grad() #clear gradients for the batch
@@ -560,14 +532,16 @@ def train(config):
                     pred_r_values_with_states = torch.cat((last_states, pred_r_values_print), dim=1) #dimension is (batch_size, state_dim+action_dim)
                     printw(f"Predicted r values: {pred_r_values_with_states[:10]}", config)
                 
-                pred_r_values = pred_q_values - config['beta']*pred_vnext_values #dimension is (batch_size, horizon, action_dim)
-                chosen_pred_r_values = torch.gather(pred_r_values, dim=2, index=true_actions.unsqueeze(-1)).squeeze(-1)
+                #for each batch, compute the MSE loss of r(s,a) values
+                
+                #pred_r_values = pred_q_values - config['beta']*pred_vnext_values #dimension is (batch_size, horizon, action_dim)
+                #chosen_pred_r_values = torch.gather(pred_r_values, dim=2, index=true_actions.unsqueeze(-1)).squeeze(-1)
                 #dimension is (batch_size, horizon)
     
-                true_r_values = batch['states_true_Qs'] - config['beta']*batch['states_true_expVs'] #dimension is (batch_size, horizon, action_dim)
-                chosen_true_r_values = torch.gather(true_r_values, dim=2, index=true_actions.unsqueeze(-1)).squeeze(-1) #dimension is (batch_size, horizon)
-                mean_MSE_loss_fn = torch.nn.MSELoss() 
-                r_MSE_loss = mean_MSE_loss_fn(chosen_pred_r_values, chosen_true_r_values) #by default it gives batch mean (total sum / (batch_size*horizon))
+                #true_r_values = batch['states_true_Qs'] - config['beta']*batch['states_true_expVs'] #dimension is (batch_size, horizon, action_dim)
+                #chosen_true_r_values = torch.gather(true_r_values, dim=2, index=true_actions.unsqueeze(-1)).squeeze(-1) #dimension is (batch_size, horizon)
+                #mean_MSE_loss_fn = torch.nn.MSELoss() 
+                #r_MSE_loss = mean_MSE_loss_fn(chosen_pred_r_values, chosen_true_r_values) #by default it gives batch mean (total sum / (batch_size*horizon))
             
             
                 
