@@ -27,7 +27,7 @@
     "numTypes": 1,
     "loss_ratio": 1,
     "dummy_dim": 10, 
-    "num_dummies": 0
+    "num_dummies": 2
   },
   "experiments": [
     {
@@ -52,6 +52,10 @@
     ,
     {
       "num_trajs": 5000
+    }
+    ,
+    {
+      "num_trajs": 10000
     }
   ]
 }
