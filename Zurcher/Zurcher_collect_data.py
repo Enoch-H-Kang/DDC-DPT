@@ -16,7 +16,6 @@ class Environment(object):
         self.theta = theta
         
         self.rollin_type = rollin_type
-        self.current_step = 0
 
 class ZurcherEnv(Environment):
     def __init__(self, type, **config):
@@ -33,7 +32,6 @@ class ZurcherEnv(Environment):
         self.states = np.arange(self.xmax+1) #dimension is (states,), where states are 0,1,2,...,xmax
         self.numTypes = config['numTypes']
         self.type = type
-        self.current_step = 0
         self.EP, self.Q, self.expV = self.calculate_EP_Q()
         self.U = self._get_util()
         self.count = 0
@@ -131,8 +129,7 @@ class ZurcherEnv(Environment):
         return randchoice
     
     def reset(self):
-        self.current_step = 0
-        self.state = 0
+        self.state = 1
         return self.state
 
     def transit(self, state, action_prob):
