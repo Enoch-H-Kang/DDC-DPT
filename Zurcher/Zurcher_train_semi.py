@@ -240,8 +240,8 @@ def train(config):
     repetitions = config['repetitions']  # Number of repetitions
 
     rep_test_Q_MSE_loss = []
-    rep_test_r_MSE_loss = []
-    rep_best_r_MSE_loss = []
+    rep_test_r_MAPE_loss = []
+    rep_best_r_MAPE_loss = []
     rep_best_Q_MSE_loss = []    
 
     
@@ -252,13 +252,13 @@ def train(config):
         train_ce_loss = []
         train_D_loss = []
         test_Q_MSE_loss = []
-        test_r_MSE_loss = []
+        test_r_MAPE_loss = []
         test_vnext_MSE_loss = []
         
         #Storing the best training epoch and its corresponding best Q MSE loss/Q values
         best_epoch = -1
         best_Q_MSE_loss = 9999
-        best_r_MSE_loss = 9999
+        best_r_MAPE_loss = 9999
         best_normalized_true_Qs = torch.tensor([])
         best_normalized_pred_q_values = torch.tensor([])
 
@@ -276,7 +276,8 @@ def train(config):
                 epoch_Q_MSE_loss = 0.0
                 epoch_vnext_MSE_loss = 0.0
                 epoch_test_D_loss = 0.0
-                epoch_r_MSE_loss = 0.0
+                #epoch_r_MSE_loss = 0.0
+                epoch_r_MAPE_loss = 0.0
                 
                 ##### Test batch loop #####
                 
@@ -347,10 +348,17 @@ def train(config):
         
                     true_r_values = batch['states_true_Qs'] - config['beta']*batch['states_true_expVs'] #dimension is (batch_size, horizon, action_dim)
                     chosen_true_r_values = torch.gather(true_r_values, dim=2, index=true_actions.unsqueeze(-1)).squeeze(-1) #dimension is (batch_size, horizon)
-                    mean_MSE_loss_fn = torch.nn.MSELoss() 
-                    r_MSE_loss = mean_MSE_loss_fn(chosen_pred_r_values, chosen_true_r_values) #by default it gives batch mean (total sum / (batch_size*horizon))
-                    epoch_r_MSE_loss += r_MSE_loss.item()    
-
+                    
+                    #For computing r_MSE
+                    #mean_MSE_loss_fn = torch.nn.MSELoss() 
+                    #r_MSE_loss = mean_MSE_loss_fn(chosen_pred_r_values, chosen_true_r_values) #by default it gives batch mean (total sum / (batch_size*horizon))
+                    #epoch_r_MSE_loss += r_MSE_loss.item()    
+                    
+                    #For computing r_MAPE (mean absolute percentage error)
+                    diff = torch.abs(chosen_pred_r_values- chosen_true_r_values) #dimension is (batch_size, horizon)
+                    denom = torch.abs(chosen_true_r_values) #dimension is (batch_size, horizon)
+                    r_MAPE = torch.mean(diff / denom)*100 #dimension is (1,), because it is the mean of all diff/denom values in the batch
+                    epoch_r_MAPE_loss += r_MAPE.item()
                     
                     ####### Q value MSE loss
                     #Normalized Q values
@@ -396,9 +404,9 @@ def train(config):
                 ##### Back to epoch level #####
                 # Note that epoch MSE losses are sum of all test batch means in the epoch
                 
-                if epoch_r_MSE_loss/len(test_dataset) < best_r_MSE_loss: #epoch_r_MSE_loss is sum of all test batch means in the epoch
+                if epoch_r_MAPE_loss/len(test_dataset) < best_r_MAPE_loss: #epoch_r_MAPE_loss is sum of all test batch means in the epoch
         
-                    best_r_MSE_loss = epoch_r_MSE_loss/len(test_dataset) #len(test_dataset) is the number of batches in the test dataset
+                    best_r_MAPE_loss = epoch_r_MAPE_loss/len(test_dataset) #len(test_dataset) is the number of batches in the test dataset
                     best_epoch = epoch          
                     best_Q_MSE_loss = epoch_Q_MSE_loss
                     best_normalized_true_Qs = last_true_Qs #Last batch's true Q values
@@ -409,14 +417,14 @@ def train(config):
             ############# Finish of an epoch's evaluation ############
             
             #test_loss.append(epoch_CrossEntropy_loss / len(test_dataset))
-            test_r_MSE_loss.append(epoch_r_MSE_loss / len(test_dataset))
+            test_r_MAPE_loss.append(epoch_r_MAPE_loss / len(test_dataset)) #mean of all test batch means in the epoch
             test_Q_MSE_loss.append(epoch_Q_MSE_loss / len(test_dataset)) #len(test_dataset) is the number of batches in the test dataset
             test_vnext_MSE_loss.append(epoch_vnext_MSE_loss / len(test_dataset))
             
             end_time = time.time()
             #printw(f"\tCross entropy test loss: {test_loss[-1]}", config)
             printw(f"\tMSE of normalized Q-value: {test_Q_MSE_loss[-1]}", config)
-            printw(f"\tMSE of r(s,a): {test_r_MSE_loss[-1]}", config)
+            printw(f"\tMAPE of r(s,a): {test_r_MAPE_loss[-1]}", config)
             #printw(f"\tMSE of V(s',a'): {test_vnext_MSE_loss[-1]}", config)
             printw(f"\tEval time: {end_time - start_time}", config)
             
@@ -459,7 +467,7 @@ def train(config):
                 ]
                 #dimension of chosen_q_values_reshaped is (batch_size*horizon,)
 
-                #V(s') = logsumexp Q(s',a') + gamma
+                #V(s') = logsumexp Q(s',a') + gamma, where gamma omitted when T1EV mean is 0
                 pred_q_values_nextstate_reshaped = pred_q_values_next.reshape(-1, pred_q_values_next.shape[-1]) #dimension is (batch_size*horizon, action_dim)
                 logsumexp_nextstate = torch.logsumexp(pred_q_values_nextstate_reshaped, dim=1) #dimension is (batch_size*horizon,)
                 #vnext_reshaped = np.euler_gamma + logsumexp_nextstate
@@ -601,12 +609,12 @@ def train(config):
                 plt.plot(test_Q_MSE_loss[1:], label="Test Q MSE Loss", color='green')
                 plt.legend()
                 
-                # Plotting r MSE loss 
+                # Plotting r MAPE loss 
                 plt.subplot(6, 1, 5) # Fifth plot in a 6x1 grid
                 plt.yscale('log')
                 plt.xlabel('epoch')
-                plt.ylabel('R MSE Loss')
-                plt.plot(test_r_MSE_loss[1:], label="R MSE Loss", color='purple')
+                plt.ylabel('R MAPE Loss')
+                plt.plot(test_r_MAPE_loss[1:], label="r MAPE Loss", color='purple')
                 plt.legend()
                 
                 plt.subplot(6, 1, 6) # Sixth plot in a 6x1 grid
@@ -625,17 +633,17 @@ def train(config):
         
         printw(f"Best epoch for repetition {rep+1} : {best_epoch}", config)
         printw(f"Best Q MSE loss for repetition {rep+1}: {best_Q_MSE_loss}", config)
-        printw(f"Best R MSE loss for repetition {rep+1}: {best_r_MSE_loss}", config)
+        printw(f"Best R MAPE loss for repetition {rep+1}: {best_r_MAPE_loss}", config)
         
         ################## Finish of one repetition #########################      
         if best_epoch > 0:
-            rep_best_r_MSE_loss.append(best_r_MSE_loss) 
+            rep_best_r_MAPE_loss.append(best_r_MAPE_loss) 
             rep_best_Q_MSE_loss.append(best_Q_MSE_loss)
         else:
             printw("No best r values were recorded during training.", config)  
             
         rep_test_Q_MSE_loss.append(test_Q_MSE_loss)
-        rep_test_r_MSE_loss.append(test_r_MSE_loss)
+        rep_test_r_MAPE_loss.append(test_r_MAPE_loss)
             
         torch.save(model.state_dict(), f'models/{build_log_filename(config)}.pt')
         
@@ -643,10 +651,10 @@ def train(config):
         
     #### Finish of all repetitions ####    
     rep_test_Q_MSE_loss = np.array(rep_test_Q_MSE_loss) #dimension is (repetitions, num_epochs)
-    rep_test_r_MSE_loss = np.array(rep_test_r_MSE_loss) #dimension is (repetitions, num_epochs)
+    rep_test_r_MAPE_loss = np.array(rep_test_r_MAPE_loss) #dimension is (repetitions, num_epochs)
     
-    mean_r_mse = np.mean(rep_test_r_MSE_loss, axis=0) #dimension is (num_epochs,)
-    std_r_mse = np.std(rep_test_r_MSE_loss, axis=0)/np.sqrt(repetitions)
+    mean_r_mape = np.mean(rep_test_r_MAPE_loss, axis=0) #dimension is (num_epochs,)
+    std_r_mape = np.std(rep_test_r_MAPE_loss, axis=0)/np.sqrt(repetitions)
     mean_Q_mse = np.mean(rep_test_Q_MSE_loss, axis=0) #dimension is (num_epochs,)
     std_Q_mse = np.std(rep_test_Q_MSE_loss, axis=0)/np.sqrt(repetitions)
     
@@ -657,9 +665,9 @@ def train(config):
     plt.subplot(2, 1, 1) # Adjust to 2x1 grid
     plt.yscale('log')
     plt.xlabel('epoch')
-    plt.ylabel('R MSE Loss')
-    plt.plot(mean_r_mse, label="Mean R MSE Loss", color='blue')
-    plt.fill_between(epochs, mean_r_mse - std_r_mse, mean_r_mse + std_r_mse, alpha=0.2, color='blue')
+    plt.ylabel('R MAPE Loss')
+    plt.plot(mean_r_mape, label="Mean R MAPE Loss", color='blue')
+    plt.fill_between(epochs, mean_r_mape - std_r_mape, mean_r_mape + std_r_mape, alpha=0.2, color='blue')
     plt.legend()
 
     # Plotting BE loss
@@ -676,15 +684,15 @@ def train(config):
     plt.close()
     
     printw(f"\nTraining completed.", config)
-    mean_best_r_mse = np.mean(rep_best_r_MSE_loss) 
+    mean_best_r_mape = np.mean(rep_best_r_MAPE_loss) 
     mean_best_Q_mse = np.mean(rep_best_Q_MSE_loss)
-    std_best_r_mse = np.std(rep_best_r_MSE_loss)/np.sqrt(repetitions)
+    std_best_r_mape = np.std(rep_best_r_MAPE_loss)/np.sqrt(repetitions)
     std_best_Q_mse = np.std(rep_best_Q_MSE_loss)/np.sqrt(repetitions)
     ##separate logging for the final results
     printw(f"\nFinal results for {repetitions} repetitions", config)
-    printw(f"Mean best R MSE loss: {mean_best_r_mse}", config)
+    printw(f"Mean best R MAPE loss: {mean_best_r_mape}", config)
     printw(f"Mean best Q MSE loss: {mean_best_Q_mse}", config)
-    printw(f"Standard error of best R MSE loss: {std_best_r_mse}", config)
+    printw(f"Standard error of best R MAPE loss: {std_best_r_mape}", config)
     printw(f"Standard error of best Q MSE loss: {std_best_Q_mse}", config)
         
     

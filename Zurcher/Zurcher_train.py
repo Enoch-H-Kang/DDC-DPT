@@ -158,6 +158,7 @@ def build_log_filename(config):
     timestamp = datetime.now().strftime('%Y%m%d')
     
     filename = (f"{config['env']}_num_trajs{config['num_trajs']}"
+                f"_decay{config['decay']}"
                 f"_dummies{config['num_dummies']}x{config['dummy_dim']}"
                 f"_beta{config['beta']}_theta{config['theta']}"
                 f"_H{config['H']}"
@@ -478,6 +479,12 @@ def train(config):
                     #V(s')-E[V(s')] minimization loss
                     D = MSE_loss_fn(vnext_reshaped.clone().detach(), chosen_vnext_values_reshaped)
                     D.backward()
+                    
+                    #Non-fixed lr part starts
+                    current_lr_vnext = 2*config['lr'] / (1 + config['decay']*epoch)
+                    vnext_optimizer.param_groups[0]['lr'] = current_lr_vnext
+                    #Non-fixed lr part ends
+                    
                     vnext_optimizer.step() #we use separate optimizer for vnext
                     vnext_optimizer.zero_grad() #clear gradients for the batch
                     epoch_train_D_loss += D.item() / config['H'] #per-sample loss
@@ -500,11 +507,7 @@ def train(config):
                         
                     td_error = chosen_q_values_reshaped - pivot_rewards_reshaped - config['beta'] * vnext_reshaped #\delta(s,a) = Q(s,a) - r(s,a) - beta*V(s')
                     #V(s')-E[V(s')|s,a]
-                    '''
-                    vnext_dev = (vnext_reshaped - chosen_vnext_values_reshaped.clone().detach())
-                    #Bi-conjugate trick to compute the Bellman error
-                    be_error_naive = td_error**2-config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
-                    '''
+                 
                     
                     vnext_dev = (vnext_reshaped - chosen_vnext_values_reshaped.clone().detach())
                     #Bi-conjugate trick to compute the Bellman error
@@ -517,10 +520,17 @@ def train(config):
                     be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))#/count_nonzero_pos *batch_size*config['H']
                     #count_nonzero_pos is the number of nonzero true-actions in batch_size*horizon
                     
-                    #loss = config['loss_ratio']*loss_ratio(epoch, 1000) * ce_loss + be_loss
+                    
                     loss = ce_loss + be_loss
-   
+                    #loss = 100*(1/(epoch+1))*ce_loss + be_loss
+                    
                     loss.backward()
+                    
+                    #Non-fixed lr part starts
+                    current_lr_q = config['lr'] / (1 + config['decay']*epoch)
+                    q_optimizer.param_groups[0]['lr'] = current_lr_q
+                    #Non-fixed lr part ends
+                    
                     q_optimizer.step()
                     q_optimizer.zero_grad() #clear gradients for the batch
                 
