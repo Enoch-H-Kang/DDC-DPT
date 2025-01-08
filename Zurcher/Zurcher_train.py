@@ -146,6 +146,7 @@ def build_model_filename(config):
     Builds the filename for the model.
     """
     filename = (f"{config['env']}_shuf{config['shuffle']}_lr{config['lr']}"
+                f"_decay{config['decay']}_Tik{config['Tik']}"
                 f"_do{config['dropout']}_embd{config['n_embd']}"
                 f"_layer{config['n_layer']}_head{config['n_head']}"
                 f"_H{config['H']}_seed{config['seed']}")
@@ -158,10 +159,12 @@ def build_log_filename(config):
     timestamp = datetime.now().strftime('%Y%m%d')
     
     filename = (f"{config['env']}_num_trajs{config['num_trajs']}"
-                f"_decay{config['decay']}"
+                f"_decay{config['decay']}_clip{config['clip']}"
+                f"_Tik{config['Tik']}"
                 f"_dummies{config['num_dummies']}x{config['dummy_dim']}"
-                f"_beta{config['beta']}_theta{config['theta']}"
-                f"_H{config['H']}"
+                #f"_beta{config['beta']}_theta{config['theta']}"
+                #f"_H{config['H']}"
+                f"_lr{config['lr']}"
                 f"_batch{config['batch_size']}"
                 )
     filename += f'_{timestamp}'
@@ -262,8 +265,7 @@ def train(config):
         best_r_MAPE_loss = 9999
         best_normalized_true_Qs = torch.tensor([])
         best_normalized_pred_q_values = torch.tensor([])
-
-        alpha = 0.05  # Smoothing factor for moving average
+      
         
         for epoch in tqdm(range(config['num_epochs']), desc="Training Progress"):
             
@@ -405,9 +407,9 @@ def train(config):
                 ##### Back to epoch level #####
                 # Note that epoch MSE losses are sum of all test batch means in the epoch
                 
-                if epoch_r_MAPE_loss/len(test_dataset) < best_r_MAPE_loss: #epoch_r_MAPE_loss is sum of all test batch means in the epoch
+                if epoch_r_MAPE_loss/len(test_loader) < best_r_MAPE_loss: #epoch_r_MAPE_loss is sum of all test batch means in the epoch
         
-                    best_r_MAPE_loss = epoch_r_MAPE_loss/len(test_dataset) #len(test_dataset) is the number of batches in the test dataset
+                    best_r_MAPE_loss = epoch_r_MAPE_loss/len(test_loader) #len(test_dataset) is the number of batches in the test dataset
                     best_epoch = epoch          
                     best_Q_MSE_loss = epoch_Q_MSE_loss
                     best_normalized_true_Qs = last_true_Qs #Last batch's true Q values
@@ -418,9 +420,9 @@ def train(config):
             ############# Finish of an epoch's evaluation ############
             
             #test_loss.append(epoch_CrossEntropy_loss / len(test_dataset))
-            test_r_MAPE_loss.append(epoch_r_MAPE_loss / len(test_dataset)) #mean of all test batch means in the epoch
-            test_Q_MSE_loss.append(epoch_Q_MSE_loss / len(test_dataset)) #len(test_dataset) is the number of batches in the test dataset
-            test_vnext_MSE_loss.append(epoch_vnext_MSE_loss / len(test_dataset))
+            test_r_MAPE_loss.append(epoch_r_MAPE_loss / len(test_loader)) #mean of all test batch means in the epoch
+            test_Q_MSE_loss.append(epoch_Q_MSE_loss / len(test_loader)) #len(test_dataset) is the number of batches in the test dataset
+            test_vnext_MSE_loss.append(epoch_vnext_MSE_loss / len(test_loader))
             
             end_time = time.time()
             #printw(f"\tCross entropy test loss: {test_loss[-1]}", config)
@@ -446,13 +448,14 @@ def train(config):
                 batch = {k: v.to(device) for k, v in batch.items()}
                 
                 pred_q_values, pred_q_values_next, pred_vnext_values = model(batch) #dimension is (batch_size, horizon, action_dim)
-                
+                batch_size = pred_q_values.shape[0]
                 true_actions = batch['actions'].long() #dimension is (batch_size, horizon,)
                 #in torch, .long() converts the tensor to int64. CrossEntropyLoss requires the target to be int64.
                 
-                #count number of batches that satisfies true_actions == 1
-                #count_nonzero = torch.count_nonzero(true_actions == 1) #dimension is (batch_size, horizon)
-                #count_nonzero_pos = torch.max(count_nonzero, torch.tensor(1)) #dimension is (batch_size, horizon)
+                true_actions_reshaped = true_actions.reshape(-1) #dimension is (batch_size*horizon,)
+                #count number of elements that satisfies true_actions == 1 in batch_size*horizon
+                count_nonzero = torch.count_nonzero(true_actions_reshaped)
+                count_nonzero_pos = torch.max(count_nonzero, torch.tensor(1)) #dimension is (batch_size, horizon)
 
                 true_actions_reshaped = true_actions.reshape(-1)  #dimension is (batch_size*horizon,)
                 pred_q_values_reshaped = pred_q_values.reshape(-1, pred_q_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
@@ -481,7 +484,7 @@ def train(config):
                     D.backward()
                     
                     #Non-fixed lr part starts
-                    current_lr_vnext = 2*config['lr'] / (1 + config['decay']*epoch)
+                    current_lr_vnext = config['lr'] / (1 + config['decay']*epoch)
                     vnext_optimizer.param_groups[0]['lr'] = current_lr_vnext
                     #Non-fixed lr part ends
                     
@@ -491,7 +494,9 @@ def train(config):
                     model.zero_grad() #clear gradients for the batch. This prevents the accumulation of gradients.
             
                 else:  # update Q only, update Q every 2 batches
-                    ce_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #shape  is (batch_size*horizon,)
+                    #ce_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #shape  is (batch_size*horizon,)
+                    Mean_CrossEntropy_loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
+                    ce_loss = Mean_CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #shape  is (batch_size*horizon,)
                     #printw(f"Cross entropy loss: {ce_loss.item()}", config)
                     #td error for batch size*horizon
                     
@@ -517,12 +522,18 @@ def train(config):
                     #Exclude the action 0 from computing the Bellman error, leaving pivot cases only.
                     be_error_0 = torch.where(true_actions_reshaped == 0, 0, be_error_naive) #only consider the Bellman error for action 1
                     #be_loss is normalized by the number of nonzero true-action batch numbers
-                    be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))#/count_nonzero_pos *batch_size*config['H']
+                    
+                    mean_MAE_loss_fn = torch.nn.L1Loss(reduction='mean')
+                    #be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))#/count_nonzero_pos*config['batch_size']*config['H']
+                    be_loss = mean_MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))#/count_nonzero_pos *batch_size*config['H']
                     #count_nonzero_pos is the number of nonzero true-actions in batch_size*horizon
                     
-                    
-                    loss = ce_loss + be_loss
-                    #loss = 100*(1/(epoch+1))*ce_loss + be_loss
+                    #Tikhonov
+                    if config['Tik'] == True:
+                        loss = 100*(1/(1+epoch))*ce_loss + be_loss
+                    else:               
+                        loss = ce_loss + be_loss
+                    #
                     
                     loss.backward()
                     
@@ -531,14 +542,16 @@ def train(config):
                     q_optimizer.param_groups[0]['lr'] = current_lr_q
                     #Non-fixed lr part ends
                     
+                    if config['clip'] != False:                    
+                        torch.nn.utils.clip_grad_value_(model.parameters(), clip_value=config['clip'])
                     q_optimizer.step()
                     q_optimizer.zero_grad() #clear gradients for the batch
                 
                     model.zero_grad()
                     
-                    epoch_train_loss += loss.item() / config['H']
-                    epoch_train_be_loss += be_loss.item() / config['H']
-                    epoch_train_ce_loss += ce_loss.item() / config['H']
+                    epoch_train_loss += loss.item() #/ config['H']
+                    epoch_train_be_loss += be_loss.item() #/ config['H']
+                    epoch_train_ce_loss += ce_loss.item() #/ config['H']
                     
                     print(f"Epoch_train_loss: {epoch_train_loss}", end='\r')
 
@@ -565,10 +578,10 @@ def train(config):
                 
                 
             #len(train_dataset) is the number of batches in the training dataset
-            train_loss.append(epoch_train_loss / len(train_dataset)) 
-            train_be_loss.append(epoch_train_be_loss / len(train_dataset))
-            train_ce_loss.append(epoch_train_ce_loss / len(train_dataset))
-            train_D_loss.append(epoch_train_D_loss / len(train_dataset))
+            train_loss.append(epoch_train_loss / len(train_loader)) 
+            train_be_loss.append(epoch_train_be_loss / len(train_loader))
+            train_ce_loss.append(epoch_train_ce_loss / len(train_loader))
+            train_D_loss.append(epoch_train_D_loss / len(train_loader))
 
             end_time = time.time()
             

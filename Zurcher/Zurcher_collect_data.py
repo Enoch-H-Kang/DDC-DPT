@@ -86,9 +86,6 @@ class ZurcherEnv(Environment):
             V = logsumexp(Q, axis=1)
             #expV0 = np.append(V[1:], V[-1])  # Transition to s+1 with prob 1, last state repeats for boundary
             
-            
-            
-            
             expV0 = np.zeros_like(V) #Dimension is (states,)
             for i in range(4):  #range(4) is [0,1,2,3]
                 Vi = np.append(V[i+1:], [V[-1]] * (i+1))  # Transition to s+i+1 with prob 1/4, last state repeats for boundary

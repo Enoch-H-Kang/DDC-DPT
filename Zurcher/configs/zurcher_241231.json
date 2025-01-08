@@ -14,9 +14,11 @@
   "store_gpu": true,
   "layer_norm": false,
   "num_epochs": 10000,
-  "batch_size": 32,
+  "batch_size": 128,
   "repetitions": 5,
-  "lr":0.001
+  "lr":0.001,
+  "decay": 0.0005, 
+  "Tik":false
   }
   ,
   "zurcher_config": {
@@ -30,16 +32,22 @@
   },
   "experiments": [
     {
-      "num_trajs": 500, "decay": 0.005
+      "num_trajs": 250
     },
     {
-      "num_trajs": 500, "decay": 0.001
+      "num_trajs": 500
     },
     {
-      "num_trajs": 500, "decay": 0.0005
+      "num_trajs": 1000
     },
     {
-      "num_trajs": 500, "decay": 0.0001
+      "num_trajs": 2500
+    },
+    {
+      "num_trajs": 5000
+    },
+    {
+      "num_trajs": 10000
     }
   ]
 }

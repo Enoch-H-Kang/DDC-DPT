@@ -1,0 +1,62 @@
+[36m(run_data_generation_and_training pid=3412816)[0m Data files already exist for the current configuration:
+[36m(run_data_generation_and_training pid=3412816)[0m Train file: datasets/trajs_zurcher_num_trajs500_dummies0x10_beta0.95_theta[1, 5, 1]_numTypes1_H100_expert_train.pkl
+[36m(run_data_generation_and_training pid=3412816)[0m Test file: datasets/trajs_zurcher_num_trajs500_dummies0x10_beta0.95_theta[1, 5, 1]_numTypes1_H100_expert_test.pkl
+[36m(run_data_generation_and_training pid=3412816)[0m Skipping data generation.
+[36m(run_data_generation_and_training pid=3412816)[0m 
+[36m(run_data_generation_and_training pid=3412816)[0m Starting repetition 1/5
+[36m(run_data_generation_and_training pid=3412816)[0m Epoch: 1
+[36m(run_data_generation_and_training pid=3412816)[0m Batch 0 of 2
+[36m(run_data_generation_and_training pid=3412813)[0m 
+[36m(run_data_generation_and_training pid=3412822)[0m 
+[36m(run_data_generation_and_training pid=3412821)[0m 
+[36m(run_data_generation_and_training pid=3412812)[0m 
+[36m(run_data_generation_and_training pid=3412819)[0m 
+[36m(run_data_generation_and_training pid=3412813)[0m True Q values: tensor([[  1.0000, -52.5342, -54.8151],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  3.0000, -54.9767, -54.8151],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  1.0000, -52.5342, -54.8151],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  5.0000, -57.0603, -54.8151],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  5.0000, -57.0603, -54.8151],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  1.0000, -52.5342, -54.8151],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  3.0000, -54.9767, -54.8151],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  1.0000, -52.5342, -54.8151],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  5.0000, -57.0603, -54.8151],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  5.0000, -57.0603, -54.8151]], device='cuda:0')
+[36m(run_data_generation_and_training pid=3412813)[0m Predicted Q values: tensor([[  1.0000, -54.8866, -55.0623],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  3.0000, -54.6597, -55.1868],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  1.0000, -54.8866, -55.0623],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  5.0000, -54.4329, -55.3113],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  5.0000, -54.4329, -55.3113],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  1.0000, -54.8866, -55.0623],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  3.0000, -54.6597, -55.1868],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  1.0000, -54.8866, -55.0623],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  5.0000, -54.4329, -55.3113],
+[36m(run_data_generation_and_training pid=3412813)[0m         [  5.0000, -54.4329, -55.3113]], device='cuda:0')
+[36m(run_data_generation_and_training pid=3412813)[0m 	MSE of normalized Q-value: 194.29641723632812
+[36m(run_data_generation_and_training pid=3412813)[0m 	MAPE of r(s,a): 88.67739868164062
+[36m(run_data_generation_and_training pid=3412813)[0m 	Eval time: 0.8524179458618164
+[36m(run_data_generation_and_training pid=3412816)[0m Batch 1 of 2	MSE of normalized Q-value: 223.2500457763672
+[36m(run_data_generation_and_training pid=3412822)[0m Batch 2 of 4Batch 3 of 4	MSE of normalized Q-value: 236.3660922050476
+[36m(run_data_generation_and_training pid=3412813)[0m Predicted r values: tensor([[ 1.0000, -2.8243, -2.9436],
+[36m(run_data_generation_and_training pid=3412813)[0m        grad_fn=<SliceBackward0>)
+[36m(run_data_generation_and_training pid=3412812)[0m Batch 1 of 8Batch 2 of 8Batch 3 of 8Batch 4 of 8Batch 5 of 8Batch 6 of 8Batch 7 of 8	MSE of normalized Q-value: 298.4947261810303
+[36m(run_data_generation_and_training pid=3412821)[0m Batch 1 of 16Batch 2 of 16Batch 3 of 16Batch 4 of 16Batch 5 of 16Batch 6 of 16Batch 7 of 16Batch 8 of 16
+[36m(run_data_generation_and_training pid=3412821)[0m Batch 10 of 16Batch 11 of 16Batch 12 of 16Batch 13 of 16Batch 14 of 16Batch 15 of 16	MSE of normalized Q-value: 265.4939374923706
+[36m(run_data_generation_and_training pid=3412822)[0m        grad_fn=<SliceBackward0>)
+[36m(run_data_generation_and_training pid=3412812)[0m        grad_fn=<SliceBackward0>)
+[36m(run_data_generation_and_training pid=3412816)[0m        grad_fn=<SliceBackward0>)
+[36m(run_data_generation_and_training pid=3412819)[0m Batch 1 of 32Batch 2 of 32Batch 3 of 32Batch 4 of 32Batch 5 of 32Batch 6 of 32Batch 7 of 32Batch 8 of 32Batch 9 of 32Batch 10 of 32Batch 11 of 32Batch 12 of 32Batch 13 of 32Batch 14 of 32Batch 15 of 32Batch 16 of 32Batch 17 of 32Batch 18 of 32
+[36m(run_data_generation_and_training pid=3412821)[0m        grad_fn=<SliceBackward0>)
+[36m(run_data_generation_and_training pid=3412819)[0m Batch 20 of 32Batch 21 of 32Batch 22 of 32Batch 23 of 32Batch 24 of 32Batch 25 of 32Batch 26 of 32Batch 27 of 32Batch 28 of 32Batch 29 of 32Batch 30 of 32Batch 31 of 32	MSE of normalized Q-value: 286.3761534690857
+[36m(run_data_generation_and_training pid=3412812)[0m Data files already exist for the current configuration:[32m [repeated 5x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/user-guides/configure-logging.html#log-deduplication for more options.)[0m
+[36m(run_data_generation_and_training pid=3412812)[0m Train file: datasets/trajs_zurcher_num_trajs2500_dummies0x10_beta0.95_theta[1, 5, 1]_numTypes1_H100_expert_train.pkl[32m [repeated 5x across cluster][0m
+[36m(run_data_generation_and_training pid=3412812)[0m Test file: datasets/trajs_zurcher_num_trajs2500_dummies0x10_beta0.95_theta[1, 5, 1]_numTypes1_H100_expert_test.pkl[32m [repeated 5x across cluster][0m
+[36m(run_data_generation_and_training pid=3412812)[0m Skipping data generation.[32m [repeated 5x across cluster][0m
+[36m(run_data_generation_and_training pid=3412819)[0m Starting repetition 1/5[32m [repeated 5x across cluster][0m
+[36m(run_data_generation_and_training pid=3412819)[0m Epoch: 1[32m [repeated 5x across cluster][0m
+[36m(run_data_generation_and_training pid=3412819)[0m Batch 0 of 125[32m [repeated 19x across cluster][0m
+[36m(run_data_generation_and_training pid=3412819)[0m True Q values: tensor([[  1.0000, -52.5342, -54.8151],[32m [repeated 5x across cluster][0m
+[36m(run_data_generation_and_training pid=3412821)[0m         [ 9.0000, -3.4183, -4.4928]], device='cuda:0',[32m [repeated 135x across cluster][0m
+[36m(run_data_generation_and_training pid=3412819)[0m Predicted Q values: tensor([[  1.0000, -54.8866, -55.0623],[32m [repeated 5x across cluster][0m
+[36m(run_data_generation_and_training pid=3412819)[0m 	MAPE of r(s,a): 89.42708730697632[32m [repeated 5x across cluster][0m
+[36m(run_data_generation_and_training pid=3412819)[0m 	Eval time: 1.071474313735962[32m [repeated 5x across cluster][0m
+[36m(run_data_generation_and_training pid=3412821)[0m Predicted r values: tensor([[ 1.0000, -2.8243, -2.9436],[32m [repeated 4x across cluster][0m

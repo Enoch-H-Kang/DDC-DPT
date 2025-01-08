@@ -31,12 +31,6 @@
   },
   "experiments": [
     {
-      "num_trajs": 50
-    },
-    {
-      "num_trajs": 100
-    },
-    {
       "num_trajs": 250
     },
     {

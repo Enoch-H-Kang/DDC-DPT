@@ -94,8 +94,13 @@ class MLP(MultiHeadedMLPModule):
         q_values_p3, _ = super().forward(states_p3) #dim is (batch_size*horizon, action_dim)
         vnext_p3 = torch.logsumexp(q_values_p3, dim=1) #dim is (batch_size*horizon)
         
+        states_p4 = states.clone()
+        states_p4[:,0] = torch.where(states_p4[:,0] + 3 < 20, states_p4[:,0] + 3, torch.tensor(20))
+        q_values_p4, _ = super().forward(states_p4) #dim is (batch_size*horizon, action_dim)
+        vnext_p4 = torch.logsumexp(q_values_p4, dim=1) #dim is (batch_size*horizon)
+        
         #mean of p1-p3 is the nextv_0, the expected next state value function of not replacing the engine now
-        vnext_0 = (vnext_p1 + vnext_p2 + vnext_p3)/3 #dim is (batch_size*horizon)
+        vnext_0 = (vnext_p1 + vnext_p2 + vnext_p3 + vnext_p4)/4 #dim is (batch_size*horizon)
         
         #states_r1 returns to the mileage 1
         states_r1 = states.clone()

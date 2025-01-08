@@ -363,9 +363,9 @@ def train(config):
                 ##### Back to epoch level #####
                 # Note that epoch MSE losses are sum of all test batch means in the epoch
                 
-                if epoch_r_MAPE_loss/len(test_dataset) < best_r_MAPE_loss: #epoch_r_MAPE_loss is sum of all test batch means in the epoch
+                if epoch_r_MAPE_loss/len(test_loader) < best_r_MAPE_loss: #epoch_r_MAPE_loss is sum of all test batch means in the epoch
         
-                    best_r_MAPE_loss = epoch_r_MAPE_loss/len(test_dataset) #len(test_dataset) is the number of batches in the test dataset
+                    best_r_MAPE_loss = epoch_r_MAPE_loss/len(test_loader) #len(test_loader) is the number of batches in the test dataset
                     best_epoch = epoch          
                     best_Q_MSE_loss = epoch_Q_MSE_loss
                     best_normalized_true_Qs = last_true_Qs #Last batch's true Q values
@@ -375,15 +375,15 @@ def train(config):
             
             ############# Finish of an epoch's evaluation ############
             
-            #test_loss.append(epoch_CrossEntropy_loss / len(test_dataset))
-            test_r_MAPE_loss.append(epoch_r_MAPE_loss / len(test_dataset)) #mean of all test batch means in the epoch
-            test_Q_MSE_loss.append(epoch_Q_MSE_loss / len(test_dataset)) #len(test_dataset) is the number of batches in the test dataset
-            test_vnext_MSE_loss.append(epoch_vnext_MSE_loss / len(test_dataset))
+            #test_loss.append(epoch_CrossEntropy_loss / len(test_loader))
+            test_r_MAPE_loss.append(epoch_r_MAPE_loss / len(test_loader)) #mean of all test batch means in the epoch
+            test_Q_MSE_loss.append(epoch_Q_MSE_loss / len(test_loader)) #len(test_loader) is the number of batches in the test dataset
+            test_vnext_MSE_loss.append(epoch_vnext_MSE_loss / len(test_loader))
             
             end_time = time.time()
             #printw(f"\tCross entropy test loss: {test_loss[-1]}", config)
             printw(f"\tMSE of normalized Q-value: {test_Q_MSE_loss[-1]}", config)
-            printw(f"\tMSE of r(s,a): {test_r_MAPE_loss[-1]}", config)
+            printw(f"\tMAPE of r(s,a): {test_r_MAPE_loss[-1]}", config)
             #printw(f"\tMSE of V(s',a'): {test_vnext_MSE_loss[-1]}", config)
             printw(f"\tEval time: {end_time - start_time}", config)
             
