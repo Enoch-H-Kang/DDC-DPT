@@ -139,8 +139,8 @@ def llh_nfxp(theta):
 
 
 # Load data
-filepath = os.path.join(path, "data_bus5000_test.txt") #os-independent path construction
-save_path = os.path.join(path, "results", f"NFXP_estimates_bus5000.csv")
+filepath = os.path.join(path, "data_bus500_test.txt") #os-independent path construction
+save_path = os.path.join(path, "results", f"NFXP_estimates_bus500.csv")
 #filepath = os.path.join(path, "data_assg3.txt") #os-independent path construction
 #data = pd.read_csv(filepath) # Load data as pandas dataframe
 data = pd.read_csv(filepath, header=None) # Load data as pandas dataframe

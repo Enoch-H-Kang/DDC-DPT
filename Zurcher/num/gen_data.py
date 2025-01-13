@@ -17,7 +17,7 @@ theta1 = 1
 theta2 = 5
 
 Horizon = 100
-Bustotal = 250
+Bustotal = 1000
 
 # Set up state-space
 xmax = 200
