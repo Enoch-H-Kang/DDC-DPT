@@ -18,3 +18,5 @@ pipeline_output.log
 /baseline/SAmQ/data/
 /baseline/SAmQ/wandb/
 /Zurcher/num/data
+/gym/datasets
+/gym/Expert_policy
