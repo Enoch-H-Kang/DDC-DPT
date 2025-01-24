@@ -1,5 +1,6 @@
 from torch import nn
 from torch.nn import functional as F
+import torch
 
 from multiHeadedMLPModule import MultiHeadedMLPModule
 
@@ -47,7 +48,7 @@ class MLP(MultiHeadedMLPModule):
                  hidden_b_init=nn.init.zeros_,
                  output_nonlinearity=None,
                  output_w_init=nn.init.xavier_normal_,
-                 output_b_init=lambda x: nn.init.constant_(x, -55),
+                 output_b_init=lambda x: nn.init.constant_(x, 30),
                  #output_b_init=nn.init.zeros_,
                  layer_normalization=False):
         super().__init__(2, states_dim, [actions_dim, actions_dim], hidden_sizes,
@@ -66,17 +67,17 @@ class MLP(MultiHeadedMLPModule):
             Return Q-values and E[V(s',a')|s,a]-values.
 
         """
-        states = x['states'] #dimension is (batch_size, horizon, state_dim)
-        batch_size, horizon, state_dim = states.shape
-        #
-        states = states.reshape(-1, state_dim) #dim is (batch_size*horizon, state_dim)
-        q_values, vnext_values = super().forward(states) #dim is (batch_size*horizon, action_dim)
-        q_values = q_values.reshape(batch_size, horizon, -1) #dim is (batch_size, horizon, action_dim)
-        vnext_values = vnext_values.reshape(batch_size, horizon, -1) #dim is (batch_size, horizon, action_dim)
+        lower_bound = 0
         
-        next_states = x['next_states']
-        next_states = next_states.reshape(-1, state_dim) # dim is (batch_size*horizon, state_dim)
+        states = torch.cat(x['states'], dim=0) #Cocat among the batch dimension. So the dim is (horizon+horizon+... , state_dim)
+        total_trans, state_dim = states.shape #total_trans is number of total transitions in the batch
+        
+        q_values, vnext_values = super().forward(states) #dim is (total_trans, action_dim)
+        q_values = torch.clamp(q_values, min=lower_bound) #Clamp the q_values to be greater than 0
+        vnext_values = torch.clamp(vnext_values, min=lower_bound) #Clamp the vnext_values to be greater than 0
+               
+        next_states = torch.cat(x['next_states'], dim=0) #Cocat among the batch dimension. So the dim is (horizon+horizon+... , state_dim)  
         next_q_values, _ = super().forward(next_states)
-        next_q_values = next_q_values.reshape(batch_size, horizon, -1)
+        next_q_values = torch.clamp(next_q_values, min=lower_bound)
         
         return q_values, next_q_values, vnext_values

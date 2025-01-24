@@ -23,7 +23,6 @@ class Dataset(torch.utils.data.Dataset):
 
     def __init__(self, path, config):
         self.shuffle = config['shuffle']
-        self.horizon = config['H']
         self.store_gpu = config['store_gpu']
         self.config = config
 
@@ -46,40 +45,34 @@ class Dataset(torch.utils.data.Dataset):
             actions_total.append(traj['actions'])
             next_states_total.append(traj['next_states'])
             rewards_total.append(traj['rewards'])
-            
-        states_total = np.array(states_total) #dimension of states_total is (num_trajs, H, state_dim)
-                    #when a batch is called, the dimension of the batch is (batch_size, H, state_dim)
-        actions_total = np.array(actions_total)
-        next_states_total = np.array(next_states_total)
-        rewards_total = np.array(rewards_total)
- 
-
+    
         self.dataset = {
-            'states': Dataset.convert_to_tensor(states_total, store_gpu=self.store_gpu),
-            'actions': Dataset.convert_to_tensor(actions_total, store_gpu=self.store_gpu),
-            'next_states': Dataset.convert_to_tensor(next_states_total, store_gpu=self.store_gpu),
-            'rewards': Dataset.convert_to_tensor(rewards_total, store_gpu=self.store_gpu),
+            'states': states_total,
+            'actions': actions_total,
+            'next_states': next_states_total,
+            'rewards': rewards_total,
         }
 
     def __len__(self):
         return len(self.trajs)
     
     def __getitem__(self, idx):
-        #'Generates one sample of data'. DataLoader constructs a batch using this.
-        res = {
-            'states': self.dataset['states'][idx],
-            'actions': self.dataset['actions'][idx],
-            'next_states': self.dataset['next_states'][idx],
-            'rewards': self.dataset['rewards'][idx],
+        traj = {
+            'states': torch.tensor(self.dataset['states'][idx]).float(),
+            'actions': torch.tensor(self.dataset['actions'][idx]).long(),
+            'next_states': torch.tensor(self.dataset['next_states'][idx]).float(),
+            'rewards': torch.tensor(self.dataset['rewards'][idx]).float(),
         }
+
         if self.shuffle:
-            perm = torch.randperm(self.horizon)
-            res['states'] = res['states'][perm]
-            res['actions'] = res['actions'][perm]
-            res['next_states'] = res['next_states'][perm]
-            res['rewards'] = res['rewards'][perm]
-        
-        return res
+            traj_length = traj['states'].shape[0]  # Get actual trajectory length
+            perm = torch.randperm(traj_length)  # Permute only within this trajectory
+            traj['states'] = traj['states'][perm]
+            traj['actions'] = traj['actions'][perm]
+            traj['next_states'] = traj['next_states'][perm]
+            traj['rewards'] = traj['rewards'][perm]
+
+        return traj
 
 
     def convert_to_tensor(x, store_gpu=True):
@@ -87,6 +80,20 @@ class Dataset(torch.utils.data.Dataset):
             return torch.tensor(np.asarray(x)).float().to(device)
         else:
             return torch.tensor(np.asarray(x)).float()
+
+
+def collate_fn(batch):
+    """
+    Custom collate function to handle variable-length trajectories.
+    Each batch is a list of dictionaries {'states': tensor, 'actions': tensor, ...}
+    """
+    batch_dict = {
+        'states': [item['states'] for item in batch],
+        'actions': [item['actions'] for item in batch],
+        'next_states': [item['next_states'] for item in batch],
+        'rewards': [item['rewards'] for item in batch],
+    }
+    return batch_dict
 
 
 def build_data_filename(config, mode):
@@ -110,7 +117,7 @@ def build_model_filename(config):
                 f"_decay{config['decay']}_Tik{config['Tik']}"
                 f"_do{config['dropout']}_embd{config['n_embd']}"
                 f"_layer{config['n_layer']}_head{config['n_head']}"
-                f"_H{config['H']}_seed{config['seed']}")
+                f"_seed{config['seed']}")
     return filename
 
 def build_log_filename(config):
@@ -122,6 +129,7 @@ def build_log_filename(config):
     filename = (f"{config['env']}_num_trajs{config['num_trajs']}"
                 f"_lr{config['lr']}"
                 f"_batch{config['batch_size']}"
+                f"_Tik{config['Tik']}"
                 )
     filename += f'_{timestamp}'
     
@@ -171,8 +179,13 @@ def train(config):
     train_dataset = Dataset(path_train, dataset_config)
     test_dataset = Dataset(path_test, dataset_config)
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=config['shuffle'])
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=config['batch_size'], shuffle=config['shuffle'])
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=config['batch_size'], shuffle=config['shuffle'], collate_fn=collate_fn
+    )
+    test_loader = torch.utils.data.DataLoader(
+        test_dataset, batch_size=config['batch_size'], shuffle=config['shuffle'], collate_fn=collate_fn
+    )
+
     
     states_dim = 8
     actions_dim = 4
@@ -190,7 +203,7 @@ def train(config):
     q_optimizer = torch.optim.AdamW(model.parameters(), lr=config['lr'], weight_decay=1e-4)
     vnext_optimizer = torch.optim.AdamW(model.parameters(), lr=config['lr'], weight_decay=1e-4)
     CrossEntropy_loss_fn = torch.nn.CrossEntropyLoss(reduction='sum')
-    MSE_loss_fn = torch.nn.MSELoss(reduction='sum')
+    MSE_loss_fn = torch.nn.MSELoss(reduction='mean')
     MAE_loss_fn = torch.nn.L1Loss(reduction='sum')
     
     repetitions = config['repetitions']  # Number of repetitions
@@ -233,43 +246,42 @@ def train(config):
                 
                 for i, batch in enumerate(test_loader):
                     print(f"Batch {i} of {len(test_loader)}", end='\r')
-                    batch = {k: v.to(device) for k, v in batch.items()} #dimension is (batch_size, horizon, state_dim)
+                    batch = {k: [v.to(device) for v in batch[k]] for k in batch}  # Move lists of tensors to device
                     states = batch['states']
-                    pred_q_values, pred_q_values_next, pred_vnext_values = model(batch) #dimension is (batch_size, horizon, action_dim)
+                    pred_q_values, pred_q_values_next, pred_vnext_values = model(batch) #dimension is (total_trans, action_dim)
                     
-                    true_actions = batch['actions'].long() #dimension is (batch_size, horizon,)
-                    true_actions_reshaped = true_actions.reshape(-1) #dimension is (batch_size*horizon,)
-                    pred_q_values_reshaped = pred_q_values.reshape(-1, pred_q_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
-                    pred_vnext_values_reshaped = pred_vnext_values.reshape(-1, pred_vnext_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
-
+                    true_actions = torch.cat(batch['actions'], dim=0).long() #dimension is (total_trans)
+        
                     ### Q(s,a) 
-                    chosen_q_values_reshaped = pred_q_values_reshaped[
-                    torch.arange(pred_q_values_reshaped.size(0)), true_actions_reshaped
+                    chosen_q_values_reshaped = pred_q_values[
+                    torch.arange(pred_q_values.size(0)), true_actions
                     ]
 
                     #E[V(s'|s,a)]
-                    chosen_vnext_values_reshaped = pred_vnext_values_reshaped[
-                        torch.arange(pred_vnext_values_reshaped.size(0)), true_actions_reshaped
+                    chosen_vnext_values_reshaped = pred_vnext_values[
+                        torch.arange(pred_vnext_values.size(0)), true_actions
                     ]
                     
+                    
                     #V(s') = logsumexp Q(s',a') + gamma
-                    pred_q_values_nextstate_reshaped = pred_q_values_next.reshape(-1, pred_q_values_next.shape[-1]) #dimension is (batch_size*horizon, action_dim)
-                    logsumexp_nextstate = torch.logsumexp(pred_q_values_nextstate_reshaped, dim=1) #dimension is (batch_size*horizon,)
+
+                    logsumexp_nextstate = torch.logsumexp(pred_q_values_next, dim=1) 
                     #vnext_reshaped = np.euler_gamma + logsumexp_nextstate
                     vnext_reshaped = logsumexp_nextstate
                               
                 
-                    pred_r_values = pred_q_values - config['beta']*pred_vnext_values #dimension is (batch_size, horizon, action_dim)
-                    chosen_pred_r_values = torch.gather(pred_r_values, dim=2, index=true_actions.unsqueeze(-1)).squeeze(-1)
-                    #dimension is (batch_size, horizon)
-        
-                    #true_r_values = batch['states_true_Qs'] - config['beta']*batch['states_true_expVs'] #dimension is (batch_size, horizon, action_dim)
-                    true_r_values = batch['rewards'] #dimension is (batch_size, horizon)
-                    chosen_true_r_values = torch.gather(true_r_values, dim=2, index=true_actions.unsqueeze(-1)).squeeze(-1) #dimension is (batch_size, horizon)
+                    pred_r_values = pred_q_values - config['beta']*pred_vnext_values 
+          
+                    
+                    chosen_pred_r_values = torch.gather(pred_r_values, dim=1, index=true_actions.unsqueeze(-1)) #dimension is (batch_size, horizon)
+
+                    true_r_values = torch.cat(batch['rewards'], dim=0) #dimension
+              
                     
                     #For computing r_MAPE (mean absolute percentage error)
-                    diff = torch.abs(chosen_pred_r_values- chosen_true_r_values) #dimension is (batch_size, horizon)
-                    denom = torch.abs(chosen_true_r_values) #dimension is (batch_size, horizon)
+                    diff = torch.abs(chosen_pred_r_values- true_r_values) #dimension is (batch_size, horizon)
+                    denom = torch.abs(true_r_values) #dimension is (batch_size, horizon)
+                   
                     r_MAPE = torch.mean(diff / denom)*100 #dimension is (1,), because it is the mean of all diff/denom values in the batch
                     epoch_r_MAPE_loss += r_MAPE.item()
                     
@@ -283,11 +295,6 @@ def train(config):
         
                     best_r_MAPE_loss = epoch_r_MAPE_loss/len(test_loader) #len(test_dataset) is the number of batches in the test dataset
                     best_epoch = epoch          
-                    best_Q_MSE_loss = epoch_Q_MSE_loss
-                    best_normalized_true_Qs = last_true_Qs #Last batch's true Q values
-                    best_normalized_pred_q_values = last_pred_q_values #Last batch's predicted Q values
-                    
-                    best_epoch = epoch    
             
             ############# Finish of an epoch's evaluation ############
     
@@ -296,7 +303,6 @@ def train(config):
             end_time = time.time()
             #printw(f"\tCross entropy test loss:
             
-             {test_loss[-1]}", config)
             printw(f"\tMAPE of r(s,a): {test_r_MAPE_loss[-1]}", config)
 
             printw(f"\tEval time: {end_time - start_time}", config)
@@ -315,42 +321,28 @@ def train(config):
             
             for i, batch in enumerate(train_loader): #For batch i in the training dataset
                 print(f"Batch {i} of {len(train_loader)}", end='\r')
-                batch = {k: v.to(device) for k, v in batch.items()}
+                batch = {k: [v.to(device) for v in batch[k]] for k in batch}  # Move lists of tensors to device
                 
-                pred_q_values, pred_q_values_next, pred_vnext_values = model(batch) #dimension is (batch_size, horizon, action_dim)
-                batch_size = pred_q_values.shape[0]
-                true_actions = batch['actions'].long() #dimension is (batch_size, horizon,)
-                #in torch, .long() converts the tensor to int64. CrossEntropyLoss requires the target to be int64.
+                pred_q_values, pred_q_values_next, pred_vnext_values = model(batch) 
+                true_actions = torch.cat(batch['actions'], dim=0).long() 
+              
                 
-                true_actions_reshaped = true_actions.reshape(-1) #dimension is (batch_size*horizon,)
-                #count number of elements that satisfies true_actions == 1 in batch_size*horizon
-                count_nonzero = torch.count_nonzero(true_actions_reshaped)
-                count_nonzero_pos = torch.max(count_nonzero, torch.tensor(1)) #dimension is (batch_size, horizon)
-
-                true_actions_reshaped = true_actions.reshape(-1)  #dimension is (batch_size*horizon,)
-                pred_q_values_reshaped = pred_q_values.reshape(-1, pred_q_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
-                pred_vnext_values_reshaped = pred_vnext_values.reshape(-1, pred_vnext_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)
+                true_rewards = torch.cat(batch['rewards'], dim=0)
+                
             
                 ### Q(s,a) 
-                chosen_q_values_reshaped = pred_q_values_reshaped[
-                    torch.arange(pred_q_values_reshaped.size(0)), true_actions_reshaped
-                ]
-                #E[V(s'|s,a)]
-                chosen_vnext_values_reshaped = pred_vnext_values_reshaped[
-                    torch.arange(pred_vnext_values_reshaped.size(0)), true_actions_reshaped
-                ]
-                #dimension of chosen_q_values_reshaped is (batch_size*horizon,)
-
+                chosen_q_values = torch.gather(pred_q_values, dim=1, index=true_actions.unsqueeze(-1)) #dimension is (batch_size, horizon)
+                chosen_vnext_values = torch.gather(pred_vnext_values, dim=1, index=true_actions.unsqueeze(-1)) #dimension is (batch_size, horizon)
+                
                 #V(s') = logsumexp Q(s',a') + gamma
-                pred_q_values_nextstate_reshaped = pred_q_values_next.reshape(-1, pred_q_values_next.shape[-1]) #dimension is (batch_size*horizon, action_dim)
-                logsumexp_nextstate = torch.logsumexp(pred_q_values_nextstate_reshaped, dim=1) #dimension is (batch_size*horizon,)
-                #vnext_reshaped = np.euler_gamma + logsumexp_nextstate
-                vnext_reshaped = logsumexp_nextstate
+                logsumexp_nextstate = torch.logsumexp(pred_q_values, dim=1) #dimension is (batch_size*horizon,)
+                #vnext = np.euler_gamma + logsumexp_nextstate
+                vnext = logsumexp_nextstate
                 
                 if i % 2 == 0: # update xi only, update xi every 2 batches
 
                     #V(s')-E[V(s')] minimization loss
-                    D = MSE_loss_fn(vnext_reshaped.clone().detach(), chosen_vnext_values_reshaped)
+                    D = MSE_loss_fn(vnext.clone().detach(), chosen_vnext_values)
                     D.backward()
                     
                     #Non-fixed lr part starts
@@ -360,39 +352,40 @@ def train(config):
                     
                     vnext_optimizer.step() #we use separate optimizer for vnext
                     vnext_optimizer.zero_grad() #clear gradients for the batch
-                    epoch_train_D_loss += D.item() / config['H'] #per-sample loss
+                    epoch_train_D_loss += D.item()  #per-sample loss
                     model.zero_grad() #clear gradients for the batch. This prevents the accumulation of gradients.
             
                 else:  # update Q only, update Q every 2 batches
                     #ce_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #shape  is (batch_size*horizon,)
                     Mean_CrossEntropy_loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
-                    ce_loss = Mean_CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #shape  is (batch_size*horizon,)
+                    ce_loss = Mean_CrossEntropy_loss_fn(pred_q_values, true_actions) #shape  is (batch_size*horizon,)
                     #printw(f"Cross entropy loss: {ce_loss.item()}", config)
                     #td error for batch size*horizon
                     
                     #First, compute td error for (s,a) pairs that appear in the data. 
                     #Non-pivot actions will be removed anyways, so I just add pivot_rewards for all cases here
                     #Pivot action here is doing nothing (action 0)
+                    #Setting pivot reward does not affect anything. However, for convenience, 
+                    #to give the true reward for the pivot action so that we can compare the reward learning precisely. 
             
-                    pivot_rewards = pivot_rewards.unsqueeze(1).repeat(1, pred_q_values_next.shape[1]) #dimension is (batch_size, horizon)
-                    pivot_rewards_reshaped = pivot_rewards.reshape(-1) #dimension is (batch_size*horizon,)
+                    pivot_rewards = true_rewards
                         
-                    td_error = chosen_q_values_reshaped - pivot_rewards_reshaped - config['beta'] * vnext_reshaped #\delta(s,a) = Q(s,a) - r(s,a) - beta*V(s')
+                    td_error = chosen_q_values - pivot_rewards- config['beta'] * vnext #\delta(s,a) = Q(s,a) - r(s,a) - beta*V(s')
                     #V(s')-E[V(s')|s,a]
                  
                     
-                    vnext_dev = (vnext_reshaped - chosen_vnext_values_reshaped.clone().detach())
+                    vnext_dev = (vnext - chosen_vnext_values.clone().detach())
                     #Bi-conjugate trick to compute the Bellman error
                     be_error_naive = td_error**2-config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
                     #We call it naive because we just add pivot r for every actions we see in the batch
                     
                     #Exclude the action 0 from computing the Bellman error, leaving pivot cases only.
-                    be_error_0 = torch.where(true_actions_reshaped == 0, 0, be_error_naive) #only consider the Bellman error for action 1
+                    be_error_0 = torch.where(true_actions != 2, 0, be_error_naive) #only consider the Bellman error for action 0
                     #be_loss is normalized by the number of nonzero true-action batch numbers
                     
                     mean_MAE_loss_fn = torch.nn.L1Loss(reduction='mean')
-                    #be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))#/count_nonzero_pos*config['batch_size']*config['H']
-                    be_loss = mean_MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))#/count_nonzero_pos *batch_size*config['H']
+             
+                    be_loss = mean_MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))
                     #count_nonzero_pos is the number of nonzero true-actions in batch_size*horizon
                     
                     #Tikhonov
@@ -416,19 +409,22 @@ def train(config):
                 
                     model.zero_grad()
                     
-                    epoch_train_loss += loss.item() #/ config['H']
-                    epoch_train_be_loss += be_loss.item() #/ config['H']
-                    epoch_train_ce_loss += ce_loss.item() #/ config['H']
+                    epoch_train_loss += loss.item() 
+                    epoch_train_be_loss += be_loss.item() 
+                    epoch_train_ce_loss += ce_loss.item() 
                     
                     print(f"Epoch_train_loss: {epoch_train_loss}", end='\r')
 
                 
                 if i == 0: #i=0 means the first batch
-                    pred_r_values_print = pred_q_values[:,-1,:] - config['beta']*pred_vnext_values[:,-1,:] #for print
-                    states = batch['states']
-                    last_states = states[:,-1,0].unsqueeze(1)#dimension is (batch_size, state_dim)
-                    pred_r_values_with_states = torch.cat((last_states, pred_r_values_print), dim=1) #dimension is (batch_size, state_dim+action_dim)
-                    printw(f"Predicted r values: {pred_r_values_with_states[:10]}", config)
+                    pred_r_values_print = pred_q_values[:10,:] - config['beta']*pred_vnext_values[:10,:] #for print
+                    chosen_r_values_print = torch.gather(pred_r_values_print, dim=1, index=true_actions[:10].unsqueeze(-1)) #for print
+                    true_r_values_print = true_rewards[:10].unsqueeze(1) #for print
+                    #states = batch['states']
+                    #states = torch.cat(states, dim=0) #dimension is (batch_size*horizon, state_dim)
+                    #last_states = states[:10,0].unsqueeze(1)#dimension is (batch_size, state_dim)
+                    pred_r_values_with_true_r = torch.cat((true_r_values_print, chosen_r_values_print), dim=1) #dimension is (batch_size, state_dim+action_dim)
+                    printw(f"Predicted r values: {pred_r_values_with_true_r[:10]}", config)
                 
        
                 

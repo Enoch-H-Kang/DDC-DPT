@@ -22,29 +22,29 @@ def generate_lunarlander_histories(num_trajs, model):
             state = env.reset()
             
             # Initialize buffers for current episode
-            current_states = []
-            current_actions = []
-            current_next_states = []
-            current_rewards = []
+            states = []
+            actions = []
+            next_states = []
+            rewards = []
             
             done = False
             while not done:
                 action, _ = model.predict(state, deterministic=True)
                 next_state, reward, done, _ = env.step(action)
                 
-                current_states.append(state.copy())
-                current_actions.append(action.copy())
-                current_next_states.append(next_state.copy())
-                current_rewards.append(reward)
+                states.append(state.copy()) 
+                actions.append(action.copy())
+                next_states.append(next_state.copy())
+                rewards.append(reward) 
                 
                 state = next_state
             
             # Save completed trajectory
             traj = {
-                'states': np.array(current_states),
-                'actions': np.array(current_actions),
-                'next_states': np.array(current_next_states),
-                'rewards': np.array(current_rewards)
+                'states': np.array(states),
+                'actions': np.array(actions),
+                'next_states': np.array(next_states),
+                'rewards': np.array(rewards)
             }
             trajs.append(traj)
             pbar.update(1)
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     # Configuration dictionary
     config = {
         "env": "LunarLander-v2",
-        "num_trajs": 10,  # Total trajectories
+        "num_trajs": 5000,  # Total trajectories
     }
     
     # Split train/test trajectories
@@ -95,8 +95,8 @@ if __name__ == "__main__":
     test_trajs = generate_lunarlander_histories(NUM_TEST_TRAJECTORIES, model)
 
     # Generate filenames using `config`
-    train_filepath = build_data_filename({**config, "num_trajs": NUM_TRAIN_TRAJECTORIES}, 'train')
-    test_filepath = build_data_filename({**config, "num_trajs": NUM_TEST_TRAJECTORIES}, 'test')
+    train_filepath = build_data_filename({**config}, 'train')
+    test_filepath = build_data_filename({**config}, 'test')
 
     # Save the trajectories
     with open(train_filepath, 'wb') as file:

@@ -20,3 +20,8 @@ pipeline_output.log
 /Zurcher/num/data
 /gym/datasets
 /gym/Expert_policy
+/gym/figs
+/gym/models
+/gym/logs
+/gym/outputs
+/gym/num/data

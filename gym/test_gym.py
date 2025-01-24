@@ -4,29 +4,30 @@ from gym_train import train  # Make sure this import matches your actual functio
 def run_training():
     # Base configuration
     base_config = {
-        "env": "zurcher",
+        "env": "LL",
         "beta": 0.95,
         "H": 100,
         "seed": 1,
         "shuffle": False,
-        "batch_size": 64,
+        "batch_size": 32,
         "lr": 0.001,
-        "h_size": 10,
+        "h_size": 256,
         "n_layer": 2,
+        "decay": 0.0001,
+        "clip":1,
+        "Tik": True,
         "seed": 1,
         "test": False,
         "store_gpu": True,
         "num_epochs": 1000,
         "layer_norm": False,
-        "loss_ratio": 0.5,
-        "states_TF": [1,0,0,0,0],
-        "num_dummies": 2,
-        "dummy_dim": 5
+        "repetitions": 5,
+        
     }
 
     # Experiments
     experiments = [
-        {"num_trajs": 50}
+        {"num_trajs": 1000}
     ]
 
     for exp in experiments:
