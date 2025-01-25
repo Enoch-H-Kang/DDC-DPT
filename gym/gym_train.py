@@ -15,85 +15,82 @@ from datetime import datetime
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+import torch
+import pickle
+import numpy as np
+import torch
+import pickle
+import numpy as np
 
 class Dataset(torch.utils.data.Dataset):
-    """Dataset class."""
-    
+    """Optimized Dataset class for storing and sampling (s, a, r, s') transitions."""
 
     def __init__(self, path, config):
-        self.shuffle = config['shuffle']
-        self.store_gpu = config['store_gpu']
-        self.config = config
+        self.store_gpu = config.get('store_gpu', False)  # Store tensors on GPU if True
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # if path is not a list
+        # Ensure path is a list
         if not isinstance(path, list):
             path = [path]
 
-        self.trajs = []
+        # Load dataset efficiently
+        states, actions, next_states, rewards = [], [], [], []
+        
         for p in path:
             with open(p, 'rb') as f:
-                self.trajs += pickle.load(f)
-        
-        states_total = [] 
-        actions_total = []
-        next_states_total = []
-        rewards_total = []
+                trajs = pickle.load(f)
 
-        for traj in self.trajs:
-            states_total.append(traj['states']) 
-            actions_total.append(traj['actions'])
-            next_states_total.append(traj['next_states'])
-            rewards_total.append(traj['rewards'])
-    
+                # Extract and concatenate transitions in a single step (Vectorized)
+                states.append(np.concatenate([traj['states'] for traj in trajs], axis=0))
+                actions.append(np.concatenate([traj['actions'] for traj in trajs], axis=0))
+                next_states.append(np.concatenate([traj['next_states'] for traj in trajs], axis=0))
+                rewards.append(np.concatenate([traj['rewards'] for traj in trajs], axis=0))
+
+        # Convert lists to single NumPy arrays
+        states = np.concatenate(states, axis=0)
+        actions = np.concatenate(actions, axis=0)
+        next_states = np.concatenate(next_states, axis=0)
+        rewards = np.concatenate(rewards, axis=0)
+
+        # Convert to PyTorch tensors
         self.dataset = {
-            'states': states_total,
-            'actions': actions_total,
-            'next_states': next_states_total,
-            'rewards': rewards_total,
+            'states': self.convert_to_tensor(states, store_gpu=self.store_gpu),
+            'actions': self.convert_to_tensor(actions, store_gpu=self.store_gpu),
+            'next_states': self.convert_to_tensor(next_states, store_gpu=self.store_gpu),
+            'rewards': self.convert_to_tensor(rewards, store_gpu=self.store_gpu),
         }
+
+        # Shuffle dataset at initialization 
+        if config.get('shuffle', False):
+            self.shuffle_dataset()
 
     def __len__(self):
-        return len(self.trajs)
-    
+        """Return the number of transitions."""
+        return len(self.dataset['states'])
+
     def __getitem__(self, idx):
-        traj = {
-            'states': torch.tensor(self.dataset['states'][idx]).float(),
-            'actions': torch.tensor(self.dataset['actions'][idx]).long(),
-            'next_states': torch.tensor(self.dataset['next_states'][idx]).float(),
-            'rewards': torch.tensor(self.dataset['rewards'][idx]).float(),
+        """Return a single (s, a, r, s') transition."""
+        return {
+            'states': self.dataset['states'][idx],
+            'actions': self.dataset['actions'][idx],
+            'next_states': self.dataset['next_states'][idx],
+            'rewards': self.dataset['rewards'][idx]
         }
 
-        if self.shuffle:
-            traj_length = traj['states'].shape[0]  # Get actual trajectory length
-            perm = torch.randperm(traj_length)  # Permute only within this trajectory
-            traj['states'] = traj['states'][perm]
-            traj['actions'] = traj['actions'][perm]
-            traj['next_states'] = traj['next_states'][perm]
-            traj['rewards'] = traj['rewards'][perm]
+    def shuffle_dataset(self):
+        """Shuffle all transitions."""
+        indices = np.arange(len(self.dataset['states']))
+        np.random.shuffle(indices)
+        
+        for key in self.dataset.keys():
+            self.dataset[key] = self.dataset[key][indices]
 
-        return traj
+    @staticmethod
+    def convert_to_tensor(x, store_gpu):
+        """Convert numpy array to tensor, optionally storing on GPU."""
+        tensor = torch.tensor(np.asarray(x), dtype=torch.float32)
+        return tensor.to("cuda") if store_gpu else tensor
 
-
-    def convert_to_tensor(x, store_gpu=True):
-        if store_gpu:
-            return torch.tensor(np.asarray(x)).float().to(device)
-        else:
-            return torch.tensor(np.asarray(x)).float()
-
-
-def collate_fn(batch):
-    """
-    Custom collate function to handle variable-length trajectories.
-    Each batch is a list of dictionaries {'states': tensor, 'actions': tensor, ...}
-    """
-    batch_dict = {
-        'states': [item['states'] for item in batch],
-        'actions': [item['actions'] for item in batch],
-        'next_states': [item['next_states'] for item in batch],
-        'rewards': [item['rewards'] for item in batch],
-    }
-    return batch_dict
 
 
 def build_data_filename(config, mode):
@@ -180,10 +177,10 @@ def train(config):
     test_dataset = Dataset(path_test, dataset_config)
 
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=config['batch_size'], shuffle=config['shuffle'], collate_fn=collate_fn
+        train_dataset, batch_size=config['batch_size'], shuffle=config['shuffle']
     )
     test_loader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=config['batch_size'], shuffle=config['shuffle'], collate_fn=collate_fn
+        test_dataset, batch_size=config['batch_size'], shuffle=config['shuffle']
     )
 
     
@@ -192,9 +189,6 @@ def train(config):
     hidden_sizes = [64,64]
     # Prepare model
     model_config = {
-
-
-
         'hidden_sizes' : [config['h_size']]*config['n_layer'],
         'layer_normalization': config['layer_norm'], #layer normalization
     }
@@ -208,10 +202,8 @@ def train(config):
     
     repetitions = config['repetitions']  # Number of repetitions
 
-    rep_test_Q_MSE_loss = []
     rep_test_r_MAPE_loss = []
     rep_best_r_MAPE_loss = []
-    rep_best_Q_MSE_loss = []    
 
     
     for rep in range(repetitions):
@@ -220,16 +212,11 @@ def train(config):
         train_be_loss = []
         train_ce_loss = []
         train_D_loss = []
-        test_Q_MSE_loss = []
         test_r_MAPE_loss = []
-        test_vnext_MSE_loss = []
         
         #Storing the best training epoch and its corresponding best Q MSE loss/Q values
         best_epoch = -1
-        best_Q_MSE_loss = 9999
         best_r_MAPE_loss = 9999
-        best_normalized_true_Qs = torch.tensor([])
-        best_normalized_pred_q_values = torch.tensor([])
       
         
         for epoch in tqdm(range(config['num_epochs']), desc="Training Progress"):
@@ -246,36 +233,16 @@ def train(config):
                 
                 for i, batch in enumerate(test_loader):
                     print(f"Batch {i} of {len(test_loader)}", end='\r')
-                    batch = {k: [v.to(device) for v in batch[k]] for k in batch}  # Move lists of tensors to device
+                    batch = {k: v.to(device) for k, v in batch.items()} #dimension is (batch_size, horizon, state_dim)
                     states = batch['states']
                     pred_q_values, pred_q_values_next, pred_vnext_values = model(batch) #dimension is (total_trans, action_dim)
                     
-                    true_actions = torch.cat(batch['actions'], dim=0).long() #dimension is (total_trans)
+                    true_actions = batch['actions'].long() #dimension is (total_trans)
         
-                    ### Q(s,a) 
-                    chosen_q_values_reshaped = pred_q_values[
-                    torch.arange(pred_q_values.size(0)), true_actions
-                    ]
-
-                    #E[V(s'|s,a)]
-                    chosen_vnext_values_reshaped = pred_vnext_values[
-                        torch.arange(pred_vnext_values.size(0)), true_actions
-                    ]
-                    
-                    
-                    #V(s') = logsumexp Q(s',a') + gamma
-
-                    logsumexp_nextstate = torch.logsumexp(pred_q_values_next, dim=1) 
-                    #vnext_reshaped = np.euler_gamma + logsumexp_nextstate
-                    vnext_reshaped = logsumexp_nextstate
-                              
-                
                     pred_r_values = pred_q_values - config['beta']*pred_vnext_values 
-          
-                    
                     chosen_pred_r_values = torch.gather(pred_r_values, dim=1, index=true_actions.unsqueeze(-1)) #dimension is (batch_size, horizon)
 
-                    true_r_values = torch.cat(batch['rewards'], dim=0) #dimension
+                    true_r_values = batch['rewards'] #dimension
               
                     
                     #For computing r_MAPE (mean absolute percentage error)
@@ -321,20 +288,17 @@ def train(config):
             
             for i, batch in enumerate(train_loader): #For batch i in the training dataset
                 print(f"Batch {i} of {len(train_loader)}", end='\r')
-                batch = {k: [v.to(device) for v in batch[k]] for k in batch}  # Move lists of tensors to device
+                batch = {k: v.to(device) for k, v in batch.items()} #dimension is (batch_size, horizon, state_dim)
                 
                 pred_q_values, pred_q_values_next, pred_vnext_values = model(batch) 
-                true_actions = torch.cat(batch['actions'], dim=0).long() 
-              
+                true_actions = batch['actions'].long() 
+                true_rewards = batch['rewards']
                 
-                true_rewards = torch.cat(batch['rewards'], dim=0)
-                
-            
                 ### Q(s,a) 
                 chosen_q_values = torch.gather(pred_q_values, dim=1, index=true_actions.unsqueeze(-1)) #dimension is (batch_size, horizon)
                 chosen_vnext_values = torch.gather(pred_vnext_values, dim=1, index=true_actions.unsqueeze(-1)) #dimension is (batch_size, horizon)
                 
-                #V(s') = logsumexp Q(s',a') + gamma
+                #Empirical V(s') = logsumexp Q(s',a') + gamma
                 logsumexp_nextstate = torch.logsumexp(pred_q_values, dim=1) #dimension is (batch_size*horizon,)
                 #vnext = np.euler_gamma + logsumexp_nextstate
                 vnext = logsumexp_nextstate
