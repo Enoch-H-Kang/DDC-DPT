@@ -25,3 +25,4 @@ pipeline_output.log
 /gym/logs
 /gym/outputs
 /gym/num/data
+/gym/csvs

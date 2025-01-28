@@ -15,21 +15,22 @@
   "repetitions": 5,
   "lr":0.001,
   "Tik": false,
-  "decay": 0.0001,
-  "clip": false
+  "decay": 0.001,
+  "clip":1.1
   }
   ,
   "env_config": {
-    "env": "LL",
-    "state_dim" :8,
-    "action_dim": 2
+    "env": "CP"
   },
   "experiments": [
     {
-      "batch_size": 900, "num_trajs": 300
+      "batch_size": 32, "num_trajs": 20
     },
     {
-      "batch_size": 1800, "num_trajs": 300
+      "batch_size": 64, "num_trajs": 20
+    },
+    {
+      "batch_size": 128, "num_trajs": 20
     }
   ]
 }

@@ -112,7 +112,7 @@ def build_model_filename(config):
     """
     Builds the filename for the model.
     """
-    filename = (f"{config['env']}_shuf{config['shuffle']}_lr{config['lr']}"
+    filename = (f"IQ_{config['env']}_shuf{config['shuffle']}_lr{config['lr']}"
                 f"_decay{config['decay']}_Tik{config['Tik']}"
                 f"_do{config['dropout']}_embd{config['n_embd']}"
                 f"_layer{config['n_layer']}_head{config['n_head']}"
@@ -125,7 +125,7 @@ def build_log_filename(config):
     """
     timestamp = datetime.now().strftime('%Y%m%d')
     
-    filename = (f"{config['env']}_num_trajs{config['num_trajs']}"
+    filename = (f"IQ_{config['env']}_num_trajs{config['num_trajs']}"
                 f"_lr{config['lr']}"
                 f"_batch{config['batch_size']}"
                 f"_decay{config['decay']}"
@@ -198,7 +198,7 @@ def train(config):
     if config['env'] == 'LL':
         states_dim = 8
         actions_dim = 4
-        init_b_value = 100
+        init_b_value = 30
     elif config['env'] == 'CP':
         states_dim = 4
         actions_dim = 2
@@ -236,9 +236,6 @@ def train(config):
     for rep in range(repetitions):
         print(f"\nStarting repetition {rep+1}/{repetitions}")
         train_loss = []
-        train_be_loss = []
-        train_ce_loss = []
-        train_D_loss = []
         test_r_MAPE_loss = []
         
         #Storing the best training epoch and its corresponding best Q MSE loss/Q values
@@ -262,26 +259,47 @@ def train(config):
                     print(f"Batch {i} of {len(test_loader)}", end='\r')
                     batch = {k: v.to(device) for k, v in batch.items()} 
                     states = batch['states']
-                    pred_q_values, pred_q_values_next, pred_vnext_values = model(batch) #dimension is (batch, action_dim)
-                    
-                    true_actions = batch['actions'].long() #dimension is batch
-        
-                    pred_r_values = pred_q_values - config['beta']*pred_vnext_values 
-                    chosen_pred_r_values = torch.gather(pred_r_values, dim=1, index=true_actions.unsqueeze(-1)) 
+                    pred_q_values, pred_q_values_next, _  = model(batch) 
 
-                    true_r_values = batch['rewards'] #dimension
-              
+                    true_actions = batch['actions'].long() 
+                    states = batch['states']
+                
                     
+                    #find the action with most frequent occurence in the batch                
+                    true_rewards = batch['rewards']
+                    
+                    ### Q(s,a) 
+                    chosen_q_values = torch.gather(pred_q_values, dim=1, index=true_actions.unsqueeze(-1)) #dimension is (batch_size, horizon)
+                    
+                    #Empirical V(s') = logsumexp Q(s',a') + gamma
+                    logsumexp_nextstate = torch.logsumexp(pred_q_values_next, dim=1) #dimension is (batch_size*horizon,)
+                    vnext = logsumexp_nextstate
+
+                    #Terminating conditions    
+                    
+                    if config['env'] == 'LL':
+                        terminal_TF = (states[:, 6] == 1) & (states[:, 7] == 1)
+                    if config['env'] == 'AC':
+                        terminal_TF = (-torch.cos(states[:, 0]) - torch.cos(states[:, 0] + states[:, 1])) > 1.0
+                    elif config['env'] == 'CP': 
+                        x_threshold = 2.4
+                        theta_threshold_radians = 12 * 2 * np.pi / 360  # 12 degrees in radians
+                        terminal_TF = (torch.abs(states[:, 0]) > x_threshold) | (torch.abs(states[:, 2]) > theta_threshold_radians)
+                    else: #retrun terminal_TF as all False
+                        terminal_TF = torch.zeros_like(states[:, 0], dtype=torch.bool)
+                    
+                    vnext = torch.where(terminal_TF, torch.tensor(0.0, device=vnext.device), vnext)
+                    
+                    # First term of IQ-learn
+                    pred_r_values = chosen_q_values - config['beta']*vnext #dimension is (batch_size, horizon)
+                   
                     ##############For computing r_MAPE (mean absolute percentage error)########################
-                    diff = torch.abs(chosen_pred_r_values - true_r_values) #dimension is (batch_size, horizon)
+                    diff = torch.abs(pred_r_values - true_rewards) #dimension is (batch_size, horizon)
                     #denom = torch.abs(true_r_values) #dimension is (batch_size, horizon)
                     #r_MAPE = torch.mean(diff / denom)*100 #dimension is (1,), because it is the mean of all diff/denom values in the batch
                     r_MAPE = torch.mean(diff)
                     epoch_r_MAPE_loss += r_MAPE.item()
-                    ##############Computing correlation coefficient########################
-                    #pearson_corr = corr(chosen_pred_r_values.squeeze(), true_r_values.squeeze())
-                    #epoch_r_MAPE_loss += pearson_corr.item()
-                    
+                   
                     
                 
                 ##### Finish of the batch loop for a single epoch #####
@@ -308,9 +326,6 @@ def train(config):
             ############# Start of an epoch's training ############
             
             epoch_train_loss = 0.0
-            epoch_train_be_loss = 0.0
-            epoch_train_ce_loss = 0.0
-            epoch_train_D_loss = 0.0
             start_time = time.time()
             
             torch.autograd.set_detect_anomaly(True)
@@ -320,126 +335,68 @@ def train(config):
                 print(f"Batch {i} of {len(train_loader)}", end='\r')
                 batch = {k: v.to(device) for k, v in batch.items()} #dimension is (batch_size, horizon, state_dim)
                 
-                pred_q_values, pred_q_values_next, pred_vnext_values  = model(batch) 
+                pred_q_values, pred_q_values_next, _  = model(batch) 
 
                 true_actions = batch['actions'].long() 
                 states = batch['states']
+            
                 
+                #find the action with most frequent occurence in the batch                
                 true_rewards = batch['rewards']
                 
                 ### Q(s,a) 
                 chosen_q_values = torch.gather(pred_q_values, dim=1, index=true_actions.unsqueeze(-1)) #dimension is (batch_size, horizon)
-                chosen_vnext_values = torch.gather(pred_vnext_values, dim=1, index=true_actions.unsqueeze(-1)) #dimension is (batch_size, horizon)
                 
                 #Empirical V(s') = logsumexp Q(s',a') + gamma
                 logsumexp_nextstate = torch.logsumexp(pred_q_values_next, dim=1) #dimension is (batch_size*horizon,)
-        
+                logsumexp_state = torch.logsumexp(pred_q_values, dim=1) #dimension is (batch_size*horizon,)
                 vnext = logsumexp_nextstate
-                
-                #D update only. Fitting V(s') prediction to logsumexp Q(s',a) prediction
-                if i % 2 == 0: # update xi only, update xi every 2 batches
-
-                    #V(s')-E[V(s')] minimization loss
-                    D = MSE_loss_fn(vnext.clone().detach(), chosen_vnext_values)
-                    D.backward()
-                    
-                    #Non-fixed lr part starts
-                    current_lr_vnext = config['lr'] / (1 + config['decay']*epoch)
-                    vnext_optimizer.param_groups[0]['lr'] = current_lr_vnext
-                    #Non-fixed lr part ends
-                    
-                    if config['clip'] != False:                    
-                        torch.nn.utils.clip_grad_value_(model.parameters(), clip_value=config['clip'])
-                    
-                    vnext_optimizer.step() #we use separate optimizer for vnext
-                    vnext_optimizer.zero_grad() #clear gradients for the batch
-                    epoch_train_D_loss += D.item()  #per-sample loss
-                    model.zero_grad() #clear gradients for the batch. This prevents the accumulation of gradients.
+                vnow = logsumexp_state
             
-                else:  # update Q only, update Q every 2 batches
-                    #ce_loss = CrossEntropy_loss_fn(pred_q_values_reshaped, true_actions_reshaped) #shape  is (batch_size*horizon,)
-                    Mean_CrossEntropy_loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
-                    ce_loss = Mean_CrossEntropy_loss_fn(pred_q_values, true_actions) #shape  is (batch_size*horizon,)
-                  
-                    #Setting pivot reward does not affect anything. So whatever we fix it it does not
-                    # harm or benefit the outcome. However, for evaluation convenience, 
-                    #we give the true reward for as the pivot action's reward.
-            
-                    #Just put true rewards for all actions in the batch for now, to calculate td
-                    pivot_rewards = true_rewards 
-     
-                    #In terminal state, Q-value is equal to the reward.
-                    #Terminal state = (states[:, 6] == 1) & (states[:, 7] == 1)
-                    
-                    if config['env'] == 'LL':
-                        terminal_TF = (states[:, 6] == 1) & (states[:, 7] == 1)
-                    if config['env'] == 'AC':
-                        terminal_TF = (-torch.cos(states[:, 0]) - torch.cos(states[:, 0] + states[:, 1])) > 1.0
-                    elif config['env'] == 'CP': 
-                        x_threshold = 2.4
-                        theta_threshold_radians = 12 * 2 * np.pi / 360  # 12 degrees in radians
-                        terminal_TF = (torch.abs(states[:, 0]) > x_threshold) | (torch.abs(states[:, 2]) > theta_threshold_radians)
-                    else: #retrun terminal_TF as all False
-                        terminal_TF = torch.zeros_like(states[:, 0], dtype=torch.bool)
-                    
-                    
-                    td_error = chosen_q_values - pivot_rewards- config['beta'] * vnext #\delta(s,a) = Q(s,a) - r(s,a) - beta*V(s')                    
-                    td_error = torch.where(terminal_TF, chosen_q_values - pivot_rewards, td_error)
-
-                    
-                    vnext_dev = (vnext - chosen_vnext_values.clone().detach())
-                    #Bi-conjugate trick to compute the Bellman error
-                    be_error_naive = td_error**2-config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
-                    #We call it naive because we just add pivot r for every actions we see in the batch
-                    
-                    if config['env'] == 'LL':
-                        #For LunarLander, set the pivot action to be action 2. 
-                        indices_TF = (true_actions == 2) | terminal_TF
-                    if config['env'] == 'AC':
-                        #For Acrobot, set the pivot action to be 0.
-                        indices_TF = (true_actions == 0) | terminal_TF
-                    if config['env'] == 'CP':
-                        #For CartPole, set the pivot action to be 0.
-                        indices_TF = (true_actions == 0) | terminal_TF
-                        
-                    be_error_0 = be_error_naive[indices_TF]
-                    
-                    mean_MAE_loss_fn = torch.nn.L1Loss(reduction='mean')
-                    
-                    be_loss = mean_MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))
-                    #number of action=2 in the batch does not matter, as we normalize the loss by the number of action=2 in the batch
-                    
-                    #Tikhonov
-                    if config['Tik'] == True:
-                        loss = 100*(1/(1+epoch))*ce_loss + be_loss
-                    else:               
-                        loss = 10*ce_loss + be_loss
-                    #
-                    
-                    loss.backward()
-                    
-                    #Non-fixed lr part starts
-                    current_lr_q = config['lr'] / (1 + config['decay']*epoch)
-                    q_optimizer.param_groups[0]['lr'] = current_lr_q
-                    #Non-fixed lr part ends
-                    
-                    if config['clip'] != False:                    
-                        torch.nn.utils.clip_grad_value_(model.parameters(), clip_value=config['clip'])
-                    q_optimizer.step()
-                    q_optimizer.zero_grad() #clear gradients for the batch
+                #Terminating conditions    
                 
-                    model.zero_grad()
+                if config['env'] == 'LL':
+                    terminal_TF = (states[:, 6] == 1) & (states[:, 7] == 1)
+                if config['env'] == 'AC':
+                    terminal_TF = (-torch.cos(states[:, 0]) - torch.cos(states[:, 0] + states[:, 1])) > 1.0
+                elif config['env'] == 'CP': 
+                    x_threshold = 2.4
+                    theta_threshold_radians = 12 * 2 * np.pi / 360  # 12 degrees in radians
+                    terminal_TF = (torch.abs(states[:, 0]) > x_threshold) | (torch.abs(states[:, 2]) > theta_threshold_radians)
+                else: #retrun terminal_TF as all False
+                    terminal_TF = torch.zeros_like(states[:, 0], dtype=torch.bool)
                     
-                    epoch_train_loss += loss.item() 
-                    epoch_train_be_loss += be_loss.item() 
-                    epoch_train_ce_loss += ce_loss.item() 
-                    
-                    print(f"Epoch_train_loss: {epoch_train_loss}", end='\r')
+                vnext = torch.where(terminal_TF, torch.tensor(0.0, device=vnext.device), vnext)
+            
+                # First term of IQ-learn
+                term1 = chosen_q_values - config['beta']*vnext #dimension is (batch_size, horizon)
+                
+                # Second term of IQ-learn
+                term2 = vnow - config['beta']*vnext
+                
+                loss = (-term1 + term2).mean()
+                
+                loss.backward()
+                
+                #Non-fixed lr part starts
+                current_lr_q = config['lr'] / (1 + config['decay']*epoch)
+                q_optimizer.param_groups[0]['lr'] = current_lr_q
+                #Non-fixed lr part ends
+                
+                if config['clip'] != False:                    
+                    torch.nn.utils.clip_grad_value_(model.parameters(), clip_value=config['clip'])
+                q_optimizer.step()
+                q_optimizer.zero_grad() #clear gradients for the batch
+            
+                model.zero_grad()
+                
+                epoch_train_loss += loss.item() 
+             
+                print(f"Epoch_train_loss: {epoch_train_loss}", end='\r')
 
                 
                 if i == 0: #i=0 means the first batch
-                    pred_r_values_print = pred_q_values[:10,:] - config['beta']*pred_vnext_values[:10,:] #for print
-                    chosen_r_values_print = torch.gather(pred_r_values_print, dim=1, index=true_actions[:10].unsqueeze(-1)) #for print
+                    chosen_r_values_print = chosen_q_values[:10] - config['beta']*vnext[:10] #for print
                     true_r_values_print = true_rewards[:10].unsqueeze(1) #for print
                     actions_print = true_actions[:10].int().unsqueeze(1) #for print
                 
@@ -453,15 +410,10 @@ def train(config):
                 
             #len(train_dataset) is the number of batches in the training dataset
             train_loss.append(epoch_train_loss / len(train_loader)) 
-            train_be_loss.append(epoch_train_be_loss / len(train_loader))
-            train_ce_loss.append(epoch_train_ce_loss / len(train_loader))
-            train_D_loss.append(epoch_train_D_loss / len(train_loader))
-
+        
             end_time = time.time()
             
             printw(f"\tTrain loss: {train_loss[-1]}", config)
-            printw(f"\tBE loss: {train_be_loss[-1]}", config)
-            printw(f"\tCE loss: {train_ce_loss[-1]}", config)
             printw(f"\tTrain time: {end_time - start_time}", config)
 
 
@@ -475,44 +427,20 @@ def train(config):
                 plt.figure(figsize=(12, 12))  # Increase the height to fit all plots
     
                 # Plotting total train loss
-                plt.subplot(5, 1, 1) # Adjust to 6x1 grid
+                plt.subplot(2, 1, 1) # Adjust to 6x1 grid
                 plt.yscale('log')
                 plt.xlabel('epoch')
                 plt.ylabel('Total Train Loss')
                 plt.plot(train_loss[1:], label="Total Train Loss")
                 plt.legend()
 
-                # Plotting BE loss
-                plt.subplot(5, 1, 2) # Second plot in a 6x1 grid
-                plt.yscale('log')
-                plt.xlabel('epoch')
-                plt.ylabel('Train BE Loss')
-                plt.plot(train_be_loss[1:], label="Bellman Error Loss", color='red')
-                plt.legend()
-
-                # Plotting CE loss
-                plt.subplot(5, 1, 3) # Third plot in a 6x1 grid
-                plt.yscale('log')
-                plt.xlabel('epoch')
-                plt.ylabel('Train CE Loss')
-                plt.plot(train_ce_loss[1:], label="Cross-Entropy Loss", color='blue')
-                plt.legend()
-                
                 # Plotting r MAPE loss 
-                plt.subplot(5, 1, 4) # Fifth plot in a 6x1 grid
+                plt.subplot(2, 1, 2) # Fifth plot in a 6x1 grid
                 plt.yscale('log')
                 plt.xlabel('epoch')
                 plt.ylabel('Test R MAPE Loss')
                 plt.plot(test_r_MAPE_loss[1:], label="r MAPE Loss", color='purple')
                 plt.legend()
-                
-                plt.subplot(5, 1, 5) # Sixth plot in a 6x1 grid
-                plt.yscale('log')
-                plt.xlabel('epoch')
-                plt.ylabel('D Loss')
-                plt.plot(train_D_loss[1:], label="D Loss", color='orange')
-                plt.legend()
-                
                 
                 plt.tight_layout()
                 plt.savefig(f"figs/loss/{build_log_filename(config)}_rep{rep}_losses.png")

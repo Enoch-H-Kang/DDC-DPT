@@ -9,11 +9,22 @@ from tqdm import tqdm
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-def generate_lunarlander_histories(num_trajs, model):
+
+
+def generate_histories(num_trajs, model, env_name):
     """
     Generate LunarLander trajectories for a given number of episodes.
     """
-    env = gym.make("LunarLander-v2")
+    if env_name == "LL":
+        env = gym.make("LunarLander-v2")
+    elif env_name == "CP":
+        env = gym.make("CartPole-v1")
+    elif env_name == "AC":
+        env = gym.make("Acrobot-v1")
+    else:
+        print("Invalid environment")
+        exit(1)
+        
     trajs = []
     
     with tqdm(total=num_trajs, desc=f"Generating {num_trajs} trajectories") as pbar:
@@ -29,11 +40,22 @@ def generate_lunarlander_histories(num_trajs, model):
             
             done = False
             while not done:
+              
                 action, _ = model.predict(state, deterministic=True)
-                next_state, reward, done, _ = env.step(action)
+                # Force action to be 0 if the legs are touching the ground: This is optimal behavior
                 
+                next_state, reward, done, _ = env.step(action)
+
+                if env_name == "LL":
+                  
+                    if (state[6] == 1) & (state[7] == 1):
+                        action = 0
+                        next_state = state
+                        reward = 100
+                        done = True
+                    
                 states.append(state.copy()) 
-                actions.append(action.copy())
+                actions.append(action)
                 next_states.append(next_state.copy())
                 rewards.append(reward) 
                 
@@ -69,16 +91,27 @@ def generate(config):
     # Create datasets directory if it does not exist
     os.makedirs("datasets", exist_ok=True)
     
-    
-    
+    if config["env"] == "LL":
+        env_name = "LL"
+        path = "Expert_policy/LunarLander-v2_PPO.zip"
+    elif config["env"] == "CP":
+        env_name = "CP"
+        env = gym.make("CartPole-v1")
+        path = "Expert_policy/CartPole-v1_PPO.zip"
+    elif config["env"] == "AC":
+        env_name = "AC"
+        env = gym.make("Acrobot-v1")
+        path = "Expert_policy/Acrobot-v1_PPO.zip"
+    else:
+        print("Invalid environment")
+        exit(1)
     # Configuration dictionary
     
     # Split train/test trajectories
     NUM_TRAIN_TRAJECTORIES = int(config["num_trajs"] * 0.8)
     NUM_TEST_TRAJECTORIES = config["num_trajs"] - NUM_TRAIN_TRAJECTORIES
 
-    if config["env"] == "LL":
-        path = "Expert_policy/LunarLander-v2_PPO.zip"
+        
     # Load the trained PPO model
     try:
         custom_objects = {"clip_range": 1, "learning_rate": 0.0003}
@@ -99,10 +132,10 @@ def generate(config):
     
     # Generate train/test trajectories
     print(f"Generating {NUM_TRAIN_TRAJECTORIES} training trajectories...")
-    train_trajs = generate_lunarlander_histories(NUM_TRAIN_TRAJECTORIES, model)
+    train_trajs = generate_histories(NUM_TRAIN_TRAJECTORIES, model, env_name)
 
     print(f"Generating {NUM_TEST_TRAJECTORIES} testing trajectories...")
-    test_trajs = generate_lunarlander_histories(NUM_TEST_TRAJECTORIES, model)
+    test_trajs = generate_histories(NUM_TEST_TRAJECTORIES, model, env_name)
 
 
 

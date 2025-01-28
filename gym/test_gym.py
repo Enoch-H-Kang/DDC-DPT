@@ -5,17 +5,17 @@ def run_training():
     # Base configuration
     base_config = {
         "env": "LL",
-        "beta": 0.95,
+        "beta": 1,
         "H": 100,
         "seed": 1,
-        "shuffle": False,
-        "batch_size": 32,
+        "shuffle": True,
+        "batch_size": 64,
         "lr": 0.0001,
         "h_size": 64,
         "n_layer": 2,
         "decay": 0.0001,
         "clip":1,
-        "Tik": True,
+        "Tik": False,
         "seed": 1,
         "test": False,
         "store_gpu": True,
@@ -27,7 +27,7 @@ def run_training():
 
     # Experiments
     experiments = [
-        {"num_trajs": 1000}
+        {"num_trajs": 20}
     ]
 
     for exp in experiments:

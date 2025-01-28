@@ -1,7 +1,13 @@
+import gym
+from pyvirtualdisplay import Display
+from stable_baselines3 import PPO
+import warnings
+import torch
+import torch.nn
 from torch import nn
 from torch.nn import functional as F
-
 from multiHeadedMLPModule import MultiHeadedMLPModule
+import pandas as pd
 
 
 class MLP(MultiHeadedMLPModule):
@@ -66,16 +72,96 @@ class MLP(MultiHeadedMLPModule):
             Return Q-values and E[V(s',a')|s,a]-values.
 
         """
-        states = x['states'] #dimension is (batch_size, state_dim)
+        states = x #dimension is (batch_size, state_dim)
         
         q_values, vnext_values = super().forward(states) #dim is (batch_size*horizon, action_dim)
         
-        next_states = x['next_states']
-        next_q_values, _ = super().forward(next_states)
-        
         #bound all outputs to non-negative values, using softplus
         q_values = F.softplus(q_values)
-        next_q_values = F.softplus(next_q_values)
         vnext_values = F.softplus(vnext_values)
         
-        return q_values, next_q_values, vnext_values
+        return q_values, vnext_values
+
+
+
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+# When loading the model, specify the custom objects
+custom_objects = {
+    "clip_range": 1,  # This is the default PPO clip range
+    "learning_rate": 0.0003  # Default PPO learning rate
+}
+
+
+config = {
+    'n_layer': 2,
+    'h_size': 64,
+    'layer_norm': False,
+    'env': 'AC',
+}
+
+display = Display(visible=0, size=(1400, 900))
+display.start()
+
+
+if config['env'] == 'LL':
+    states_dim = 8
+    actions_dim = 4
+    env = gym.make("LunarLander-v2")
+    model_path = 'models/LL_num_trajs20_lr0.001_batch128_decay0.001_clipFalse_20250127.log_rep0_epoch2000.pt'
+elif config['env'] == 'AC': #Acrobot
+    states_dim = 6
+    actions_dim = 3
+    env = gym.make("Acrobot-v1")
+    model_path = 'models/AC_num_trajs20_lr0.001_batch128_decay0.001_clip1.1_20250127.log_rep0_epoch1000.pt'
+    
+elif config['env'] == 'CP': #CartPole
+    states_dim = 4
+    actions_dim = 2
+    env = gym.make("CartPole-v1")
+    model_path = 'models/CP_num_trajs20_lr0.001_batch128_decay0.001_clip1.1_20250127.log_rep0_epoch2000.pt'
+model_config = {
+        'hidden_sizes' : [config['h_size']]*config['n_layer'],
+        'layer_normalization': config['layer_norm'], 
+}
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+model = MLP(states_dim, actions_dim, **model_config).to(device)
+model.load_state_dict(torch.load(model_path))
+
+
+model.to(device)
+model.eval()
+
+# Create the environment
+
+
+# Evaluation loop without rendering
+results = []
+episodes = 10
+for episode in range(episodes):
+    obs = env.reset()
+
+    total_reward = 0
+    done = False
+    
+    while not done:
+        with torch.no_grad():
+            obs = torch.tensor(obs, dtype=torch.float32).to(device)
+            obs = obs.unsqueeze(0)
+          
+            q_predict, _ = model(obs)
+            #softmax action choice in terms of q
+            action_prob = F.softmax(q_predict)
+            chosen_action = torch.multinomial(action_prob, 1).item()            
+        obs, reward, done, info = env.step(chosen_action)
+        total_reward += reward
+    
+    results.append({'Episode': episode + 1, 'Total Reward': total_reward})
+    print(f"Episode {episode + 1}: Total Reward = {total_reward}")
+
+df = pd.DataFrame(results)
+df.to_csv(f'csvs/{config["env"]}_iter{episodes}.csv', index=False)
+    

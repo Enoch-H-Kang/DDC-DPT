@@ -520,9 +520,12 @@ def train(config):
                     #We call it naive because we just add pivot r for every actions we see in the batch
                     
                     #Exclude the action 0 from computing the Bellman error, leaving pivot cases only.
-                    be_error_0 = torch.where(true_actions_reshaped == 0, 0, be_error_naive) #only consider the Bellman error for action 1
+                    #be_error_0 = torch.where(true_actions_reshaped == 0, 0, be_error_naive) #only consider the Bellman error for action 1
                     #be_loss is normalized by the number of nonzero true-action batch numbers
-                    
+                    indices_TF = (true_actions == 1).reshape(-1) #dimension is (batch_size*horizon,)
+        
+                    be_error_0 = be_error_naive[indices_TF] #only consider the Bellman error for action 1
+
                     mean_MAE_loss_fn = torch.nn.L1Loss(reduction='mean')
                     #be_loss = MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))#/count_nonzero_pos*config['batch_size']*config['H']
                     be_loss = mean_MAE_loss_fn(be_error_0, torch.zeros_like(be_error_0))#/count_nonzero_pos *batch_size*config['H']

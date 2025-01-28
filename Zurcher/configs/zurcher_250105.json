@@ -33,22 +33,7 @@
   },
   "experiments": [
     {
-      "num_trajs": 250
-    },
-    {
       "num_trajs": 500
-    },
-    {
-      "num_trajs": 1000
-    },
-    {
-      "num_trajs": 2500
-    },
-    {
-      "num_trajs": 5000
-    },
-    {
-      "num_trajs": 10000
     }
   ]
 }
