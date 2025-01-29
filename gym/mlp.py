@@ -71,8 +71,9 @@ class MLP(MultiHeadedMLPModule):
         q_values, vnext_values = super().forward(states) #dim is (batch_size*horizon, action_dim)
         
         next_states = x['next_states']
-        next_q_values, _ = super().forward(next_states)
         
+        next_q_values, _ = super().forward(next_states)
+       
         #bound all outputs to non-negative values, using softplus
         q_values = F.softplus(q_values)
         next_q_values = F.softplus(next_q_values)

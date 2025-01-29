@@ -34,7 +34,7 @@ class MLP(MultiHeadedMLPModule):
         vnext_values = F.softplus(vnext_values)
         
         # Compute rewards
-        r_values = q_values - beta * vnext_values
+        r_values = q_values - 0.95 * vnext_values
         return r_values  # Return the predicted reward tensor
 
 
@@ -42,13 +42,13 @@ class MLP(MultiHeadedMLPModule):
 CONFIG = {
     "env": "LL",  # Choose from "LL" (LunarLander), "AC" (Acrobot), "CP" (CartPole)
     "train": True,  # Set to False to skip training
-    "total_timesteps": 100_000,  # Number of training steps
+    "total_timesteps": 1000000,  # Number of training steps
     "h_size": 64,  # Hidden layer size
     "n_layer": 2,  # Number of hidden layers
     "layer_norm": False,  # Whether to apply layer normalization
     "policy_kwargs": {"net_arch": [64, 64]},  # Neural network architecture for PPO
     "verbose": 1,  # Logging level
-    "device": "cuda" if torch.cuda.is_available() else "cpu",  # Choose device
+    "device": "cpu",  # Choose device
 }
 
 # Select environment and reward model based on CONFIG
@@ -61,7 +61,7 @@ elif CONFIG['env'] == 'AC':  # Acrobot
     states_dim = 6
     actions_dim = 3
     env_id = "Acrobot-v1"
-    model_path = 'models/AC_num_trajs20_lr0.001_batch64_decay0.001_clip1.1_20250127.log_rep0_epoch3000.pt'
+    model_path = 'models/AC_num_trajs20_lr0.001_batch64_decay0.001_clip1.1_20250127.log_rep0_epoch1000.pt'
 elif CONFIG['env'] == 'CP':  # CartPole
     states_dim = 4
     actions_dim = 2
@@ -89,13 +89,14 @@ class RewardModelWrapper(gym.Wrapper):
         self.reward_model = reward_model
 
     def step(self, action):
-        state_tensor = torch.tensor(self.env.state, dtype=torch.float32).to(device)
+        next_state, _, done, truncated = self.env.step(action)  # Ignore env reward
+        state_tensor = torch.tensor(next_state, dtype=torch.float32).to(device)  # Use next_state instead of self.env.state
+
         with torch.no_grad():
             predicted_rewards = self.reward_model(state_tensor.unsqueeze(0))  # Get reward tensor
             predicted_reward = predicted_rewards[0, action].item()  # Select reward for taken action
 
-        next_state, _, done, truncated, info = self.env.step(action)  # Ignore env reward
-        return next_state, predicted_reward, done, truncated, info
+        return next_state, predicted_reward, done, truncated
 
 def create_env(config):
     """Creates a Gym environment wrapped with the reward model."""
@@ -118,12 +119,11 @@ def train_model(config):
         model.learn(total_timesteps=config["total_timesteps"])
 
         # Evaluate the model
-        mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=10)
+        mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=1000)
         print(f"Mean reward: {mean_reward} +/- {std_reward}")
 
         # Save the trained RL model
-        timestamp = datetime.datetime.now().strftime("%d_%H-%M-%S")
-        save_name = f"ppo-{config['env'].lower()}-{timestamp}"
+        save_name = f"PPO_IRL/PPO-{config['env']}"
         model.save(save_name)
 
     env.close()
@@ -132,12 +132,12 @@ def train_model(config):
 def test_model(model, config):
     """Tests the trained PPO model with the custom reward function."""
     test_env = create_env(config)
-    obs, info = test_env.reset()
+    obs = test_env.reset()
     done = False
 
     while not done:
         action, _ = model.predict(obs)
-        obs, reward, done, truncated, info = test_env.step(action)
+        obs, reward, done, truncated = test_env.step(action)
         done = done or truncated  # Stop if 'truncated' is True
 
     test_env.close()

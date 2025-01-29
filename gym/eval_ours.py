@@ -98,7 +98,9 @@ config = {
     'n_layer': 2,
     'h_size': 64,
     'layer_norm': False,
-    'env': 'AC',
+    'env': 'LL',
+    'setup': 'IQ',
+    'episodes': 100
 }
 
 display = Display(visible=0, size=(1400, 900))
@@ -109,18 +111,28 @@ if config['env'] == 'LL':
     states_dim = 8
     actions_dim = 4
     env = gym.make("LunarLander-v2")
-    model_path = 'models/LL_num_trajs20_lr0.001_batch128_decay0.001_clipFalse_20250127.log_rep0_epoch2000.pt'
+    model_path = 'models/ILL_num_trajs3_lr0.001_batch64_decay0.0001_clipFalse_20250128.log_rep0_epoch5000.pt' 
+    IQ_path = 'models/IQ_LL_num_trajs3_lr0.001_batch64_decay0.0001_clipFalse_20250128.log_rep0_epoch3000.pt'
+    expert_path = "Expert_policy/LunarLander-v2_PPO.zip"
+    expert_reward = 232.77 
+    
 elif config['env'] == 'AC': #Acrobot
     states_dim = 6
     actions_dim = 3
     env = gym.make("Acrobot-v1")
-    model_path = 'models/AC_num_trajs20_lr0.001_batch128_decay0.001_clip1.1_20250127.log_rep0_epoch1000.pt'
+    model_path = 'dd'
+    IQ_path = 'models/IQ_AC_num_trajs3_lr0.001_batch64_decay0.0001_clipFalse_20250128.log_rep0_epoch5000.pt'
+    expert_path = "Expert_policy/Acrobot-v1_PPO.zip"
+    expert_reward = -82.80
     
 elif config['env'] == 'CP': #CartPole
     states_dim = 4
     actions_dim = 2
     env = gym.make("CartPole-v1")
-    model_path = 'models/CP_num_trajs20_lr0.001_batch128_decay0.001_clip1.1_20250127.log_rep0_epoch2000.pt'
+    model_path = 'dd'
+    IQ_path = 'models/IQ_CP_num_trajs3_lr0.001_batch64_decay0.0001_clipFalse_20250128.log_rep0_epoch3000.pt'
+    expert_path = "Expert_policy/CartPole-v1_PPO.zip"
+    
 model_config = {
         'hidden_sizes' : [config['h_size']]*config['n_layer'],
         'layer_normalization': config['layer_norm'], 
@@ -128,34 +140,48 @@ model_config = {
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-model = MLP(states_dim, actions_dim, **model_config).to(device)
-model.load_state_dict(torch.load(model_path))
+if config['setup'] == 'our':
+    model = MLP(states_dim, actions_dim, **model_config).to(device)
+    model.load_state_dict(torch.load(model_path))
+    model.to(device)
+    model.eval()
+elif config['setup'] == 'IQ':
+    model = MLP(states_dim, actions_dim, **model_config).to(device)
+    model.load_state_dict(torch.load(IQ_path))
+    model.to(device)
+    model.eval()
+elif config['setup'] == 'expert':
+    model = PPO.load(expert_path, custom_objects=custom_objects)
 
-
-model.to(device)
-model.eval()
 
 # Create the environment
 
 
 # Evaluation loop without rendering
 results = []
-episodes = 10
-for episode in range(episodes):
+episodes = config['episodes']
+
+for episode in range(config['episodes']):
     obs = env.reset()
 
     total_reward = 0
     done = False
     
     while not done:
-        with torch.no_grad():
-            obs = torch.tensor(obs, dtype=torch.float32).to(device)
-            obs = obs.unsqueeze(0)
-          
-            q_predict, _ = model(obs)
-            #softmax action choice in terms of q
-            action_prob = F.softmax(q_predict)
-            chosen_action = torch.multinomial(action_prob, 1).item()            
+        if config['setup'] == 'our' or config['setup'] == 'IQ':
+            with torch.no_grad():
+                obs = torch.tensor(obs, dtype=torch.float32).to(device)
+                obs = obs.unsqueeze(0)
+            
+                q_predict, _ = model(obs)
+                #softmax action choice in terms of q
+                action_prob = F.softmax(q_predict)
+                chosen_action = torch.multinomial(action_prob, 1).item()            
+        else: #expert
+            chosen_action, _states = model.predict(obs)
+            if config['env'] == 'LL':   
+                if (obs[6] ==1) & (obs[7] ==1):
+                    chosen_action = 0
         obs, reward, done, info = env.step(chosen_action)
         total_reward += reward
     
@@ -163,5 +189,13 @@ for episode in range(episodes):
     print(f"Episode {episode + 1}: Total Reward = {total_reward}")
 
 df = pd.DataFrame(results)
-df.to_csv(f'csvs/{config["env"]}_iter{episodes}.csv', index=False)
-    
+
+if config['setup'] == 'our':
+    df.to_csv(f'csvs/our_{config["env"]}_itr{episodes}.csv', index=False)
+elif config['setup'] == 'IQ':
+    df.to_csv(f'csvs/IQ_{config["env"]}_itr{episodes}.csv', index=False)
+elif config['setup'] == 'expert':
+    df.to_csv(f'csvs/expert_{config["env"]}_itr{episodes}.csv', index=False)
+else:
+    print('Invalid setup')
+    exit()

@@ -11,7 +11,7 @@
   "test": false,
   "store_gpu": true,
   "layer_norm": false,
-  "num_epochs": 20000,
+  "num_epochs": 5000,
   "repetitions": 5,
   "lr":0.001,
   "Tik": false,

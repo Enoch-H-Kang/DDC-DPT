@@ -37,6 +37,7 @@ def generate_histories(num_trajs, model, env_name):
             actions = []
             next_states = []
             rewards = []
+            done_list = []
             
             done = False
             while not done:
@@ -58,6 +59,7 @@ def generate_histories(num_trajs, model, env_name):
                 actions.append(action)
                 next_states.append(next_state.copy())
                 rewards.append(reward) 
+                done_list.append(done)
                 
                 state = next_state
             
@@ -66,7 +68,8 @@ def generate_histories(num_trajs, model, env_name):
                 'states': np.array(states),
                 'actions': np.array(actions),
                 'next_states': np.array(next_states),
-                'rewards': np.array(rewards)
+                'rewards': np.array(rewards),
+                'done': np.array(done_list)
             }
             trajs.append(traj)
             pbar.update(1)
@@ -108,8 +111,14 @@ def generate(config):
     # Configuration dictionary
     
     # Split train/test trajectories
-    NUM_TRAIN_TRAJECTORIES = int(config["num_trajs"] * 0.8)
-    NUM_TEST_TRAJECTORIES = config["num_trajs"] - NUM_TRAIN_TRAJECTORIES
+    
+    if config["num_trajs"] < 20:
+        NUM_TRAIN_TRAJECTORIES = config["num_trajs"]
+        NUM_TEST_TRAJECTORIES = 20
+    else:    
+        NUM_TRAIN_TRAJECTORIES = int(config["num_trajs"] * 0.8)
+        NUM_TEST_TRAJECTORIES = config["num_trajs"] - NUM_TRAIN_TRAJECTORIES
+
 
         
     # Load the trained PPO model

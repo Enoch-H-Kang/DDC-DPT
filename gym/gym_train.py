@@ -34,7 +34,7 @@ class Dataset(torch.utils.data.Dataset):
             path = [path]
 
         # Load dataset efficiently
-        states, actions, next_states, rewards = [], [], [], []
+        states, actions, next_states, rewards, done = [], [], [], [], []
         
         for p in path:
             with open(p, 'rb') as f:
@@ -45,12 +45,14 @@ class Dataset(torch.utils.data.Dataset):
                 actions.append(np.concatenate([traj['actions'] for traj in trajs], axis=0))
                 next_states.append(np.concatenate([traj['next_states'] for traj in trajs], axis=0))
                 rewards.append(np.concatenate([traj['rewards'] for traj in trajs], axis=0))
+                done.append(np.concatenate([traj['done'] for traj in trajs], axis=0))
 
         # Convert lists to single NumPy arrays
         states = np.concatenate(states, axis=0) #dimension is #transitions x state_dim
         actions = np.concatenate(actions, axis=0)
         next_states = np.concatenate(next_states, axis=0)
         rewards = np.concatenate(rewards, axis=0)
+        done = np.concatenate(done, axis=0)
 
         
         # Convert to PyTorch tensors
@@ -59,6 +61,7 @@ class Dataset(torch.utils.data.Dataset):
             'actions': self.convert_to_tensor(actions, store_gpu=self.store_gpu),
             'next_states': self.convert_to_tensor(next_states, store_gpu=self.store_gpu),
             'rewards': self.convert_to_tensor(rewards, store_gpu=self.store_gpu),
+            'done': self.convert_to_tensor(done, store_gpu=self.store_gpu)
         }
 
         # Shuffle dataset at initialization 
@@ -75,7 +78,8 @@ class Dataset(torch.utils.data.Dataset):
             'states': self.dataset['states'][idx],
             'actions': self.dataset['actions'][idx],
             'next_states': self.dataset['next_states'][idx],
-            'rewards': self.dataset['rewards'][idx]
+            'rewards': self.dataset['rewards'][idx],
+            'done': self.dataset['done'][idx]
         }
 
     def shuffle_dataset(self):
@@ -335,6 +339,8 @@ def train(config):
                 logsumexp_nextstate = torch.logsumexp(pred_q_values_next, dim=1) #dimension is (batch_size*horizon,)
         
                 vnext = logsumexp_nextstate
+                done = batch['done'].to(torch.bool)
+                vnext = torch.where(done, torch.tensor(0.0, device=vnext.device), vnext)
                 
                 #D update only. Fitting V(s') prediction to logsumexp Q(s',a) prediction
                 if i % 2 == 0: # update xi only, update xi every 2 batches
@@ -367,24 +373,9 @@ def train(config):
             
                     #Just put true rewards for all actions in the batch for now, to calculate td
                     pivot_rewards = true_rewards 
-     
-                    #In terminal state, Q-value is equal to the reward.
-                    #Terminal state = (states[:, 6] == 1) & (states[:, 7] == 1)
-                    
-                    if config['env'] == 'LL':
-                        terminal_TF = (states[:, 6] == 1) & (states[:, 7] == 1)
-                    if config['env'] == 'AC':
-                        terminal_TF = (-torch.cos(states[:, 0]) - torch.cos(states[:, 0] + states[:, 1])) > 1.0
-                    elif config['env'] == 'CP': 
-                        x_threshold = 2.4
-                        theta_threshold_radians = 12 * 2 * np.pi / 360  # 12 degrees in radians
-                        terminal_TF = (torch.abs(states[:, 0]) > x_threshold) | (torch.abs(states[:, 2]) > theta_threshold_radians)
-                    else: #retrun terminal_TF as all False
-                        terminal_TF = torch.zeros_like(states[:, 0], dtype=torch.bool)
-                    
                     
                     td_error = chosen_q_values - pivot_rewards- config['beta'] * vnext #\delta(s,a) = Q(s,a) - r(s,a) - beta*V(s')                    
-                    td_error = torch.where(terminal_TF, chosen_q_values - pivot_rewards, td_error)
+                    td_error = torch.where(done, chosen_q_values - pivot_rewards, td_error)
 
                     
                     vnext_dev = (vnext - chosen_vnext_values.clone().detach())
@@ -392,17 +383,18 @@ def train(config):
                     be_error_naive = td_error**2-config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
                     #We call it naive because we just add pivot r for every actions we see in the batch
                     
+                    #At terminal state terminal action is trival, so set it as pivot action.
                     if config['env'] == 'LL':
                         #For LunarLander, set the pivot action to be action 2. 
-                        indices_TF = (true_actions == 2) | terminal_TF
+                        indices_TF = (true_actions == 2) | done
                     if config['env'] == 'AC':
                         #For Acrobot, set the pivot action to be 0.
-                        indices_TF = (true_actions == 0) | terminal_TF
+                        indices_TF = (true_actions == 0) | done
                     if config['env'] == 'CP':
                         #For CartPole, set the pivot action to be 0.
-                        indices_TF = (true_actions == 0) | terminal_TF
+                        indices_TF = (true_actions == 0) | done
                         
-                    be_error_0 = be_error_naive[indices_TF]
+                    be_error_0 = be_error_naive[indices_TF] 
                     
                     mean_MAE_loss_fn = torch.nn.L1Loss(reduction='mean')
                     

@@ -112,7 +112,7 @@ def build_model_filename(config):
     """
     Builds the filename for the model.
     """
-    filename = (f"IQ_{config['env']}_shuf{config['shuffle']}_lr{config['lr']}"
+    filename = (f"BC_{config['env']}_shuf{config['shuffle']}_lr{config['lr']}"
                 f"_decay{config['decay']}_Tik{config['Tik']}"
                 f"_do{config['dropout']}_embd{config['n_embd']}"
                 f"_layer{config['n_layer']}_head{config['n_head']}"
@@ -125,7 +125,7 @@ def build_log_filename(config):
     """
     timestamp = datetime.now().strftime('%Y%m%d')
     
-    filename = (f"IQ_{config['env']}_num_trajs{config['num_trajs']}"
+    filename = (f"BC_{config['env']}_num_trajs{config['num_trajs']}"
                 f"_lr{config['lr']}"
                 f"_batch{config['batch_size']}"
                 f"_decay{config['decay']}"
@@ -290,7 +290,7 @@ def train(config):
                     
                     vnext = torch.where(terminal_TF, torch.tensor(0.0, device=vnext.device), vnext)
                     
-                    # First term of IQ-learn
+                    # First term of BC-learn
                     pred_r_values = chosen_q_values - config['beta']*vnext #dimension is (batch_size, horizon)
                    
                     ##############For computing r_MAPE (mean absolute percentage error)########################
@@ -338,43 +338,8 @@ def train(config):
                 pred_q_values, pred_q_values_next, _  = model(batch) 
 
                 true_actions = batch['actions'].long() 
-                states = batch['states']
-            
-                
-                #find the action with most frequent occurence in the batch                
-                true_rewards = batch['rewards']
-                
-                ### Q(s,a) 
-                chosen_q_values = torch.gather(pred_q_values, dim=1, index=true_actions.unsqueeze(-1)) #dimension is (batch_size, horizon)
-                
-                #Empirical V(s') = logsumexp Q(s',a') + gamma
-                logsumexp_nextstate = torch.logsumexp(pred_q_values_next, dim=1) #dimension is (batch_size*horizon,)
-                logsumexp_state = torch.logsumexp(pred_q_values, dim=1) #dimension is (batch_size*horizon,)
-                vnext = logsumexp_nextstate
-                vnow = logsumexp_state
-            
-                #Terminating conditions    
-                
-                if config['env'] == 'LL':
-                    terminal_TF = (states[:, 6] == 1) & (states[:, 7] == 1)
-                if config['env'] == 'AC':
-                    terminal_TF = (-torch.cos(states[:, 0]) - torch.cos(states[:, 0] + states[:, 1])) > 1.0
-                elif config['env'] == 'CP': 
-                    x_threshold = 2.4
-                    theta_threshold_radians = 12 * 2 * np.pi / 360  # 12 degrees in radians
-                    terminal_TF = (torch.abs(states[:, 0]) > x_threshold) | (torch.abs(states[:, 2]) > theta_threshold_radians)
-                else: #retrun terminal_TF as all False
-                    terminal_TF = torch.zeros_like(states[:, 0], dtype=torch.bool)
-                    
-                vnext = torch.where(terminal_TF, torch.tensor(0.0, device=vnext.device), vnext)
-            
-                # First term of IQ-learn
-                term1 = chosen_q_values - config['beta']*vnext #dimension is (batch_size, horizon)
-                
-                # Second term of IQ-learn
-                term2 = vnow - config['beta']*vnext
-                
-                loss = (-term1 + term2).mean()
+                Mean_CrossEntropy_loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
+                loss = Mean_CrossEntropy_loss_fn(pred_q_values, true_actions)
                 
                 loss.backward()
                 
@@ -394,16 +359,7 @@ def train(config):
              
                 print(f"Epoch_train_loss: {epoch_train_loss}", end='\r')
 
-                
-                if i == 0: #i=0 means the first batch
-                    chosen_r_values_print = chosen_q_values[:10] - config['beta']*vnext[:10] #for print
-                    true_r_values_print = true_rewards[:10].unsqueeze(1) #for print
-                    actions_print = true_actions[:10].int().unsqueeze(1) #for print
-                
-                    pred_r_values_with_true_r = torch.cat((actions_print, true_r_values_print, chosen_r_values_print), dim=1) #dimension is (batch_size, state_dim+action_dim)
-                    pred_r_values_np = pred_r_values_with_true_r.cpu().clone().detach().numpy()
-                    np.set_printoptions(suppress=True, precision=6)
-                    printw(f"Predicted r values: {pred_r_values_np}", config)
+            
                 
        
                 

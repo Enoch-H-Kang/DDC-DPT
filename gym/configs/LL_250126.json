@@ -11,28 +11,33 @@
   "test": false,
   "store_gpu": true,
   "layer_norm": false,
-  "num_epochs": 20000,
-  "repetitions": 5,
+  "num_epochs": 10000,
+  "repetitions": 1,
   "lr":0.001,
   "Tik": false,
   "decay": 0.001,
-  "clip": 0.1
+  "clip":1.1,
+  "batch_size": 32
   }
   ,
   "env_config": {
-    "env": "LL",
-    "state_dim" :8,
-    "action_dim": 2
+    "env": "LL"
   },
   "experiments": [
     {
-      "batch_size": 32, "num_trajs": 5
-    },
-    {
-      "batch_size": 64, "num_trajs": 5
-    },
-    {
-      "batch_size": 128, "num_trajs": 5
-    }
+      "num_trajs": 2
+   },
+   {
+      "num_trajs": 3
+   },
+   {
+      "num_trajs": 7
+   },
+   {
+      "num_trajs": 10
+   },
+   {
+      "num_trajs": 15
+   }
   ]
 }
