@@ -210,7 +210,7 @@ def train(config):
     elif config['env'] == 'AC':
         states_dim = 6
         actions_dim = 3
-        init_b_value = -1
+        init_b_value = -10
     else:
         print('Invalid environment')
         exit()
@@ -342,6 +342,7 @@ def train(config):
                 done = batch['done'].to(torch.bool)
                 vnext = torch.where(done, torch.tensor(0.0, device=vnext.device), vnext)
                 
+                
                 #D update only. Fitting V(s') prediction to logsumexp Q(s',a) prediction
                 if i % 2 == 0: # update xi only, update xi every 2 batches
 
@@ -383,7 +384,7 @@ def train(config):
                     be_error_naive = td_error**2-config['beta']**2 * vnext_dev**2 #dimension is (batch_size*horizon,)
                     #We call it naive because we just add pivot r for every actions we see in the batch
                     
-                    #At terminal state terminal action is trival, so set it as pivot action.
+                    #At terminal state, terminal action is trival. Set it as pivot action.
                     if config['env'] == 'LL':
                         #For LunarLander, set the pivot action to be action 2. 
                         indices_TF = (true_actions == 2) | done

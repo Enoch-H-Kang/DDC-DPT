@@ -40,7 +40,7 @@ class MLP(MultiHeadedMLPModule):
 
 # Configuration
 CONFIG = {
-    "env": "LL",  # Choose from "LL" (LunarLander), "AC" (Acrobot), "CP" (CartPole)
+    "env": "CP",  # Choose from "LL" (LunarLander), "AC" (Acrobot), "CP" (CartPole)
     "train": True,  # Set to False to skip training
     "total_timesteps": 1000000,  # Number of training steps
     "h_size": 64,  # Hidden layer size
@@ -56,12 +56,12 @@ if CONFIG['env'] == 'LL':  # LunarLander
     states_dim = 8
     actions_dim = 4
     env_id = "LunarLander-v2"
-    model_path = 'models/LL_num_trajs20_lr0.001_batch128_decay0.001_clipFalse_20250127.log_rep0_epoch2000.pt'
+    model_path = 'models/LL_num_trajs10_lr0.0005_batch128_decay0.001_clip1_20250130.log_rep0_epoch8000.pt'
 elif CONFIG['env'] == 'AC':  # Acrobot
     states_dim = 6
     actions_dim = 3
     env_id = "Acrobot-v1"
-    model_path = 'models/AC_num_trajs20_lr0.001_batch64_decay0.001_clip1.1_20250127.log_rep0_epoch1000.pt'
+    model_path = 'models/AC_num_trajs3_lr0.001_batch128_decay0.0001_clip1_20250129.log_rep0_epoch5000.pt'
 elif CONFIG['env'] == 'CP':  # CartPole
     states_dim = 4
     actions_dim = 2
