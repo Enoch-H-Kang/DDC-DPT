@@ -20,7 +20,7 @@ beta = 0.95
 gamma = np.euler_gamma
 
 # Set up state-space
-xmax = 200
+xmax = 20
 states = np.arange(xmax + 1) # generates an array starting from 0 up to xmax, inclusive
 
 def get_util(theta, s):
@@ -58,7 +58,6 @@ def vfi(theta, beta, s):
         dist = np.linalg.norm(Q1 - Q)
         Q=Q1
         iter += 1
-
     return Q
 
 
@@ -123,6 +122,7 @@ def forward(theta, beta, CCPs, choicestorage):
 def nfxp(theta, beta, s, mileage, d):
 
     value = vfi(theta, beta, s) # Action-specific value function given theta and beta
+    
     EP = np.exp(value[:, 1]) / (np.exp(value[:, 0]) + np.exp(value[:, 1])) #The shape of EP is (len(s),)
     Index = mileage + 1
     llh = np.sum(np.log(EP[Index[d == 1] - 1])) + np.sum(np.log(1 - EP[Index[d == 0] - 1]))
@@ -139,8 +139,8 @@ def llh_nfxp(theta):
 
 
 # Load data
-filepath = os.path.join(path, "data_bus500_test.txt") #os-independent path construction
-save_path = os.path.join(path, "results", f"NFXP_estimates_bus500.csv")
+filepath = os.path.join(path, "data_bus1000_test.txt") #os-independent path construction
+save_path = os.path.join(path, "results", f"NFXP_estimates_bus1000.csv")
 #filepath = os.path.join(path, "data_assg3.txt") #os-independent path construction
 #data = pd.read_csv(filepath) # Load data as pandas dataframe
 data = pd.read_csv(filepath, header=None) # Load data as pandas dataframe
@@ -149,6 +149,7 @@ data_new = data.iloc[1::2, :].reset_index(drop=True) #data.iloc[::2, :] selects 
 
 data_reformat = data[data.iloc[:, 4] == 1]  
 mileage = data_reformat.iloc[:, 3].values 
+
 d = data_reformat.iloc[:, 2].values 
 
 CCPs, choicestorage = CCPandTKEst(data_new)
@@ -161,12 +162,18 @@ theta0 = np.array([0, 0]) # Initial guess
 
 # Optimize
 
+
+theta_true = np.array([1,5])
+Q_true = vfi(theta_true, beta, states)
+print("Q_true:", Q_true) 
+
 start_forward = time.perf_counter()
 
 res_forward = minimize(lambda x: llh_forward(x), theta0)
 theta_hat_forward = res_forward.x
 print("Estimated thetas_forward:", theta_hat_forward)
-
+Q = vfi(theta_hat_forward, beta, states)
+print("Q:", Q)
 end_forward = time.perf_counter()
 
 print(f"Time taken for forward: {end_forward - start_forward}")
@@ -177,7 +184,8 @@ start_nfxp = time.perf_counter()
 res_nfxp = minimize(lambda x: llh_nfxp(x), theta0)
 theta_hat_nfxp = res_nfxp.x
 print("Estimated thetas_nfxp:", theta_hat_nfxp)
-
+Q = vfi(theta_hat_nfxp, beta, states)
+print("Q:", Q)
 end_nfxp = time.perf_counter()
 
 print(f"Time taken for nfxp: {end_nfxp - start_nfxp}")

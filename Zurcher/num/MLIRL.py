@@ -58,7 +58,6 @@ def vfi(theta, beta, s):
         dist = np.linalg.norm(Q1 - Q)
         Q=Q1
         iter += 1
-
     return Q
 
 
@@ -149,8 +148,8 @@ def llh_forward(theta):
 
 
 # Load data
-filepath = os.path.join(path, "data_bus10000_test.txt") #os-independent path construction
-save_path = os.path.join(path, "results", f"forward_estimates_bus10000.csv")
+filepath = os.path.join(path, "data_bus1000_test.txt") #os-independent path construction
+save_path = os.path.join(path, "results", f"forward_estimates_bus1000.csv")
 #filepath = os.path.join(path, "data_assg3.txt") #os-independent path construction
 #data = pd.read_csv(filepath) # Load data as pandas dataframe
 data = pd.read_csv(filepath, header=None) # Load data as pandas dataframe

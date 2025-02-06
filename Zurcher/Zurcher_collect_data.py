@@ -139,7 +139,7 @@ class ZurcherEnv(Environment):
             #next_state = min(state + 1, self.xmax) #transit to s+1 with prob 1
         
         elif action == 1:
-            next_state = 1
+            next_state = 1 # Not 0, because cost 0 actions give infinite MAPE
     
         else: 
             raise ValueError("Invalid action")
@@ -159,10 +159,11 @@ def rollin_mdp(env, n_dummies, dummy_dim, rollin_type):
     full_states = []
     actions = []
     full_next_states = []
-
     state = env.reset()
+
+    # Add dummies for the initial state
     full_state = np.concatenate(([state],np.random.randint(-dummy_dim,dummy_dim+1,n_dummies)))
-    #full_state is a vector of states and dummies, where the first element is the mileage and the rest are dummies
+    
     for _ in range(env.H): #Remember: I made H+1 to H.
         if rollin_type == 'uniform':
             state = env.sample_state()
@@ -180,6 +181,8 @@ def rollin_mdp(env, n_dummies, dummy_dim, rollin_type):
         
         full_states.append(full_state)
         actions.append(action)
+
+        #Add dummies
         full_next_state = np.concatenate(([next_state],np.random.randint(-dummy_dim,dummy_dim+1,n_dummies)))
         full_next_states.append(full_next_state)
         

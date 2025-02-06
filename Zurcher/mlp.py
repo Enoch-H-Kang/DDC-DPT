@@ -66,17 +66,27 @@ class MLP(MultiHeadedMLPModule):
             Return Q-values and E[V(s',a')|s,a]-values.
 
         """
-        states = x['states'] #dimension is (batch_size, horizon, state_dim)
-        batch_size, horizon, state_dim = states.shape
-        #
-        states = states.reshape(-1, state_dim) #dim is (batch_size*horizon, state_dim)
-        q_values, vnext_values = super().forward(states) #dim is (batch_size*horizon, action_dim)
-        q_values = q_values.reshape(batch_size, horizon, -1) #dim is (batch_size, horizon, action_dim)
-        vnext_values = vnext_values.reshape(batch_size, horizon, -1) #dim is (batch_size, horizon, action_dim)
-        
-        next_states = x['next_states']
-        next_states = next_states.reshape(-1, state_dim) # dim is (batch_size*horizon, state_dim)
-        next_q_values, _ = super().forward(next_states)
-        next_q_values = next_q_values.reshape(batch_size, horizon, -1)
-        
-        return q_values, next_q_values, vnext_values
+        if isinstance(x, dict):
+            states = x['states'] #dimension is (batch_size, horizon, state_dim)
+            batch_size, horizon, state_dim = states.shape
+            #
+            states = states.reshape(-1, state_dim) #dim is (batch_size*horizon, state_dim)
+            q_values, vnext_values = super().forward(states) #dim is (batch_size*horizon, action_dim)
+            q_values = q_values.reshape(batch_size, horizon, -1) #dim is (batch_size, horizon, action_dim)
+            vnext_values = vnext_values.reshape(batch_size, horizon, -1) #dim is (batch_size, horizon, action_dim)
+            
+            next_states = x['next_states']
+            next_states = next_states.reshape(-1, state_dim) # dim is (batch_size*horizon, state_dim)
+            next_q_values, _ = super().forward(next_states)
+            next_q_values = next_q_values.reshape(batch_size, horizon, -1)
+            
+            return q_values, next_q_values, vnext_values
+        else:
+            states = x
+            batch_size, horizon, state_dim = states.shape
+            states = states.reshape(-1, state_dim) #dim is (batch_size*horizon, state_dim)
+            q_values, vnext_values = super().forward(states) #dim is (batch_size*horizon, action_dim)
+            q_values = q_values.reshape(batch_size, horizon, -1) #dim is (batch_size, horizon, action_dim)
+            vnext_values = vnext_values.reshape(batch_size, horizon, -1) #dim is (batch_size, horizon, action_dim)
+            
+            return q_values, vnext_values

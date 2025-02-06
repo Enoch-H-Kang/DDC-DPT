@@ -6,8 +6,7 @@
   }
   ,
   "training_config": {
-  "lr": 0.001,
-  "h_size": 10,
+  "h_size": 50,
   "n_layer": 2,
   "shuffle": false,
   "seed": 1,
@@ -15,7 +14,11 @@
   "store_gpu": true,
   "layer_norm": false,
   "num_epochs": 20000,
-  "batch_size": 32
+  "repetitions": 5,
+  "lr":0.001,
+  "decay": 0.0005,
+  "clip":1.00,
+  "Tik": false
   }
   ,
   "zurcher_config": {
@@ -23,23 +26,13 @@
     "rollin_type": "expert",
     "theta": [1, 5, 1],
     "numTypes": 1,
-    "num_trajs": 500,
-    "dummy_dim": 5,
-    "num_dummies": 2,
-    "loss_ratio": 1
+    "dummy_dim": 10,
+    "num_dummies": 0,
+    "num_trajs": 1000
   },
   "experiments": [
     {
-      "ce_bound": 1.01
-    },
-    {
-      "ce_bound": 1.05
-    },
-    {
-      "ce_bound": 1.005
-    },
-    {
-      "ce_bound": 1.001
+      "batch_size": 32
     }
   ]
 }
