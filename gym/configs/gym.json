@@ -25,7 +25,7 @@
   },
   "experiments": [
     {
-       "num_trajs": 7
+       "num_trajs": 15
     }
   ]
 }
