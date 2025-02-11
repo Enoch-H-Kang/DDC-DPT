@@ -295,6 +295,8 @@ def train(config):
                     
                     pred_q_values, pred_q_values_next, pred_vnext_values = model(batch) #dimension is (batch_size, horizon, action_dim)
                     true_actions = batch['actions'].long() #dimension is (batch_size, horizon,)
+                    
+                    ### Counting the frequency of each (s,a) pair part. Ignore.
                     sapairs = torch.cat((mileages.reshape(-1,1), true_actions.reshape(-1,1)), dim=1) #dimension is (batch_size*horizon, 2)
                     unique_pairs, counts = torch.unique(sapairs, dim=0, return_counts=True) 
                     freqs[unique_pairs[:,0], unique_pairs[:,1]] += counts
@@ -423,8 +425,8 @@ def train(config):
                 
                 true_actions_reshaped = true_actions.reshape(-1) #dimension is (batch_size*horizon,)
                 #count number of elements that satisfies true_actions == 1 in batch_size*horizon
-                count_nonzero = torch.count_nonzero(true_actions_reshaped)
-                count_nonzero_pos = torch.max(count_nonzero, torch.tensor(1)) #dimension is (batch_size, horizon)
+                #count_nonzero = torch.count_nonzero(true_actions_reshaped)
+                #count_nonzero_pos = torch.max(count_nonzero, torch.tensor(1)) #dimension is (batch_size, horizon)
 
                 true_actions_reshaped = true_actions.reshape(-1)  #dimension is (batch_size*horizon,)
                 pred_q_values_reshaped = pred_q_values.reshape(-1, pred_q_values.shape[-1]) #dimension is (batch_size*horizon, action_dim)

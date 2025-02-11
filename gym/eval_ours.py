@@ -99,7 +99,7 @@ config = {
     'h_size': 64,
     'layer_norm': False,
     'env': 'LL',
-    'setup': 'expert',
+    'setup': 'IRL_RL',
     'episodes': 100
 }
 
@@ -111,17 +111,17 @@ if config['env'] == 'LL':
     states_dim = 8
     actions_dim = 4
     env = gym.make("LunarLander-v2")
-    model_path = 'models/LL_num_trajs2_lr0.001_batch64_decay0.0001_clipFalse_20250129.log_rep0_epoch5000.pt' 
+    model_path = 'models/LL_num_trajs15_lr0.0005_batch128_decay0.001_clip1_20250207.log_rep0_epoch5000.pt' 
     IQ_path = 'models/IQ_LL_num_trajs15_lr0.001_batch64_decay0.0001_clipFalse_20250128.log_rep0_epoch1000.pt'
     expert_path = "Expert_policy/LunarLander-v2_PPO.zip"
-    IRL_RL_path = "PPO_IRL/PPO-LL_10.zip"
+    IRL_RL_path = "PPO_IRL/PPO-15-LL.zip"
     expert_reward = 232.77 
     
 elif config['env'] == 'AC': #Acrobot
     states_dim = 6
     actions_dim = 3
     env = gym.make("Acrobot-v1")
-    model_path = 'models/BC_AC_num_trajs10_lr0.001_batch64_decay0.0001_clipFalse_20250128.log_rep0_epoch5000.pt'
+    model_path = 'models/AC_num_trajs3_lr0.0005_batch128_decay0.001_clip1_20250130.log_rep0_epoch8000.pt'
     IQ_path = 'models/IQ_AC_num_trajs7_lr0.001_batch64_decay0.0001_clipFalse_20250128.log_rep0_epoch4000.pt'
     expert_path = "Expert_policy/Acrobot-v1_PPO.zip"
     IRL_RL_path = "PPO_IRL/PPO-AC.zip"
@@ -197,13 +197,13 @@ for episode in range(config['episodes']):
 df = pd.DataFrame(results)
 
 if config['setup'] == 'our':
-    df.to_csv(f'csvs/our_{config["env"]}_itr{episodes}.csv', index=False)
+    df.to_csv(f'csvs/our_{config["env"]}_itr{episodes}_3.csv', index=False)
 elif config['setup'] == 'IQ':
     df.to_csv(f'csvs/IQ_{config["env"]}_itr{episodes}.csv', index=False)
 elif config['setup'] == 'expert':
     df.to_csv(f'csvs/expert_{config["env"]}_itr{episodes}.csv', index=False)
 elif config['setup'] == 'IRL_RL':
-    df.to_csv(f'csvs/IRL_RL_{config["env"]}_itr{episodes}.csv', index=False)
+    df.to_csv(f'csvs/IRL_RL_{config["env"]}_itr{episodes}_15.csv', index=False)
 else:
     print('Invalid setup')
     exit()

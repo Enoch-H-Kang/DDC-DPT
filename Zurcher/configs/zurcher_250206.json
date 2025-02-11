@@ -22,7 +22,7 @@
   }
   ,
   "zurcher_config": {
-    "maxMileage": 20,
+    "maxMileage": 10,
     "rollin_type": "expert",
     "theta": [1, 5, 1],
     "numTypes": 1,

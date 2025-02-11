@@ -56,7 +56,7 @@ if CONFIG['env'] == 'LL':  # LunarLander
     states_dim = 8
     actions_dim = 4
     env_id = "LunarLander-v2"
-    model_path = 'models/LL_num_trajs10_lr0.0005_batch128_decay0.001_clip1_20250130.log_rep0_epoch5000.log.pt'
+    model_path = 'models/LL_num_trajs15_lr0.0005_batch128_decay0.001_clip1_20250207.log_rep0_epoch5000.pt'
 elif CONFIG['env'] == 'AC':  # Acrobot
     states_dim = 6
     actions_dim = 3
@@ -123,7 +123,7 @@ def train_model(config):
         print(f"Mean reward: {mean_reward} +/- {std_reward}")
 
         # Save the trained RL model
-        save_name = f"PPO_IRL/PPO-10-{config['env']}"
+        save_name = f"PPO_IRL/PPO-15-{config['env']}"
         model.save(save_name)
 
     env.close()
