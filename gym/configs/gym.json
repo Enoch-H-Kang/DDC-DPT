@@ -20,14 +20,26 @@
   }
   ,
   "env_config": {
-    "env": "LL"
+    "env": "CP"
   },
   "experiments": [
     {
-       "num_trajs": 15, "batch_size": 256
+      "num_trajs": 15, "batch_size": 512, "env": "CP"
     },
     {
-      "num_trajs": 2, "batch_size": 64
-   }
+      "num_trajs": 2, "batch_size": 64, "env": "CP"
+    },
+    {
+      "num_trajs": 15, "batch_size": 512, "env": "LL"
+    },
+    {
+      "num_trajs": 2, "batch_size": 64, "env": "LL"
+    },
+    {
+       "num_trajs": 15, "batch_size": 512, "env": "AC"
+    },
+    {
+      "num_trajs": 2, "batch_size": 64, "env": "AC"
+    }
   ]
 }

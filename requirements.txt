@@ -1,7 +1,0 @@
-matplotlib==3.10.0
-numpy==2.2.1
-pandas==2.2.3
-ray==2.40.0
-scipy==1.14.1
-torch==2.5.1
-tqdm==4.67.1

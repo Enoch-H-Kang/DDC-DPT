@@ -1,0 +1,72 @@
+2025-02-16 21:11:43,342	INFO worker.py:1841 -- Started a local Ray instance.
+[36m(run_data_generation_and_training pid=1383157)[0m Training Progress:   0%|          | 0/10000 [00:00<?, ?it/s]
+[36m(run_data_generation_and_training pid=1383153)[0m Data files already exist for the current configuration:
+[36m(run_data_generation_and_training pid=1383153)[0m Train file: datasets/trajs_LL_num_trajs2_train.pkl
+[36m(run_data_generation_and_training pid=1383153)[0m Test file: datasets/trajs_LL_num_trajs2_test.pkl
+[36m(run_data_generation_and_training pid=1383153)[0m Skipping data generation.
+[36m(run_data_generation_and_training pid=1383157)[0m 
+[36m(run_data_generation_and_training pid=1383157)[0m Starting repetition 1/1
+[36m(run_data_generation_and_training pid=1383157)[0m Epoch: 1
+[36m(run_data_generation_and_training pid=1383153)[0m 
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 0 of 106
+Traceback (most recent call last):
+  File "/home/ehwkang/DDC-DPT/gym/run_gym_ray.py", line 78, in <module>
+    ray.get(results)
+  File "/home/ehwkang/miniconda3/envs/gym/lib/python3.9/site-packages/ray/_private/auto_init_hook.py", line 21, in auto_init_wrapper
+    return fn(*args, **kwargs)
+  File "/home/ehwkang/miniconda3/envs/gym/lib/python3.9/site-packages/ray/_private/client_mode_hook.py", line 103, in wrapper
+    return func(*args, **kwargs)
+  File "/home/ehwkang/miniconda3/envs/gym/lib/python3.9/site-packages/ray/_private/worker.py", line 2772, in get
+    values, debugger_breakpoint = worker.get_objects(object_refs, timeout=timeout)
+  File "/home/ehwkang/miniconda3/envs/gym/lib/python3.9/site-packages/ray/_private/worker.py", line 919, in get_objects
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(RuntimeError): [36mray::run_data_generation_and_training()[39m (pid=1383151, ip=128.208.6.32)
+  File "/home/ehwkang/DDC-DPT/gym/run_gym_ray.py", line 38, in run_data_generation_and_training
+    gym_train.train(config)
+  File "/home/ehwkang/DDC-DPT/gym/gym_train.py", line 192, in train
+    train_dataset = Dataset(path_train, dataset_config)
+  File "/home/ehwkang/DDC-DPT/gym/gym_train.py", line 69, in __init__
+    self.shuffle_dataset()
+  File "/home/ehwkang/DDC-DPT/gym/gym_train.py", line 91, in shuffle_dataset
+    self.dataset[key] = self.dataset[key][indices]
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+[36m(run_data_generation_and_training pid=1383155)[0m Training Progress:   0%|          | 0/10000 [00:00<?, ?it/s][32m [repeated 4x across cluster][0m
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 1 of 106Batch 2 of 106Batch 3 of 106Batch 4 of 106Batch 5 of 106Batch 6 of 106Batch 7 of 106Batch 8 of 106Batch 9 of 106Batch 10 of 106Batch 11 of 106Batch 12 of 106Batch 13 of 106Batch 14 of 106
+[36m(run_data_generation_and_training pid=1383155)[0m 
+[36m(run_data_generation_and_training pid=1383146)[0m 
+[36m(run_data_generation_and_training pid=1383152)[0m 
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 15 of 106Batch 16 of 106Batch 17 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 18 of 106Batch 19 of 106Batch 20 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 21 of 106Batch 22 of 106Batch 23 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 24 of 106Batch 25 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 26 of 106Batch 27 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 28 of 106Batch 29 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 30 of 106Batch 31 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 32 of 106Batch 33 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 34 of 106Batch 35 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 36 of 106Batch 37 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 38 of 106Batch 39 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 40 of 106Batch 41 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 42 of 106Batch 43 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 44 of 106Batch 45 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 46 of 106Batch 47 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 48 of 106Batch 49 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 50 of 106Batch 51 of 106
+[36m(run_data_generation_and_training pid=1383153)[0m Batch 52 of 106Batch 53 of 106
+[36m(run_data_generation_and_training pid=1383152)[0m Batch 3 of 4	MAPE of r(s,a): 0.9890613406896591
+[36m(run_data_generation_and_training pid=1383152)[0m 	Eval time: 0.18497848510742188
+[36m(run_data_generation_and_training pid=1383153)[0m 	MAPE of r(s,a): 2.182303398285272
+[36m(run_data_generation_and_training pid=1383155)[0m Data files already exist for the current configuration:[32m [repeated 5x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/user-guides/configure-logging.html#log-deduplication for more options.)[0m
+[36m(run_data_generation_and_training pid=1383155)[0m Train file: datasets/trajs_CP_num_trajs15_train.pkl[32m [repeated 5x across cluster][0m
+[36m(run_data_generation_and_training pid=1383155)[0m Test file: datasets/trajs_CP_num_trajs15_test.pkl[32m [repeated 5x across cluster][0m
+[36m(run_data_generation_and_training pid=1383155)[0m Skipping data generation.[32m [repeated 5x across cluster][0m
+[36m(run_data_generation_and_training pid=1383152)[0m Starting repetition 1/1[32m [repeated 4x across cluster][0m
+[36m(run_data_generation_and_training pid=1383155)[0m Epoch: 1[32m [repeated 4x across cluster][0m
+[36m(run_data_generation_and_training pid=1383146)[0m Batch 142 of 157[32m [repeated 105x across cluster][0m
+[36m(run_data_generation_and_training pid=1383146)[0m Batch 130 of 157Batch 131 of 157[32m [repeated 65x across cluster][0m
+[36m(run_data_generation_and_training pid=1383157)[0m Batch 13 of 14	MAPE of r(s,a): 2.3516697202410017
+[36m(run_data_generation_and_training pid=1383155)[0m 	Eval time: 0.41045379638671875[32m [repeated 3x across cluster][0m
+[36m(run_data_generation_and_training pid=1383155)[0m 	MAPE of r(s,a): 1.0045514225959777
