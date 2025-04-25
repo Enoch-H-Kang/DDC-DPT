@@ -3,8 +3,7 @@
 We appreciate the reviewer's perspective from structural econometrics and the recognition of our framework's potential.
 
 - **Counterfactuals & Transitions:**  
-  Great point. One possibility is to use offline reinforcement learning (e.g., Fitted Q-iteration). In a counterfactual scenario, we can use our existing data and estimated rewards ($\hat{r}$) to sample from  
-  $(s_0, a_0, \hat{r}(s_0, a_0), s_1, a_1, \hat{r}(s_1, a_1), s_2, \ldots)$.  
+  Great point. One possibility is to use offline reinforcement learning (e.g., Fitted Q-iteration). In a counterfactual scenario, we can use our existing data and estimated rewards ($\hat{r}$) to sample from $(s_0, a_0, \hat{r}(s_0, a_0), s_1, a_1, \hat{r}(s_1, a_1), s_2, \ldots)$.  
   Reinforcement learning can then be applied to this augmented data. We will add a discussion on this in the paper.
 
 - **Statistical Inference:**  
