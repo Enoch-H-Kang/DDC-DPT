@@ -17,7 +17,7 @@ We appreciate the reviewer's perspective from structural econometrics and the re
   Thank you for these excellent references. We will incorporate a discussion comparing the spirit of our approach (computational efficiency, avoiding explicit transition modeling) to these important econometric methods in the revised manuscript.
 
 - **Misspecified Transitions/Beliefs, Heterogeneity, Games:**  
-  We agree these are highly relevant and interesting extensions. Our model-free IRL approach might offer advantages in settings with misspecified transitions or subjective beliefs (Aguirregabiria & Magesan, 2020). Extensions to handle persistent unobserved heterogeneity and dynamic games are indeed promising avenues for future research, and we will mention these possibilities.
+  We agree these are highly relevant and interesting extensions and references. We will mention them.
 
 ---
 
