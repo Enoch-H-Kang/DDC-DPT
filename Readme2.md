@@ -8,16 +8,16 @@ We appreciate the reviewer's perspective from structural econometrics and the re
   Reinforcement learning can then be applied to this augmented data. We will add a discussion on this in the paper.
 
 - **Statistical Inference:**  
-  We will address this in the next draft, as our theoretical results can be refined into a finite-sample bound, rather than solely providing an asymptotic rate.
+  Great point. We will address this in the next draft, as our theoretical results can be refined into a finite-sample bound, rather than solely providing an asymptotic rate.
 
 - **Computation Time & Properties:**  
   In addition to providing the finite-sample bound for sample complexity analysis, we will add average computation times for all methods to the experimental section in the revision.
 
 - **Connections to Econ Literature:**  
-  Thank you for these excellent references. We will incorporate a discussion comparing the spirit of our approach (computational efficiency, avoiding explicit transition modeling) to these important econometric methods in the revised manuscript.
+  Thank you for these excellent references. We will incorporate them in the revised manuscript.
 
 - **Misspecified Transitions/Beliefs, Heterogeneity, Games:**  
-  We agree these are highly relevant and interesting extensions and references. We will mention them.
+  We agree that these are highly relevant and interesting extensions. We will mention them.
 
 ---
 
