@@ -1,7 +1,5 @@
 ## Response to Reviewer #396A
 
-We appreciate the reviewer's perspective from structural econometrics and the recognition of our framework's potential.
-
 - **Counterfactuals & Transitions:**  
   Great point. One possibility is to use offline reinforcement learning (e.g., Fitted Q-iteration). In a counterfactual scenario, we can use our existing data and estimated rewards ($\hat{r}$) to sample from $(s_0, a_0, \hat{r}(s_0, a_0), s_1, a_1, \hat{r}(s_1, a_1), s_2, \ldots)$.  
   Reinforcement learning can then be applied to this augmented data. We will add a discussion on this in the paper.
@@ -22,8 +20,6 @@ We appreciate the reviewer's perspective from structural econometrics and the re
 
 ## Response to Reviewer #396B
 
-Thank you for recognizing the importance of the topic, our formulation, theoretical results, and empirical performance.
-
 - **Performance vs. Oracles:**  
   This is a critical point, and we will add more explanation to our discussion regarding this (see text below Table 1 on page 16). This is a typical issue in applying parametric estimation for dynamic problems where the data collection policy visits a few states much more frequently than others. This imbalance can cause instability for parametric methods, especially when involving both recursion and projection (e.g., when solving the Bellman equation).
 
@@ -42,8 +38,6 @@ Thank you for recognizing the importance of the topic, our formulation, theoreti
 ---
 
 ## Response to Reviewer #396C
-
-Thank you for the positive assessment of our ERM formulation's novelty, scalability, and the empirical study.
 
 - **Convergence & Approximation:**  
   The sample complexity analysis (e.g., complexity of temporal difference (TD) term) is not new. The contribution of this paper is mostly about proving global convergence, which is not achievable with TD-based gradient-based methods due to the double sampling issue.
