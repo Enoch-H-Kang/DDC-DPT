@@ -27,9 +27,6 @@ Thank you for recognizing the importance of the topic, our formulation, theoreti
 - **Performance vs. Oracles:**  
   This is a critical point, and we will add more explanation to our discussion regarding this (see text below Table 1 on page 16). This is a typical issue in applying parametric estimation for dynamic problems where the data collection policy visits a few states much more frequently than others. This imbalance can cause instability for parametric methods, especially when involving both recursion and projection (e.g., when solving the Bellman equation).
 
-- **Minor Points:**  
-  We will correct the intro wording (“vulnerable to”), clarify the connections/departures in Related Work, and confirm the footnote is accurate (our specific sum of PL functions *is* PL, which is an exception to the general rule).
-
 - **Anchor Action Assumption (Assumption 3.3):**  
   This assumption aids identification, akin to normalization or specifying an outside option's utility in discrete choice models. It ensures a unique $Q^*$ and $r$ can be recovered (Theorem 3.1). We will clarify its role and provide examples (e.g., a known baseline action like `wait` or `exit` with a normalized reward of 0).
 
