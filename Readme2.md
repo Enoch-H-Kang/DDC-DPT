@@ -21,7 +21,7 @@
 ## Response to Reviewer #396B
 
 - **Performance vs. Oracles:**  
-  This is a critical point, and we will add more explanation to our discussion regarding this (see text below Table 1 on page 16). In dynamic problems where the data collection policy visits a few states much more frequently than others , “The use of a projection operator onto a space of function approximators with respect to a distribution induced by the behavior policy can result in poor performance if that distribution does not sufficiently cover the state space.” (Tsitsiklis & Van Roy (1997)) 
+  This is a critical point, and we will add more explanation to our discussion regarding this (see text below Table 1 on page 16). In dynamic problems where the data collection policy visits a few states much more frequently than others, “the use of a projection operator onto a space of function approximators with respect to a distribution induced by the behavior policy can result in poor performance if that distribution does not sufficiently cover the state space.” (Tsitsiklis & Van Roy (1997)) 
 
 - **Anchor Action Assumption (Assumption 3.3):**  
   This assumption aids identification, akin to normalization or specifying an outside option's utility in discrete choice models. It ensures a unique $Q^*$ and $r$ can be recovered (Theorem 3.1). We will clarify its role and provide examples (e.g., a known baseline action like `wait` or `exit` with a normalized reward of 0).
